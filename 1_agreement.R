@@ -1,13 +1,12 @@
 
 # load packages
 
-install_github("cran/rel")
 library(remotes)   # download package from repository
 library(pacman)    # agreement calculus
 library(tidyverse) # handle data
 library(readxl)    # read excel
 library(diffdf)    # see differences between dfs
-
+install_github("cran/rel", force = TRUE)
 pacman::p_load(dplyr, rel, irr)
 
 # Selection ----
@@ -94,7 +93,7 @@ meus_dados_r1 <- meus_dados_r1 |>
 meus_dados_r2 <- meus_dados_r2 |>
   mutate_all(as.character)
 
-#select variables from each category (info, quanti, quali) and put data in long format, to compare only one column with all data
+# select variables from each category (info, quanti, quali) and put data in long format, to compare only one column with all data
 
 #r1
 
@@ -151,8 +150,8 @@ concordancia_revisores_quali <- data.frame(meus_dados_r1_quali$extraido, meus_da
 # ANALYSIS OF AGREEMENT BETWEEN REVIEWERS ------ 
 
 #info
-
 rel::ckap(concordancia_revisores_info[1:2], conf.level = 0.95) # Calculation of kappa and 95%CI
+
 irr::agree(concordancia_revisores_info[1:2]) # Calculation of agreement
 
 diffdf(meus_dados_r1_info,
@@ -160,6 +159,7 @@ diffdf(meus_dados_r1_info,
 
 #quanti
 rel::ckap(concordancia_revisores_quanti[1:2], conf.level = 0.95) # Calculation of kappa and 95%CI
+
 irr::agree(concordancia_revisores_quanti[1:2]) # Calculation of agreement
 
 diffdf(meus_dados_r1_quanti,
@@ -167,6 +167,7 @@ diffdf(meus_dados_r1_quanti,
 
 #quali
 rel::ckap(concordancia_revisores_quali[1:2], conf.level = 0.95) # Calculation of kappa and 95%CI
+
 irr::agree(concordancia_revisores_quali[1:2]) # Calculation of agreement
 
 diffdf(meus_dados_r1_quali,
