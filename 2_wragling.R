@@ -45,7 +45,7 @@ view(data_geral)
 # Select columns that will remain in the final worksheet
 
 data_geral <- data_geral %>% 
-  select(everything(), -...25, -Included, -`First author.y`, -comp.y, `First author`, -exclusion_reason, -FSTApparatus_conditions, -`Housing conditions`, -year.y, -source.y, `First author.y`, -comp.y, -`Escale (mm)`, -`Escale (s or %)`, -`mean CTRL or ATD (mm)`, -`SEM CTRL or ATD (mm)`, -`mean ADT (mm)` , -`SEM ADT (mm)`) 
+  select(everything(), -...25, -Included, -`First author.y`, -comp.y, `First author`, -exclusion_reason, -FSTApparatus_conditions, -`Housing conditions`, -year.y, -source.y, `First author.y`, -comp.y, -`Escale (mm)`, -`Escale (s or %)`, -`mean CTRL or ATD (mm)`, -`SEM CTRL or ATD (mm)`, -`mean ADT (mm)` , -`SEM ADT (mm)`, -OBSERVAÇÃO) 
 
 
 data_geral <- data_geral %>% # Rename columns/variables according to best practices
@@ -91,7 +91,6 @@ data_geral <- data_geral %>% # Rename columns/variables according to best practi
          water_depth = `water_depth(cm)`,
          water_temperature = `water_temperature(C°)`,
          others_tests = `Others behavioural tests before  FST`,
-         treemore_arms = OBSERVAÇÃO,
          year = year.x,
          source = source.x,
          seq = comp.x,
@@ -284,7 +283,6 @@ col_order <- c("line", # Put in the desired order
                "source",
                "seq",
                "outcome",
-               "treemore_arms",
                "measure_unit",
                "ctr_mean",
                "ctr_sd",
