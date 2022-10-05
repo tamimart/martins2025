@@ -68,7 +68,7 @@ data_geral <- data_geral %>% # Rename columns/variables according to best practi
          cylinder_diameter = `cylinder_diameter(cm)`,
          water_depth = `water_depth(cm)`,
          water_temperature = `water_temperature(C°)`,
-         others_tests = `Others behavioural tests before  FST`,
+         other_tests = `Others behavioural tests before  FST`,
          year = year.x,
          source = source.x,
          seq = comp.x,
@@ -224,13 +224,16 @@ data_geral <- data_geral %>%
          water_temperature = marg_water_temperature$b,
          water_depth = marg_water_depth$b,
          comparator = as.factor(comparator),
+         n_comparisons  = as.integer(n_comparisons),
          atd_class = as.factor(atd_class),
          atd_type = as.factor(atd_type),
          fst_protocol = as.factor(fst_protocol),
          measurement_method = as.factor(measurement_method),
          measure_unit = as.factor(measure_unit),
          atd_n_round = as.integer(atd_n_round),
+         atd_se = as.numeric(atd_se)
          more2arms = as.factor(more2arms),
+         seq = as.integer(seq),
          rob1 = as.factor(rob1),
          rob2 = as.factor(rob2),
          rob3 = as.factor(rob3),
@@ -328,7 +331,7 @@ col_order <- c("line", # Put in the desired order
                "cylinder_diameter",
                "water_depth",
                "water_temperature",
-               "others_tests",
+               "other_tests",
                "rob1",
                "rob2",
                "rob3",
@@ -458,3 +461,4 @@ write_xlsx(data_geral_reord,"data/Data_200FST.xlsx")
 saveRDS(data_geral_reord, "data_geral_clean.rds")
 
 
+glimpse(data_geral_reord)
