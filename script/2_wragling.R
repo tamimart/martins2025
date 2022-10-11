@@ -231,7 +231,7 @@ data_geral <- data_geral %>%
          measurement_method = as.factor(measurement_method),
          measure_unit = as.factor(measure_unit),
          atd_n_round = as.integer(atd_n_round),
-         atd_se = as.numeric(atd_se)
+         atd_se = as.numeric(atd_se),
          more2arms = as.factor(more2arms),
          seq = as.integer(seq),
          rob1 = as.factor(rob1),
