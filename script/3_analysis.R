@@ -40,15 +40,10 @@ plot_mpower(poder_geral)
 
 df <- read_excel("data/Data_200FST.xlsx") # load df
 
-# Separate method from method detail (FST)
 # change date type to numeric
 
 df <- df %>% 
-  separate(col = measurement_method, sep = ", ", into = c("measurement_method", "measurement_method_detail"))  %>% # separate variable into two
-  mutate(measurement_method_detail = as.factor(measurement_method_detail), # add separate variables in parent df
-         measurement_method =  as.factor(measurement_method),
-         year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y"))) 
-
+  mutate(year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y"))) 
 
 # Calculate effect size in SDM hedges g
 
@@ -1945,16 +1940,16 @@ df_rob <- df_rob %>%
   distinct() # deixar uma linha por publicação
 
 df_rob <- df_rob %>% 
-  rename("Was the allocation sequence adequately generated and applied?" = rob1,
-         "Were the groups similar at baseline or were they adjusted for confounders in the analysis?" = rob2,
-         "Was the allocation adequately concealed?" = rob3,
-         "Were the animals randomly housed during the experiment?" = rob4, 
-         "Were the caregivers and/or investigators blinded from knowledge which intervention each animal received during the experiment?" = rob5, 
-         "Were animals selected at random for outcome assessment?" = rob6,
-         "Was the outcome assessor blinded?" = rob7, 
-         "Were incomplete outcome data adequately addressed?" = rob8, 
-         "Are reports of the study free of selective outcome reporting?" = rob9,
-         "Was the study apparently free of other problems that could result in high risk of bias?" = rob10) %>% 
+  rename("Allocation sequence adequately generated and applied (Q1)" = rob1,
+         "Groups similar at baseline (Q2)" = rob2,
+         "Allocation adequately concealed (Q3)" = rob3,
+         "Animals randomly housed (Q4)" = rob4, 
+         "Investigators blinded during the experiment (Q5)" = rob5, 
+         "Animals selected at random for outcome assessment (Q6)" = rob6,
+         "Outcome assessor blinded (Q7)" = rob7, 
+         "Incomplete outcome data adequately addressed (Q8)" = rob8, 
+         "Free of selective outcome reporting (Q9)" = rob9,
+         "Free of other problems (Q10)" = rob10) %>% 
   #  mutate(Weight = as.numeric(1),
   #         overall = "Unclear") %>% # tirar o # se quiser adicionar um julgamento geral
   relocate(Study, everything())
@@ -1980,16 +1975,16 @@ df_rob_long$atribuicao <-
 
 df_rob_long$pergunta <-
   fct_relevel(
-    df_rob_long$pergunta, "Was the allocation sequence adequately generated and applied?",
-    "Were the groups similar at baseline or were they adjusted for confounders in the analysis?", 
-    "Was the allocation adequately concealed?", 
-    "Were the animals randomly housed during the experiment?", 
-    "Were the caregivers and/or investigators blinded from knowledge which intervention each animal received during the experiment?",
-    "Were animals selected at random for outcome assessment?", 
-    "Was the outcome assessor blinded?",
-    "Were incomplete outcome data adequately addressed?", 
-    "Are reports of the study free of selective outcome reporting?", 
-    "Was the study apparently free of other problems that could result in high risk of bias?") 
+    df_rob_long$pergunta,"Allocation sequence adequately generated and applied (Q1)",
+    "Groups similar at baseline (Q2)",
+    "Allocation adequately concealed (Q3)",
+    "Animals randomly housed (Q4)", 
+    "Investigators blinded during the experiment (Q5)", 
+    "Animals selected at random for outcome assessment (Q6)",
+    "Outcome assessor blinded (Q7)", 
+    "Incomplete outcome data adequately addressed (Q8)", 
+    "Free of selective outcome reporting (Q9)",
+    "Free of other problems (Q10)") 
 
 
 
@@ -2002,18 +1997,20 @@ robplot <- df_rob_long %>%
   distinct(Study, pergunta, atribuicao) %>% 
   ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = v_factor_levels), y = ..count..)) +
   geom_bar(position = "fill") + 
-  scale_fill_manual("Judgment of risk of bias", values = c("Low" = "#82c236", "Unclear" = "#fec200", "High" = "#ec2b2b"), guide = guide_legend(
+  scale_fill_manual("RoB SYRCLE", values = c("Low" = "#82c236", "Unclear" = "#fec200", "High" = "#ec2b2b"), guide = guide_legend(
     title.position = "top")) +
   scale_y_continuous(labels = scales::percent, ) +
   scale_x_discrete(
     labels = function(x)
-      str_wrap(x, width = 55)
+      str_wrap(x, width = 60)
   ) +
   coord_flip()  +
+  theme_classic() + 
   theme(
     axis.ticks.x = element_blank(),
+    axis.ticks.y = element_line(color = "black", size = .1),
     axis.line = element_line(size = .3),
-    axis.text = element_text(size = 5,
+    axis.text = element_text(size = 6,
                              color = "black"),
     axis.text.x = element_blank(),
     axis.line.y = element_blank(),
@@ -2021,12 +2018,12 @@ robplot <- df_rob_long %>%
     plot.title = element_text(size = 9),
     plot.title.position = "plot",
     legend.position = "right",
-    legend.text = element_text(size = 5, color = "black"),
-    legend.title = element_text(size = 6, hjust = 0),
-    legend.margin = margin(t = -0.2, unit = 'cm'),
-    plot.margin = margin(0, 2, 4, 0),
+    legend.text = element_text(size = 6, color = "black"),
+    legend.title = element_text(size = 7, hjust = 0, face = "bold"),
+    legend.margin = margin(l = -15),
+    plot.margin = margin(-5, 0, 0, 0),
     legend.key.size = unit(.8, "line"),
-    panel.grid.major.y = element_line(color = "grey90", size = .1),
+    panel.grid.major.y = element_blank(),
     panel.grid.major.x = element_blank()
   )
 
@@ -2045,17 +2042,17 @@ df_camarades <- df_camarades %>%
   distinct() # deixar uma linha por publicação
 
 df_camarades <- df_camarades %>% 
-  rename("Peer-reviewed publication" = camarades1,
-         "Studies following ARRIVE (or other) guidelines" = camarades2,
-         "Declaration of compliance with animal testing regulations and legislation" = camarades3,
-         "Declaration of interest" = camarades4, 
-         "Report of the breeding, husbandry conditions and actions to improve animal welfare of the experimental animals" = camarades5, 
-         "Report of the species, lineage or other identifying characteristics of the experimental animals" = camarades6,
-         "Report of phenotypes of interest" = camarades7, 
-         "Report of the age, weight or stage of the experimental animals" = camarades8, 
-         "Report of the sex of the experimental animals" = camarades9,
-         "Report of the methods of behavioural testing and acquisition of the behavioural outcomes" = camarades10,
-         "Report sample size calculation" = camarades11) # adicionar topicos
+  select(everything(), -camarades1) %>% 
+  rename("Studies following ARRIVE (or other) guidelines (I1)" = camarades2,
+         "Compliance with animal testing regulations and legislation (I2)" = camarades3,
+         "Declaration of interest (I3)" = camarades4, 
+         "Report of husbandry conditions and improve animal welfare (I4)" = camarades5, 
+         "Report of species and lineage of animals (I5)" = camarades6,
+         "Report of phenotypes of interest (I6)" = camarades7, 
+         "Report of the age, weight or stage of animals (I7)" = camarades8, 
+         "Report of the sex of animals (I8)" = camarades9,
+         "Report of the methods to acess the outcomes (I9)" = camarades10,
+         "Report sample size calculation (I10)" = camarades11) # adicionar topicos
 
 
 df_camarades_longo <- df_camarades %>% # colocar em modo longo
@@ -2067,24 +2064,23 @@ df_camarades_longo <- df_camarades %>% # colocar em modo longo
 
 df_camarades_longo$pergunta <- # ordernar topicos
   fct_relevel(
-    df_camarades_longo$pergunta, "Peer-reviewed publication",
-    "Studies following ARRIVE (or other) guidelines",
-    "Declaration of compliance with animal testing regulations and legislation",
-    "Declaration of interest", 
-    "Report of the breeding, husbandry conditions and actions to improve animal welfare of the experimental animals", 
-    "Report of the species, lineage or other identifying characteristics of the experimental animals",
-    "Report of phenotypes of interest", 
-    "Report of the age, weight or stage of the experimental animals", 
-    "Report of the sex of the experimental animals",
-    "Report of the methods of behavioural testing and acquisition of the behavioural outcomes",
-    "Report sample size calculation")
+    df_camarades_longo$pergunta, "Studies following ARRIVE (or other) guidelines (I1)",
+    "Compliance with animal testing regulations and legislation (I2)",
+    "Declaration of interest (I3)", 
+    "Report of husbandry conditions and improve animal welfare (I4)", 
+    "Report of species and lineage of animals (I5)",
+    "Report of phenotypes of interest (I6)", 
+    "Report of the age, weight or stage of animals (I7)", 
+    "Report of the sex of animals (I8)",
+    "Report of the methods to acess the outcomes (I9)",
+    "Report sample size calculation (I10)")
 
 
 df_camarades_longo$atribuicao <-  
   factor(
     df_camarades_longo$atribuicao,
-    levels = c("No", "Unclear, predatory", "Yes", "Unclear", "Yes, ARRIVE", "Yes, lab animals", "Yes, no conflict"),
-    labels = c("No", "Unclear", "Yes", "Unclear", "Yes", "Yes", "Yes") # renomear atribuições para portugues. OBS categoria que especifica "sem conflito" não é necessária, deixei apenas como "sim"
+    levels = c("No", "Yes", "Unclear", "Yes, ARRIVE", "Yes, lab animals", "Yes, no conflict"),
+    labels = c("No", "Yes", "Unclear", "Yes", "Yes", "Yes") # renomear atribuições para portugues. OBS categoria que especifica "sem conflito" não é necessária, deixei apenas como "sim"
   )
 
 
@@ -2105,15 +2101,17 @@ camaradesplot <- df_camarades_longo %>%
   distinct(Study, pergunta, atribuicao) %>% 
   ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = c_factor_levels), y = ..count..)) +
   geom_bar(position = "fill") + 
-  scale_fill_manual("Judgment", values = c("Yes" = "#82c236", "Unclear" = "#fec200", "No" = "#ec2b2b"), guide = guide_legend(
+  scale_fill_manual("CAMARADES", values = c("Yes" = "#82c236", "Unclear" = "#fec200", "No" = "#ec2b2b"), guide = guide_legend(
     title.position = "top")) +
   scale_y_continuous(labels = scales::percent) +
   scale_x_discrete(
     labels = function(x)
-      str_wrap(x, width = 53)
+      str_wrap(x, width = 65)
   ) +
   coord_flip()  + 
+  theme_classic() +
   theme(axis.ticks.x = element_line(size = .3),
+        axis.ticks.y = element_line(color = "black", size = .1),
         axis.line = element_line(size = .3),
         axis.text = element_text(
           size = 6,
@@ -2124,17 +2122,17 @@ camaradesplot <- df_camarades_longo %>%
         plot.title = element_text(size = 10),
         plot.title.position = "plot",
         legend.position = "right",
-        legend.text = element_text(size = 5, color = "black"),
-        legend.title = element_text(size = 6, hjust = 0),
-        plot.margin = margin(0, 2, 0, 0),
-        legend.margin = margin(t = -0.2, unit = 'cm'),
+        legend.text = element_text(size = 6, color = "black"),
+        legend.title = element_text(size = 7, hjust = 0, face = "bold"),
+        plot.margin = margin(0, 0, 0, 0),
+        legend.margin = margin(l = -15),
         legend.key.size = unit(.8, "line"),
-        panel.grid.major.y = element_line(color = "grey90", size = .1),
+        panel.grid.major.y = element_blank(),
         panel.grid.major.x = element_blank()
   )
 
 
-quality <- robplot / camaradesplot + plot_layout(heights = c(5,5))
+quality <- robplot / camaradesplot + plot_layout(heights = c(5,5), width = 5)
 
 
 save_plot(filename = "quality.png",
@@ -2142,4 +2140,3 @@ save_plot(filename = "quality.png",
           dpi = 300,
           path = "figure")
 
-# ver n de cada fator em cada pergunta
