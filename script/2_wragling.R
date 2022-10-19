@@ -264,10 +264,15 @@ data_geral <- data_geral %>%
 
 
 # Create new column with comparator n corrected according to the number of comparisons and rounded
+# Separate method from method detail (FST)
+# change date type to numeric
 
 data_geral <- data_geral %>%
+  separate(col = measurement_method, sep = ", ", into = c("measurement_method", "measurement_method_detail"))  %>% # separate variable into two
   mutate(ctr_n_corr = as.integer(ctr_n_round / n_comparisons),
-         N = as.integer(ctr_n_corr + atd_n_round)) 
+         N = as.integer(ctr_n_corr + atd_n_round),
+         measurement_method_detail = as.factor(measurement_method_detail), # add separate variables in parent df
+         measurement_method =  as.factor(measurement_method)) 
 
 
 # Rearrange order of variables
@@ -327,6 +332,7 @@ col_order <- c("line", # Put in the desired order
                "last_bf_outcome",
                "fst_protocol",
                "measurement_method",
+               "measurement_method_detail",
                "cylinder_height",
                "cylinder_diameter",
                "water_depth",
