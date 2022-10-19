@@ -10,10 +10,8 @@ library(writexl)   # save excel
 library(extrafont) # extra font
 library(cowplot)   # plot annotation and alignment
 library(metapower) # power calculation
-library(esc)       # calculate effect size
 library(lubridate) # date manipulation
 library(weightr)   # test pub bias
-library("devtools")# to download remote packages
 library(patchwork) # to join plots
 
 
@@ -22,14 +20,14 @@ library(patchwork) # to join plots
 
 # create function to convert hedges g to cohen's d
 
-g_to_d <- function(vg, vn) {
-  vd <- vg / (1 - 3 / (4 * (vn) - 9))
-  return(vd)
+hedgesg_to_cohensd <- function(hedgesg, n) {
+  cohensd <- hedgesg / (1 - 3 / (4 * (n) - 9))
+  return(cohensd)
 }
 
 # calculate general power
 
-g_to_d(vg = 0.5, vn = 12) # converter hedges g para cohens d
+hedgesg_to_cohensd(hedgesg = 0.5, n = 12) # converter hedges g para cohens d
 
 poder_geral <- kmestrado <- mpower(effect_size = .54166667, study_size = 6, k = 200, i2 = .90, es_type = "d") # calculate power
 
@@ -42,23 +40,14 @@ plot_mpower(poder_geral)
 
 df <- read_excel("data/Data_200FST.xlsx") # load df
 
+# Separate method from method detail (FST)
 # change date type to numeric
 
-df <- df %>%
-  mutate(year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y")))
-
-glimpse(df)
-
-# Separate method from method detail (FST)
-
-mmd <- df %>% # separate variable into two
-  select(measurement_method) %>% 
-  separate(col = measurement_method, sep = ", ", into = c("measurement_method", "measurement_method_detail"))
-
-
-df <- df %>%
-  mutate(measurement_method_detail = as.factor(mmd$measurement_method_detail),
-         measurement_method =  as.factor(mmd$measurement_method)) # add separate variables in parent df
+df <- df %>% 
+  separate(col = measurement_method, sep = ", ", into = c("measurement_method", "measurement_method_detail"))  %>% # separate variable into two
+  mutate(measurement_method_detail = as.factor(measurement_method_detail), # add separate variables in parent df
+         measurement_method =  as.factor(measurement_method),
+         year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y"))) 
 
 
 # Calculate effect size in SDM hedges g
@@ -202,9 +191,9 @@ missing_m
 missing_r 
 
 
-png("figure/funil.png", height = 900, width = 1200)
+png("figure/funil.png", height = 800, width = 800)
 
-par(mfrow = c(3, 2), oma = c(1,1,1,1), mar = c(5,5,5,5))
+par(mfrow = c(3, 2), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = .8, font = 2, family = "sans")
 
 funil_global1 <- metafor::funnel(
   missing,
@@ -224,13 +213,14 @@ funil_global1 <- metafor::funnel(
   pch.fill = 1,
   col = 25,
   label = "F",
-  offset = 0.1,
   legend = "topright",
+  offset = 0.1,
   ci.res = 1000,
-  cex.lab = 2.3, 
-  cex.axis = 2,
-  cex.main = 2.5
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
 )
+
 
 funil_global2 <- metafor::funnel(
   missing,
@@ -252,9 +242,9 @@ funil_global2 <- metafor::funnel(
   label = "F",
   offset = 0.1,
   ci.res = 1000,
-  cex.lab = 2.3, 
-  cex.axis = 2,
-  cex.main = 2.5
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
 )
 
 funil_m1 <- metafor::funnel(
@@ -278,9 +268,9 @@ funil_m1 <- metafor::funnel(
   offset = 0.1,
   legend = "topright",
   ci.res = 1000,
-  cex.lab = 2.3, 
-  cex.axis = 2,
-  cex.main = 2.5
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
 )
 
 
@@ -304,9 +294,9 @@ funil_m2 <- metafor::funnel(
   label = "F",
   offset = 0.1,
   ci.res = 1000,
-  cex.lab = 2.3, 
-  cex.axis = 2,
-  cex.main = 2.5
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
 )
 
 funil_r1 <- metafor::funnel(
@@ -330,10 +320,11 @@ funil_r1 <- metafor::funnel(
   offset = 0.1,
   legend = "topright",
   ci.res = 1000,
-  cex.lab = 2.3, 
-  cex.axis = 2,
-  cex.main = 2.5
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
 )
+
 
 
 funil_r2 <- metafor::funnel(
@@ -356,9 +347,9 @@ funil_r2 <- metafor::funnel(
   label = "F",
   offset = 0.1,
   ci.res = 1000,
-  cex.lab = 2.3, 
-  cex.axis = 2,
-  cex.main = 2.5
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
 )
 
 
@@ -392,7 +383,7 @@ wf_rat <- weightfunct(wrat$yi, wrat$vi, table = TRUE, steps = 0.05)
 wf_rat
 
 
-# Analise de subgrupos ----
+# Subgroup analysis ----
 
 # [POPULATION]------
 #species [mice] ----
@@ -1178,7 +1169,7 @@ dfsubgrupos$moderator <-
       "Rat",
       "Sex",
       "Strain",
-      "Model/Stress",
+      "Stress",
       "Light cycle",
       "All TCA",
       "All SSRI",
@@ -1213,16 +1204,16 @@ dfsubgrupos$category <-
                 "BKTO",
                 "DBA/2",
                 "B6SJL (R406W)",
-                "Model/Stress",
-                "No Model/Stress",
+                "Stress",
+                "No stress",
                 "Rat",
                 "Wistar",
                 "Sprague Dawley",
                 "Long Evans",
-                "Flinders sens.",
+                "Flinders sensitive",
                 "CD-COBS",
                 "Wistar kyoto",
-                "Flinders res.",
+                "Flinders resistant",
                 "12/12 normal",
                 "12/12",
                 "Natural",
@@ -1285,7 +1276,8 @@ dfsubgrupos$category <-
                 "PT?’ + T6’ + S4’ final",
                 "T15’"))
 
-
+dfsubgrupos <- dfsubgrupos %>% 
+  mutate(idiff = 100 - inconsistency)
 
 theme_set(theme_minimal(base_family = "Gadugi"))
 
@@ -1328,7 +1320,7 @@ ppt_sub_pop_c <- dfsubgrupos %>%
       sep = ""
     )),
     y = Inf - 1,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
     hjust = 1
@@ -1339,7 +1331,8 @@ ppt_sub_pop_c <- dfsubgrupos %>%
     strip.background = element_blank(),
     strip.text = element_blank(),
     axis.title = element_blank(),
-    axis.text.x = element_blank()
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 10, color = "black")
 )
 
 ppt_sub_pop_c_i <- dfsubgrupos %>%
@@ -1354,11 +1347,11 @@ ppt_sub_pop_c_i <- dfsubgrupos %>%
   scale_y_continuous(limits = c(0, 200), position = "right") +
   labs(x = "", y = "I² (%) |𝜏² ") +
   scale_fill_manual(values = "#ff9400") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "grey80") +
+  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
   geom_text(
     aes(label = tau2),
     y = 104,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
     hjust = 0
@@ -1370,7 +1363,18 @@ ppt_sub_pop_c_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "grey30", vjust = 400, hjust = 0.1))
+    axis.title = element_text(size = 9, color = "black", vjust = 400, hjust = 0.1))
+
+
+
+sub_pop_c <- ppt_sub_pop_c + ppt_sub_pop_c_i + plot_layout(widths = c(6, 1))
+
+
+save_plot(filename = "ppt_sub_pop_c.png",
+          plot = sub_pop_c,
+          dpi = 300,
+          path = "figure")
+
 
 
 ppt_sub_pop_r <- dfsubgrupos %>%
@@ -1410,7 +1414,7 @@ ppt_sub_pop_r <- dfsubgrupos %>%
       sep = ""
     )),
     y = Inf - 1,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
     hjust = 1
@@ -1420,7 +1424,8 @@ ppt_sub_pop_r <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 10, color = "grey30")
+    axis.title = element_text(size = 9, color = "black"),
+    axis.text = element_text(size = 9, color = "black")
   )
 
 ppt_sub_pop_r_i <- dfsubgrupos %>%
@@ -1432,17 +1437,17 @@ ppt_sub_pop_r_i <- dfsubgrupos %>%
     fill = "#ec2b2b"
   )) +
   geom_bar(stat = "identity") +
-  scale_y_continuous(limits = c(0, 200)) +
+  scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
   labs(x = "", y = "I² (%) |𝜏² ") +
   scale_fill_manual(values = "#ec2b2b") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "grey80") +
+  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
   geom_text(
     aes(label = tau2),
     y = 104,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
-    hjust = 0
+    hjust = -0.1
   ) +
   facet_grid(moderator ~ ., scales = "free", space = "free") +
   coord_flip() +
@@ -1451,10 +1456,17 @@ ppt_sub_pop_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "grey30", vjust = 1, hjust = 0.1)
+    axis.title = element_text(size = 9, color = "black", vjust = 1, hjust = -0.15),
+    axis.text.x = element_text(size = 9, color = "black", vjust = -2)
   )
 
 
+sub_pop_r <- ppt_sub_pop_r + ppt_sub_pop_r_i + plot_layout(widths = c(6, 1))
+
+save_plot(filename = "ppt_sub_pop_r.png",
+          plot = sub_pop_r,
+          dpi = 300,
+          path = "figure")
 
 
 #intervencao 
@@ -1496,7 +1508,7 @@ ppt_sub_int_c <- dfsubgrupos %>%
       sep = ""
     )),
     y = Inf - 1,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
     hjust = 1
@@ -1507,7 +1519,7 @@ ppt_sub_int_c <- dfsubgrupos %>%
     strip.background = element_blank(),
     strip.text = element_blank(),
     axis.text.x = element_blank(),
-    axis.title = element_text(size = 10, color = "grey30")
+    axis.text.y = element_text(size = 9, color = "black")
   )
 
 ppt_sub_int_c_i <- dfsubgrupos %>%
@@ -1522,14 +1534,14 @@ ppt_sub_int_c_i <- dfsubgrupos %>%
   scale_y_continuous(limits = c(0, 200)) +
   labs(x = "", y = "") +
   scale_fill_manual(values = "#ff9400") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "grey80") +
+  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
   geom_text(
     aes(label = tau2),
     y = 104,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
-    hjust = 0
+    hjust = -0.1
   ) +
   facet_grid(moderator ~ ., scales = "free", space = "free") +
   coord_flip() +
@@ -1538,10 +1550,19 @@ ppt_sub_int_c_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_blank()
+    axis.title = element_blank(),
+    axis.text = element_blank()
     )
   
 
+
+sub_int_c <- ppt_sub_int_c + ppt_sub_int_c_i + plot_layout(widths = c(6, 1))
+
+
+save_plot(filename = "ppt_sub_int_c.png",
+          plot = sub_int_c,
+          dpi = 300,
+          path = "figure")
 
 
 ppt_sub_int_r <- dfsubgrupos %>%
@@ -1581,7 +1602,7 @@ ppt_sub_int_r <- dfsubgrupos %>%
       sep = ""
     )),
     y = Inf - 1,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
     hjust = 1
@@ -1591,8 +1612,10 @@ ppt_sub_int_r <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 10, color = "grey30")
+    axis.title = element_text(size = 9, color = "black"),
+    axis.text = element_text(size = 9, color = "black")
   )
+
 
 
 ppt_sub_int_r_i <- dfsubgrupos %>%
@@ -1604,17 +1627,17 @@ ppt_sub_int_r_i <- dfsubgrupos %>%
     fill = "#ec2b2b"
   )) +
   geom_bar(stat = "identity") +
-  scale_y_continuous(limits = c(0, 200)) +
+  scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
   labs(x = "", y = "I² (%) |𝜏² ") +
   scale_fill_manual(values = "#ec2b2b") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "grey80") +
+  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
   geom_text(
     aes(label = tau2),
     y = 104,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
-    hjust = 0
+    hjust = -0.1
   ) +
   facet_grid(moderator ~ ., scales = "free", space = "free") +
   coord_flip() +
@@ -1623,9 +1646,17 @@ ppt_sub_int_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "grey30", vjust = 1, hjust = 0.1)
+    axis.title = element_text(size = 9, color = "black", vjust = 1, hjust = -0.15),
+    axis.text.x = element_text(size = 9, color = "black", vjust = -2)
   )
 
+
+sub_int_r <- ppt_sub_int_r + ppt_sub_int_r_i + plot_layout(widths = c(6, 1))
+
+save_plot(filename = "ppt_sub_int_r.png",
+          plot = sub_int_r,
+          dpi = 300,
+          path = "figure")
 
 
 #desfecho
@@ -1667,7 +1698,7 @@ ppt_sub_des_c <- dfsubgrupos %>%
       sep = ""
     )),
     y = Inf - 1,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
     hjust = 1
@@ -1678,6 +1709,7 @@ ppt_sub_des_c <- dfsubgrupos %>%
     strip.background = element_blank(),
     strip.text = element_blank(),
     axis.title = element_blank(),
+    axis.text.y = element_text(size = 9, color = "black"),
     axis.text.x = element_blank()
   )
 
@@ -1693,11 +1725,11 @@ ppt_sub_des_c_i <- dfsubgrupos %>%
   scale_y_continuous(limits = c(0, 200)) +
   labs(x = "", y = "I² (%) |𝜏² ") +
   scale_fill_manual(values = "#ff9400") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "grey80") +
+  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
   geom_text(
     aes(label = tau2),
     y = 104,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
     hjust = 0
@@ -1709,9 +1741,17 @@ ppt_sub_des_c_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_blank()
+    axis.text = element_blank()
   )
 
+
+sub_des_c <- ppt_sub_des_c + ppt_sub_des_c_i + plot_layout(widths = c(6, 1))
+
+
+save_plot(filename = "ppt_sub_des_c.png",
+          plot = sub_des_c,
+          dpi = 300,
+          path = "figure")
 
 
 ppt_sub_des_r <- dfsubgrupos %>%
@@ -1740,7 +1780,7 @@ ppt_sub_des_r <- dfsubgrupos %>%
             ymin = 2,ymax = Inf, color = "grey82") +
   geom_pointrange() +
   scale_y_continuous(limits = c(-2, 22)) +
-  labs(x = "", y = "Effect") +
+  labs(x = "", y = "Effect size") +
   scale_colour_manual(values = "#ec2b2b") +
   geom_hline(yintercept = 0, lty = 2) +
   facet_grid(moderator ~ ., scales = "free", space = "free") +
@@ -1751,7 +1791,7 @@ ppt_sub_des_r <- dfsubgrupos %>%
       sep = ""
     )),
     y = Inf - 1,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
     hjust = 1
@@ -1761,7 +1801,8 @@ ppt_sub_des_r <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 10, color = "grey30")
+    axis.title = element_text(size = 9, color = "black"),
+    axis.text = element_text(size = 9, color = "black")
   )
 
 
@@ -1774,17 +1815,17 @@ ppt_sub_des_r_i <- dfsubgrupos %>%
     fill = "#ec2b2b"
   )) +
   geom_bar(stat = "identity") +
-  scale_y_continuous(limits = c(0, 200)) +
+  scale_y_continuous(limits = c(0, 200), breaks = c(0,  100)) +
   labs(x = "", y = "I² (%) |𝜏² ") +
   scale_fill_manual(values = "#ec2b2b") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "grey80") +
+  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
   geom_text(
     aes(label = tau2),
     y = 104,
-    color = "grey30",
+    color = "black",
     size = 3,
     family = "Gadugi",
-    hjust = 0
+    hjust = -0.1
   ) +
   facet_grid(moderator ~ ., scales = "free", space = "free") +
   coord_flip() +
@@ -1793,50 +1834,11 @@ ppt_sub_des_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "grey30", vjust = 1, hjust = 0.1)
+    axis.title = element_text(size = 9, color = "black", vjust = 1, hjust = -0.4),
+    axis.text.x = element_text(size = 9, color = "black", vjust = -2)
   )
 
 
-
-sub_pop_c <- ppt_sub_pop_c + ppt_sub_pop_c_i + plot_layout(widths = c(6, 1))
-
-
-save_plot(filename = "ppt_sub_pop_c.png",
-          plot = sub_pop_c,
-          dpi = 300,
-          path = "figure")
-
-
-sub_pop_r <- ppt_sub_pop_r + ppt_sub_pop_r_i + plot_layout(widths = c(6, 1))
-
-save_plot(filename = "ppt_sub_pop_r.png",
-          plot = sub_pop_r,
-          dpi = 300,
-          path = "figure")
-
-sub_int_c <- ppt_sub_int_c + ppt_sub_int_c_i + plot_layout(widths = c(6, 1))
-
-
-save_plot(filename = "ppt_sub_int_c.png",
-          plot = sub_int_c,
-          dpi = 300,
-          path = "figure")
-
-
-sub_int_r <- ppt_sub_int_r + ppt_sub_int_r_i + plot_layout(widths = c(6, 1))
-
-save_plot(filename = "ppt_sub_int_r.png",
-          plot = sub_int_r,
-          dpi = 300,
-          path = "figure")
-
-sub_des_c <- ppt_sub_des_c + ppt_sub_des_c_i + plot_layout(widths = c(6, 1))
-
-
-save_plot(filename = "ppt_sub_des_c.png",
-          plot = sub_des_c,
-          dpi = 300,
-          path = "figure")
 
 sub_des_r <- ppt_sub_des_r + ppt_sub_des_r_i + plot_layout(widths = c(6, 1))
 
@@ -1852,7 +1854,8 @@ save_plot(filename = "ppt_sub_des_r.png",
 
 # age and weight (population), dose (intervention), water depth (outcome)
 
-png("figure/metareg_pio.png", height = 1200, width = 1200)
+png("figure/metareg_pio.png", height = 1200, width = 1000)
+
 
 metareg_age_c <- rma(yi, vi, subset = species == "mice", mods = ~ age, data = Efeito)
 metareg_age_r <- rma(yi, vi, subset = species == "rat", mods = ~ age, data = Efeito)
@@ -1865,18 +1868,17 @@ metareg_pa_r <- rma(yi, vi, subset = species == "rat", mods = ~ water_depth, dat
 
 
 
-par(mfrow = c(4, 2), oma = c(0,2,0,1), cex = 1, font = 2, family = "sans")
+par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(5,5,2,2), cex = 1, font = 2, family = "sans")
 
 
-regplot(metareg_age_c, xlab = "Age (days)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), main = "Mice", cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(0, 600))
-regplot(metareg_age_r, xlab = "Age (days)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), main = "Rat", cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(0, 600))
-regplot(metareg_peso_c, xlab = "Weight (g)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2)
-regplot(metareg_peso_r, xlab = "Weight (g)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2)
-regplot(metareg_dose_c, xlab = "Dose (mg/kg)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, xlim = c(0, 100))
-regplot(metareg_dose_r, xlab = "Dose (mg/kg)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, xlim = c(0, 100))
-regplot(metareg_pa_c, xlab = "Water depth (cm)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(5, 50))
-regplot(metareg_pa_r, xlab = "Water depth (cm)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(5, 50))
-
+regplot(metareg_age_c, xlab = "Age (days)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), main = "Mice", cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(0, 600), ylim = c(0,65))
+regplot(metareg_age_r, xlab = "Age (days)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), main = "Rat", cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(0, 600), ylim = c(0,25))
+regplot(metareg_peso_c, xlab = "Weight (g)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, ylim = c(0,65))
+regplot(metareg_peso_r, xlab = "Weight (g)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, ylim = c(0,25))
+regplot(metareg_dose_c, xlab = "Dose (mg/kg)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, xlim = c(0, 100), ylim = c(0,65))
+regplot(metareg_dose_r, xlab = "Dose (mg/kg)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, xlim = c(0, 100), ylim = c(0,25))
+regplot(metareg_pa_c, xlab = "Water depth (cm)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(5, 50), ylim = c(0,65))
+regplot(metareg_pa_r, xlab = "Water depth (cm)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(5, 50), ylim = c(0,25))
 
 
 dev.off()
@@ -1893,7 +1895,7 @@ metareg_pa_r
 
 
 
-# year and wuality
+# year and quality
 
 Efeito$rob1 <- ifelse(Efeito$rob1 == 'Unclear', 0, ifelse(Efeito$rob1 == 'Yes', 1, -1)) # turn assignments into points
 Efeito$rob2 <- ifelse(Efeito$rob2 == 'Unclear', 0, ifelse(Efeito$rob2 == 'Yes', 1, -1))
@@ -1909,14 +1911,14 @@ Efeito$rob10 <- ifelse(Efeito$rob10 == 'Unclear', 0, ifelse(Efeito$rob10 == 'Yes
 Efeito <- Efeito %>% 
   mutate(pont_quali = rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10) # New variable with rob score
 
-png("figure/Reg_year_quality.png", height = 800, width = 1200)
+png("figure/Reg_year_quality.png", height = 600, width = 1000)
 
 metareg_quali_c <- rma(yi, vi, subset = species == "mice", mods = ~pont_quali, data = Efeito) 
 metareg_quali_r <- rma(yi, vi, subset = species == "rat", mods = ~pont_quali, data = Efeito) 
 metareg_ano_c <- rma(yi, vi, subset = species == "mice", mods = ~year, data = Efeito) 
 metareg_ano_r <- rma(yi, vi, subset = species == "rat", mods = ~year, data = Efeito) 
 
-par(mfrow = c(2, 2), oma = c(0,2,0,1),  cex = 1, font = 2, family = "sans")
+par(mfrow = c(2, 2), oma = c(0,2,0,1), mar = c(5,5,3,2),  cex = 1, font = 2, family = "sans")
 
 regplot(metareg_ano_c, xlab = "Year", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), main = "Mice", cex.main = 2, cex.lab = 2, cex.axis = 2)
 regplot(metareg_ano_r, xlab = "Year", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"),  main = "Rat", cex.main = 2, cex.lab = 2, cex.axis = 2)
@@ -1929,3 +1931,215 @@ metareg_ano_c
 metareg_ano_r
 metareg_quali_c
 metareg_quali_r
+
+# Quality ROB/CAMARADES ----
+
+# Isolar variáveis do ROB SYRCLE
+
+df_rob <- df %>% 
+  mutate(Study = str_c(first_author, ", ", year)) %>% 
+  select(starts_with("rob"), Study) 
+
+
+df_rob <- df_rob %>% 
+  distinct() # deixar uma linha por publicação
+
+df_rob <- df_rob %>% 
+  rename("Was the allocation sequence adequately generated and applied?" = rob1,
+         "Were the groups similar at baseline or were they adjusted for confounders in the analysis?" = rob2,
+         "Was the allocation adequately concealed?" = rob3,
+         "Were the animals randomly housed during the experiment?" = rob4, 
+         "Were the caregivers and/or investigators blinded from knowledge which intervention each animal received during the experiment?" = rob5, 
+         "Were animals selected at random for outcome assessment?" = rob6,
+         "Was the outcome assessor blinded?" = rob7, 
+         "Were incomplete outcome data adequately addressed?" = rob8, 
+         "Are reports of the study free of selective outcome reporting?" = rob9,
+         "Was the study apparently free of other problems that could result in high risk of bias?" = rob10) %>% 
+  #  mutate(Weight = as.numeric(1),
+  #         overall = "Unclear") %>% # tirar o # se quiser adicionar um julgamento geral
+  relocate(Study, everything())
+
+
+
+
+df_rob_long <- df_rob %>% # colocar em modo longo
+  pivot_longer(!c(Study),
+               names_to = "pergunta",
+               values_to = "atribuicao",
+  ) 
+
+
+# Renomear os níveis 
+
+df_rob_long$atribuicao <-
+  factor(
+    df_rob_long$atribuicao,
+    levels = c("Yes", "No", "Unclear"),
+    labels = c("Low", "High", "Unclear") 
+  )
+
+df_rob_long$pergunta <-
+  fct_relevel(
+    df_rob_long$pergunta, "Was the allocation sequence adequately generated and applied?",
+    "Were the groups similar at baseline or were they adjusted for confounders in the analysis?", 
+    "Was the allocation adequately concealed?", 
+    "Were the animals randomly housed during the experiment?", 
+    "Were the caregivers and/or investigators blinded from knowledge which intervention each animal received during the experiment?",
+    "Were animals selected at random for outcome assessment?", 
+    "Was the outcome assessor blinded?",
+    "Were incomplete outcome data adequately addressed?", 
+    "Are reports of the study free of selective outcome reporting?", 
+    "Was the study apparently free of other problems that could result in high risk of bias?") 
+
+
+
+# Visualização ROB SYRCLE Resumo
+
+v_factor_levels <- c("High", "Unclear", "Low")
+
+robplot <- df_rob_long %>% 
+  group_by(Study) %>% 
+  distinct(Study, pergunta, atribuicao) %>% 
+  ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = v_factor_levels), y = ..count..)) +
+  geom_bar(position = "fill") + 
+  scale_fill_manual("Judgment of risk of bias", values = c("Low" = "#82c236", "Unclear" = "#fec200", "High" = "#ec2b2b"), guide = guide_legend(
+    title.position = "top")) +
+  scale_y_continuous(labels = scales::percent, ) +
+  scale_x_discrete(
+    labels = function(x)
+      str_wrap(x, width = 55)
+  ) +
+  coord_flip()  +
+  theme(
+    axis.ticks.x = element_blank(),
+    axis.line = element_line(size = .3),
+    axis.text = element_text(size = 5,
+                             color = "black"),
+    axis.text.x = element_blank(),
+    axis.line.y = element_blank(),
+    axis.title = element_blank(),
+    plot.title = element_text(size = 9),
+    plot.title.position = "plot",
+    legend.position = "right",
+    legend.text = element_text(size = 5, color = "black"),
+    legend.title = element_text(size = 6, hjust = 0),
+    legend.margin = margin(t = -0.2, unit = 'cm'),
+    plot.margin = margin(0, 2, 4, 0),
+    legend.key.size = unit(.8, "line"),
+    panel.grid.major.y = element_line(color = "grey90", size = .1),
+    panel.grid.major.x = element_blank()
+  )
+
+
+robplot
+
+# CAMARADES ----
+
+# Isolar variáveis do CAMARADES
+
+df_camarades <- df %>% 
+  mutate(Study = str_c(first_author, ", ", year)) %>% 
+  select(starts_with("camarades"), Study) 
+
+df_camarades <- df_camarades %>% 
+  distinct() # deixar uma linha por publicação
+
+df_camarades <- df_camarades %>% 
+  rename("Peer-reviewed publication" = camarades1,
+         "Studies following ARRIVE (or other) guidelines" = camarades2,
+         "Declaration of compliance with animal testing regulations and legislation" = camarades3,
+         "Declaration of interest" = camarades4, 
+         "Report of the breeding, husbandry conditions and actions to improve animal welfare of the experimental animals" = camarades5, 
+         "Report of the species, lineage or other identifying characteristics of the experimental animals" = camarades6,
+         "Report of phenotypes of interest" = camarades7, 
+         "Report of the age, weight or stage of the experimental animals" = camarades8, 
+         "Report of the sex of the experimental animals" = camarades9,
+         "Report of the methods of behavioural testing and acquisition of the behavioural outcomes" = camarades10,
+         "Report sample size calculation" = camarades11) # adicionar topicos
+
+
+df_camarades_longo <- df_camarades %>% # colocar em modo longo
+  pivot_longer(!c(Study),
+               names_to = "pergunta",
+               values_to = "atribuicao",
+  ) 
+
+
+df_camarades_longo$pergunta <- # ordernar topicos
+  fct_relevel(
+    df_camarades_longo$pergunta, "Peer-reviewed publication",
+    "Studies following ARRIVE (or other) guidelines",
+    "Declaration of compliance with animal testing regulations and legislation",
+    "Declaration of interest", 
+    "Report of the breeding, husbandry conditions and actions to improve animal welfare of the experimental animals", 
+    "Report of the species, lineage or other identifying characteristics of the experimental animals",
+    "Report of phenotypes of interest", 
+    "Report of the age, weight or stage of the experimental animals", 
+    "Report of the sex of the experimental animals",
+    "Report of the methods of behavioural testing and acquisition of the behavioural outcomes",
+    "Report sample size calculation")
+
+
+df_camarades_longo$atribuicao <-  
+  factor(
+    df_camarades_longo$atribuicao,
+    levels = c("No", "Unclear, predatory", "Yes", "Unclear", "Yes, ARRIVE", "Yes, lab animals", "Yes, no conflict"),
+    labels = c("No", "Unclear", "Yes", "Unclear", "Yes", "Yes", "Yes") # renomear atribuições para portugues. OBS categoria que especifica "sem conflito" não é necessária, deixei apenas como "sim"
+  )
+
+
+
+
+df_camarades_longo$atribuicao <- # ordernar atribuicoes
+  fct_relevel(
+    df_camarades_longo$atribuicao, "No", "Unclear", "Yes")
+
+
+
+c_factor_levels <- c("No", "Unclear", "Yes") # reordenar niveis
+
+
+# plotar qualidade camarades
+camaradesplot <- df_camarades_longo %>% 
+  group_by(Study) %>% 
+  distinct(Study, pergunta, atribuicao) %>% 
+  ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = c_factor_levels), y = ..count..)) +
+  geom_bar(position = "fill") + 
+  scale_fill_manual("Judgment", values = c("Yes" = "#82c236", "Unclear" = "#fec200", "No" = "#ec2b2b"), guide = guide_legend(
+    title.position = "top")) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_discrete(
+    labels = function(x)
+      str_wrap(x, width = 53)
+  ) +
+  coord_flip()  + 
+  theme(axis.ticks.x = element_line(size = .3),
+        axis.line = element_line(size = .3),
+        axis.text = element_text(
+          size = 6,
+          color = "black"
+        ),
+        axis.line.y = element_blank(),
+        axis.title = element_blank(),
+        plot.title = element_text(size = 10),
+        plot.title.position = "plot",
+        legend.position = "right",
+        legend.text = element_text(size = 5, color = "black"),
+        legend.title = element_text(size = 6, hjust = 0),
+        plot.margin = margin(0, 2, 0, 0),
+        legend.margin = margin(t = -0.2, unit = 'cm'),
+        legend.key.size = unit(.8, "line"),
+        panel.grid.major.y = element_line(color = "grey90", size = .1),
+        panel.grid.major.x = element_blank()
+  )
+
+
+quality <- robplot / camaradesplot + plot_layout(heights = c(5,5))
+
+
+save_plot(filename = "quality.png",
+          plot = quality,
+          dpi = 300,
+          path = "figure")
+
+# ver n de cada fator em cada pergunta
