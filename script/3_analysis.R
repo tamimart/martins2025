@@ -1354,7 +1354,7 @@ ppt_sub_pop_c_i <- dfsubgrupos %>%
     color = "black",
     size = 3,
     family = "Gadugi",
-    hjust = 0
+    hjust = -0.1
   ) +
   facet_grid(moderator ~ ., scales = "free", space = "free") +
   coord_flip() +
@@ -1424,7 +1424,7 @@ ppt_sub_pop_r <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black"),
+    axis.title = element_text(size = 9, color = "black", vjust = -1),
     axis.text = element_text(size = 9, color = "black")
   )
 
@@ -1456,7 +1456,7 @@ ppt_sub_pop_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", vjust = 1, hjust = -0.15),
+    axis.title = element_text(size = 9, color = "black", hjust = -0.2),
     axis.text.x = element_text(size = 9, color = "black", vjust = -2)
   )
 
@@ -1612,7 +1612,7 @@ ppt_sub_int_r <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black"),
+    axis.title.y = element_text(size = 9, color = "black", vjust = -1),
     axis.text = element_text(size = 9, color = "black")
   )
 
@@ -1646,7 +1646,7 @@ ppt_sub_int_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", vjust = 1, hjust = -0.15),
+    axis.title = element_text(size = 9, color = "black", hjust = -0.15),
     axis.text.x = element_text(size = 9, color = "black", vjust = -2)
   )
 
@@ -1732,7 +1732,7 @@ ppt_sub_des_c_i <- dfsubgrupos %>%
     color = "black",
     size = 3,
     family = "Gadugi",
-    hjust = 0
+    hjust = -0.1
   ) +
   facet_grid(moderator ~ ., scales = "free", space = "free") +
   coord_flip() +
@@ -1801,7 +1801,7 @@ ppt_sub_des_r <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black"),
+    axis.title = element_text(size = 9, color = "black", vjust = -1),
     axis.text = element_text(size = 9, color = "black")
   )
 
@@ -1834,7 +1834,7 @@ ppt_sub_des_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", vjust = 1, hjust = -0.4),
+    axis.title = element_text(size = 9, color = "black", hjust = -0.4),
     axis.text.x = element_text(size = 9, color = "black", vjust = -2)
   )
 
