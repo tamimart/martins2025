@@ -1248,18 +1248,18 @@ dfsubgrupos$category <-
                 "Microinjection",
                 "Oral (food)",
                 "Intranasal",
-                "T6’ + S4’final",
+                "T6’ + S4’",
                 "T6’",
-                "PT15’ + T6’ + S4’final",
+                "PT15’ + T6’ + S4’",
                 "PT15’ + T6’",
                 "PT15’ + T5’",
                 "T5’",
+                "PT13’ + T6’",
                 "PT5’ + T5’",
-                "T5’ + S4’final",
-                "T7’ + S6’ final",
-                "T6’ + S5’final",
+                "T5’ + S4’",
+                "T7’ + S6’",
+                "T6’ + S5’",
                 "T9’",
-                "PT15’ + T6’ + S5’ final",
                 "T10’",
                 "PT15’ + T?",
                 "T15’ + S5’",
@@ -1267,14 +1267,13 @@ dfsubgrupos$category <-
                 "Manual",
                 "No",
                 "Yes",
-                "PT13’ + T6’",
-                "PT?’ + T6’ + S4’ final",
-                "T15’"))
+                "T15’", 
+                "PT?’ + T6’ + S4’",
+                "PT15’ + T6’ + S5’"))
 
-dfsubgrupos <- dfsubgrupos %>% 
-  mutate(idiff = 100 - inconsistency)
 
 theme_set(theme_minimal(base_family = "Gadugi"))
+
 
 #populacao
 
@@ -1327,7 +1326,7 @@ ppt_sub_pop_c <- dfsubgrupos %>%
     strip.text = element_blank(),
     axis.title = element_blank(),
     axis.text.x = element_blank(),
-    axis.text.y = element_text(size = 10, color = "black")
+    axis.text.y = element_text(size = 9, color = "black")
 )
 
 ppt_sub_pop_c_i <- dfsubgrupos %>%
@@ -1504,7 +1503,7 @@ ppt_sub_int_c <- dfsubgrupos %>%
     )),
     y = Inf - 1,
     color = "black",
-    size = 3,
+    size = 2.5,
     family = "Gadugi",
     hjust = 1
   ) +
@@ -1514,7 +1513,7 @@ ppt_sub_int_c <- dfsubgrupos %>%
     strip.background = element_blank(),
     strip.text = element_blank(),
     axis.text.x = element_blank(),
-    axis.text.y = element_text(size = 9, color = "black")
+    axis.text.y = element_text(size = 7, color = "black")
   )
 
 ppt_sub_int_c_i <- dfsubgrupos %>%
@@ -1534,7 +1533,7 @@ ppt_sub_int_c_i <- dfsubgrupos %>%
     aes(label = tau2),
     y = 104,
     color = "black",
-    size = 3,
+    size = 2.5,
     family = "Gadugi",
     hjust = -0.1
   ) +
@@ -1929,7 +1928,7 @@ metareg_quali_r
 
 # Quality ROB/CAMARADES ----
 
-# Isolar variáveis do ROB SYRCLE
+# Isolate variables from ROB SYRCLE
 
 df_rob <- df %>% 
   mutate(Study = str_c(first_author, ", ", year)) %>% 
@@ -1937,7 +1936,7 @@ df_rob <- df %>%
 
 
 df_rob <- df_rob %>% 
-  distinct() # deixar uma linha por publicação
+  distinct() # keep one line per publication
 
 df_rob <- df_rob %>% 
   rename("Allocation sequence adequately generated and applied (Q1)" = rob1,
@@ -1950,21 +1949,19 @@ df_rob <- df_rob %>%
          "Incomplete outcome data adequately addressed (Q8)" = rob8, 
          "Free of selective outcome reporting (Q9)" = rob9,
          "Free of other problems (Q10)" = rob10) %>% 
-  #  mutate(Weight = as.numeric(1),
-  #         overall = "Unclear") %>% # tirar o # se quiser adicionar um julgamento geral
   relocate(Study, everything())
 
 
 
 
-df_rob_long <- df_rob %>% # colocar em modo longo
+df_rob_long <- df_rob %>% # put into long format
   pivot_longer(!c(Study),
                names_to = "pergunta",
                values_to = "atribuicao",
   ) 
 
 
-# Renomear os níveis 
+# rename levels
 
 df_rob_long$atribuicao <-
   factor(
@@ -1988,7 +1985,7 @@ df_rob_long$pergunta <-
 
 
 
-# Visualização ROB SYRCLE Resumo
+# visualize ROB SYRCLE resume
 
 v_factor_levels <- c("High", "Unclear", "Low")
 
@@ -2032,14 +2029,14 @@ robplot
 
 # CAMARADES ----
 
-# Isolar variáveis do CAMARADES
+# Isolate variables from CAMARADES
 
 df_camarades <- df %>% 
   mutate(Study = str_c(first_author, ", ", year)) %>% 
   select(starts_with("camarades"), Study) 
 
 df_camarades <- df_camarades %>% 
-  distinct() # deixar uma linha por publicação
+  distinct() 
 
 df_camarades <- df_camarades %>% 
   select(everything(), -camarades1) %>% 
@@ -2052,17 +2049,17 @@ df_camarades <- df_camarades %>%
          "Report of the age, weight or stage of animals (I7)" = camarades8, 
          "Report of the sex of animals (I8)" = camarades9,
          "Report of the methods to acess the outcomes (I9)" = camarades10,
-         "Report sample size calculation (I10)" = camarades11) # adicionar topicos
+         "Report sample size calculation (I10)" = camarades11) 
 
 
-df_camarades_longo <- df_camarades %>% # colocar em modo longo
+df_camarades_longo <- df_camarades %>% 
   pivot_longer(!c(Study),
                names_to = "pergunta",
                values_to = "atribuicao",
   ) 
 
 
-df_camarades_longo$pergunta <- # ordernar topicos
+df_camarades_longo$pergunta <- 
   fct_relevel(
     df_camarades_longo$pergunta, "Studies following ARRIVE (or other) guidelines (I1)",
     "Compliance with animal testing regulations and legislation (I2)",
@@ -2080,22 +2077,23 @@ df_camarades_longo$atribuicao <-
   factor(
     df_camarades_longo$atribuicao,
     levels = c("No", "Yes", "Unclear", "Yes, ARRIVE", "Yes, lab animals", "Yes, no conflict"),
-    labels = c("No", "Yes", "Unclear", "Yes", "Yes", "Yes") # renomear atribuições para portugues. OBS categoria que especifica "sem conflito" não é necessária, deixei apenas como "sim"
+    labels = c("No", "Yes", "Unclear", "Yes", "Yes", "Yes") 
   )
 
 
 
 
-df_camarades_longo$atribuicao <- # ordernar atribuicoes
+df_camarades_longo$atribuicao <- 
   fct_relevel(
     df_camarades_longo$atribuicao, "No", "Unclear", "Yes")
 
 
 
-c_factor_levels <- c("No", "Unclear", "Yes") # reordenar niveis
+c_factor_levels <- c("No", "Unclear", "Yes") 
 
 
-# plotar qualidade camarades
+# visualize CAMARADES resume
+
 camaradesplot <- df_camarades_longo %>% 
   group_by(Study) %>% 
   distinct(Study, pergunta, atribuicao) %>% 
