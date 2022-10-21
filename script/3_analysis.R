@@ -15,7 +15,6 @@ library(weightr)   # test pub bias
 library(patchwork) # to join plots
 
 
-
 # power ----
 
 # create function to convert hedges g to cohen's d
@@ -35,6 +34,7 @@ print(poder_geral)
 plot_mpower(poder_geral)
 
 
+
 # data treatment ----
 
 
@@ -44,6 +44,36 @@ df <- read_excel("data/Data_200FST.xlsx") # load df
 
 df <- df %>% 
   mutate(year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y"))) 
+
+
+
+# table
+
+library(gtsummary)
+
+df_table <- df %>% 
+  select(species, sex, age, weight, phenotype) %>% 
+  mutate(sex = factor(sex,
+    levels = c("F", "M", "M and F", "NA"),
+    labels = c("Female", "Male", "Both sexes", "Unknown"))
+  ) %>%
+  labelled::set_variable_labels(
+    species = "Species",
+    age = "Age",
+    sex = "Sex",
+    weight = "Weight"
+  )
+
+
+table_pop <- df_table %>% 
+  tbl_summary(
+    by = species
+  ) %>% 
+  add_stat_label() %>%
+  modify_spanning_header(
+    all_stat_cols() ~ "**Species**"
+  )
+
 
 # Calculate effect size in SDM hedges g
 
@@ -1357,7 +1387,8 @@ ppt_sub_pop_c_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", vjust = 400, hjust = 0.1))
+    axis.title =  element_blank()
+  )
 
 
 
@@ -1434,7 +1465,7 @@ ppt_sub_pop_r_i <- dfsubgrupos %>%
   scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
   labs(x = "", y = "I² (%) |𝜏² ") +
   scale_fill_manual(values = "#ec2b2b") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
+  geom_hline(yintercept = 100, lty = 1, size = .3, color = "black") +
   geom_text(
     aes(label = tau2),
     y = 104,
@@ -1597,7 +1628,7 @@ ppt_sub_int_r <- dfsubgrupos %>%
     )),
     y = Inf - 1,
     color = "black",
-    size = 3,
+    size = 2.5,
     family = "Gadugi",
     hjust = 1
   ) +
@@ -1606,8 +1637,9 @@ ppt_sub_int_r <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title.y = element_text(size = 9, color = "black", vjust = -1),
-    axis.text = element_text(size = 9, color = "black")
+    axis.title.x = element_text(size = 8, color = "black"),
+    axis.text.x = element_text(size = 8, color = "black"),
+    axis.text.y = element_text(size = 7, color = "black")
   )
 
 
@@ -1629,7 +1661,7 @@ ppt_sub_int_r_i <- dfsubgrupos %>%
     aes(label = tau2),
     y = 104,
     color = "black",
-    size = 3,
+    size = 2.5,
     family = "Gadugi",
     hjust = -0.1
   ) +
@@ -1640,8 +1672,8 @@ ppt_sub_int_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", hjust = -0.15),
-    axis.text.x = element_text(size = 9, color = "black", vjust = -2)
+    axis.title = element_text(size = 8, color = "black", hjust = 0.1),
+    axis.text.x = element_text(size = 8, color = "black", vjust = -2)
   )
 
 
@@ -1939,16 +1971,16 @@ df_rob <- df_rob %>%
   distinct() # keep one line per publication
 
 df_rob <- df_rob %>% 
-  rename("Allocation sequence adequately generated and applied (Q1)" = rob1,
-         "Groups similar at baseline (Q2)" = rob2,
-         "Allocation adequately concealed (Q3)" = rob3,
-         "Animals randomly housed (Q4)" = rob4, 
-         "Investigators blinded during the experiment (Q5)" = rob5, 
-         "Animals selected at random for outcome assessment (Q6)" = rob6,
-         "Outcome assessor blinded (Q7)" = rob7, 
-         "Incomplete outcome data adequately addressed (Q8)" = rob8, 
-         "Free of selective outcome reporting (Q9)" = rob9,
-         "Free of other problems (Q10)" = rob10) %>% 
+  rename("Allocation sequence adequately generated and applied" = rob1,
+         "Groups similar at baseline" = rob2,
+         "Allocation adequately concealed" = rob3,
+         "Animals randomly housed" = rob4, 
+         "Investigators blinded during the experiment" = rob5, 
+         "Animals selected at random for outcome assessment" = rob6,
+         "Outcome assessor blinded" = rob7, 
+         "Incomplete outcome data adequately addressed" = rob8, 
+         "Free of selective outcome reporting" = rob9,
+         "Free of other problems" = rob10) %>% 
   relocate(Study, everything())
 
 
@@ -1972,16 +2004,16 @@ df_rob_long$atribuicao <-
 
 df_rob_long$pergunta <-
   fct_relevel(
-    df_rob_long$pergunta,"Allocation sequence adequately generated and applied (Q1)",
-    "Groups similar at baseline (Q2)",
-    "Allocation adequately concealed (Q3)",
-    "Animals randomly housed (Q4)", 
-    "Investigators blinded during the experiment (Q5)", 
-    "Animals selected at random for outcome assessment (Q6)",
-    "Outcome assessor blinded (Q7)", 
-    "Incomplete outcome data adequately addressed (Q8)", 
-    "Free of selective outcome reporting (Q9)",
-    "Free of other problems (Q10)") 
+    df_rob_long$pergunta,"Allocation sequence adequately generated and applied",
+    "Groups similar at baseline",
+    "Allocation adequately concealed",
+    "Animals randomly housed", 
+    "Investigators blinded during the experiment", 
+    "Animals selected at random for outcome assessment",
+    "Outcome assessor blinded", 
+    "Incomplete outcome data adequately addressed", 
+    "Free of selective outcome reporting",
+    "Free of other problems") 
 
 
 
@@ -2040,16 +2072,16 @@ df_camarades <- df_camarades %>%
 
 df_camarades <- df_camarades %>% 
   select(everything(), -camarades1) %>% 
-  rename("Studies following ARRIVE (or other) guidelines (I1)" = camarades2,
-         "Compliance with animal testing regulations and legislation (I2)" = camarades3,
-         "Declaration of interest (I3)" = camarades4, 
-         "Report of husbandry conditions and improve animal welfare (I4)" = camarades5, 
-         "Report of species and lineage of animals (I5)" = camarades6,
-         "Report of phenotypes of interest (I6)" = camarades7, 
-         "Report of the age, weight or stage of animals (I7)" = camarades8, 
-         "Report of the sex of animals (I8)" = camarades9,
-         "Report of the methods to acess the outcomes (I9)" = camarades10,
-         "Report sample size calculation (I10)" = camarades11) 
+  rename("Studies following ARRIVE (or other) guidelines" = camarades2,
+         "Compliance with animal testing regulations and legislation" = camarades3,
+         "Declaration of interest" = camarades4, 
+         "Report of husbandry conditions and improve animal welfare" = camarades5, 
+         "Report of species and lineage of animals" = camarades6,
+         "Report of phenotypes of interest" = camarades7, 
+         "Report of the age, weight or stage of animals" = camarades8, 
+         "Report of the sex of animals" = camarades9,
+         "Report of the methods to acess the outcomes" = camarades10,
+         "Report sample size calculation" = camarades11) 
 
 
 df_camarades_longo <- df_camarades %>% 
@@ -2061,16 +2093,16 @@ df_camarades_longo <- df_camarades %>%
 
 df_camarades_longo$pergunta <- 
   fct_relevel(
-    df_camarades_longo$pergunta, "Studies following ARRIVE (or other) guidelines (I1)",
-    "Compliance with animal testing regulations and legislation (I2)",
-    "Declaration of interest (I3)", 
-    "Report of husbandry conditions and improve animal welfare (I4)", 
-    "Report of species and lineage of animals (I5)",
-    "Report of phenotypes of interest (I6)", 
-    "Report of the age, weight or stage of animals (I7)", 
-    "Report of the sex of animals (I8)",
-    "Report of the methods to acess the outcomes (I9)",
-    "Report sample size calculation (I10)")
+    df_camarades_longo$pergunta, "Studies following ARRIVE (or other) guidelines",
+    "Compliance with animal testing regulations and legislation",
+    "Declaration of interest", 
+    "Report of husbandry conditions and improve animal welfare", 
+    "Report of species and lineage of animals",
+    "Report of phenotypes of interest", 
+    "Report of the age, weight or stage of animals", 
+    "Report of the sex of animals",
+    "Report of the methods to acess the outcomes",
+    "Report sample size calculation")
 
 
 df_camarades_longo$atribuicao <-  
