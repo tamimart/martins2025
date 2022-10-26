@@ -2039,7 +2039,7 @@ robplot <- df_rob_long %>%
     axis.ticks.x = element_blank(),
     axis.ticks.y = element_line(color = "black", size = .1),
     axis.line = element_line(size = .3),
-    axis.text = element_text(size = 6,
+    axis.text = element_text(size = 8,
                              color = "black"),
     axis.text.x = element_blank(),
     axis.line.y = element_blank(),
@@ -2144,7 +2144,7 @@ camaradesplot <- df_camarades_longo %>%
         axis.ticks.y = element_line(color = "black", size = .1),
         axis.line = element_line(size = .3),
         axis.text = element_text(
-          size = 6,
+          size = 8,
           color = "black"
         ),
         axis.line.y = element_blank(),
