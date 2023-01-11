@@ -52,7 +52,7 @@ df <- df %>%
 library(gtsummary)
 
 df_table <- df %>% 
-  select(species, sex, age, weight, phenotype) %>% 
+  select(species, sex, age, weight) %>% 
   mutate(sex = factor(sex,
     levels = c("F", "M", "M and F", "NA"),
     labels = c("Female", "Male", "Both sexes", "Unknown"))
@@ -149,7 +149,7 @@ dev.off()
 png("figure/influence.png")
 
 inf <- influence(Teste)
-plot(inf)
+ plot(inf)
 dev.off()
 
 tinf <- print(inf) # create table with results
