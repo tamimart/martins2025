@@ -14,7 +14,6 @@ library(lubridate) # date manipulation
 library(weightr)   # test pub bias
 library(patchwork) # to join plots
 
-
 # power ----
 
 # create function to convert hedges g to cohen's d
@@ -86,8 +85,15 @@ Efeito <- escalc(measure = "SMD", n1i = ctr_n_corr, n2i = atd_n_round, m1i = ctr
 
 Teste <- rma(yi, vi, data = Efeito, slab = (paste(Efeito$first_author, as.character(Efeito$year), sep = ", ")))
 
-
 Teste
+
+# Multivariate (nested by paper) Meta-analysis by random effects model ----
+
+Teste_mv <- rma.mv(yi, vi, data = Efeito, random = ~ 1 | id, slab = (paste(Efeito$first_author, as.character(Efeito$year), sep = ", ")))
+
+Teste_mv
+
+
 
 # Generate confidence  and prediction interval
 
