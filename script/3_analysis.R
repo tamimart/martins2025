@@ -89,10 +89,9 @@ Teste
 
 # Multivariate (nested by paper) Meta-analysis by random effects model ----
 
-Teste_mv <- rma.mv(yi, vi, data = Efeito, random = ~ 1 | id, slab = (paste(Efeito$first_author, as.character(Efeito$year), sep = ", ")))
+Teste_mv <- rma.mv(yi, vi, data = Efeito, random = ~ 1 | id , slab = (paste(Efeito$first_author, as.character(Efeito$year), sep = ", ")))
 
 Teste_mv
-
 
 
 # Generate confidence  and prediction interval
