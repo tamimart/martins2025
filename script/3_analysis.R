@@ -37,7 +37,7 @@ plot_mpower(poder_geral)
 # data treatment ----
 
 
-df <- read_excel("data/Data_200FST.xlsx") # load df
+df <- read_excel("data/Dataclean_200FST.xlsx") # load df
 
 # change date type to numeric
 
