@@ -9,14 +9,15 @@ library(skimr)
 library(janitor)
 
 # Import each spreadsheet tab in excel --------
+# To clean the 1st and 2nd reviewers' sheets, add "_1sR" and "_2sR" at the end of the input and output files.
 
-meus_dados_library <- read_excel("data/DataExtraction_RsGeral_sorteioI.xlsx", sheet = "Library") 
+meus_dados_library <- read_excel("data/DataExtraction_Raw.xlsx", sheet = "Library") 
 
-meus_dados_info <- read_excel("data/DataExtraction_RsGeral_sorteioI.xlsx", sheet = "Extraction info") 
+meus_dados_info <- read_excel("data/DataExtraction_Raw.xlsx", sheet = "Extraction info") 
 
-meus_dados_outcome <- read_excel("data/DataExtraction_RsGeral_sorteioI.xlsx", sheet = "FST imm. duration") 
+meus_dados_outcome <- read_excel("data/DataExtraction_Raw.xlsx", sheet = "FST imm. duration") 
 
-meus_dados_quality <- read_excel("data/DataExtraction_RsGeral_sorteioI.xlsx", sheet = "References Quality") 
+meus_dados_quality <- read_excel("data/DataExtraction_Raw.xlsx", sheet = "References Quality") 
 
 
 # Remove lines from articles excluded in the extraction step
@@ -219,6 +220,7 @@ data_geral <- data_geral %>%
          treatment_duration = as.numeric(treatment_duration),
          treatment_freq = as.numeric(treatment_freq),
          last_bf_outcome = as.numeric(last_bf_outcome),
+         positive_control = as.factor(positive_control),
          cylinder_height = as.numeric(cylinder_height),
          cylinder_diameter = as.numeric(cylinder_diameter),
          water_temperature = marg_water_temperature$b,
@@ -330,6 +332,7 @@ col_order <- c("line", # Put in the desired order
                "treatment_freq",
                "treatment_via",
                "last_bf_outcome",
+               "positive_control",
                "fst_protocol",
                "measurement_method",
                "measurement_method_detail",
@@ -462,9 +465,9 @@ data_geral_reord$more2arms <- factor(data_geral_reord$more2arms, exclude = NULL,
 
 # Save clean and transformed df FOR FURTHER DATA ANALYSIS
 
-write_xlsx(data_geral_reord,"data/Data_200FST.xlsx")
+write_xlsx(data_geral_reord,"data/Dataclean_200FST_2sR.xlsx")
 
-saveRDS(data_geral_reord, "data_geral_clean.rds")
+saveRDS(data_geral_reord, "data/Dataclean_200FST.rds")
 
 
 glimpse(data_geral_reord)
