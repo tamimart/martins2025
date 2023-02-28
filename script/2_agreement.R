@@ -80,9 +80,9 @@ irr::agree(Selection_wps[3:4])
 
 # load tables
 
-meus_dados_r1 <- read_excel("data/Data_200FST_primeirorevisor.xlsx")
+meus_dados_r1 <- read_excel("data/Dataclean_200FST_1sR.xlsx")
 
-meus_dados_r2 <- read_excel("data/Data_200FST_segundorevisor.xlsx")
+meus_dados_r2 <- read_excel("data/Dataclean_200FST_2sR.xlsx")
 
 
 # transform all columns into character
@@ -98,7 +98,7 @@ meus_dados_r2 <- meus_dados_r2 |>
 #r1
 
 meus_dados_r1_info <- meus_dados_r1 |>
-  select(year, language, country, source, species:others_tests) |>
+  select(year, language, country, source, species:other_tests) |>
   pivot_longer(cols = everything(),
                values_to = "extraido",
                names_to = "coluna")
@@ -119,7 +119,7 @@ meus_dados_r1_quali <- meus_dados_r1 |>
 #r2
 
 meus_dados_r2_info <- meus_dados_r2 |>
-  select(year, language, country, source, species:others_tests) |>
+  select(year, language, country, source, species:other_tests) |>
   pivot_longer(cols = everything(),
                values_to = "extraido",
                names_to = "coluna")
@@ -146,11 +146,16 @@ concordancia_revisores_quanti <- data.frame(meus_dados_r1_quanti$extraido, meus_
 
 concordancia_revisores_quali <- data.frame(meus_dados_r1_quali$extraido, meus_dados_r2_quali$extraido)
 
-
 # ANALYSIS OF AGREEMENT BETWEEN REVIEWERS ------ 
+
+
 
 #info
 rel::ckap(concordancia_revisores_info[1:2], conf.level = 0.95) # Calculation of kappa and 95%CI
+# for some reason it was not possible to calculate with rel package, so it was calculate with psych and irr packages as follows:
+
+psych::cohen.kappa(concordancia_revisores_info)
+irr::kappa2(concordancia_revisores_info)
 
 irr::agree(concordancia_revisores_info[1:2]) # Calculation of agreement
 
