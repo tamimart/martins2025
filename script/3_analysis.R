@@ -236,7 +236,7 @@ missing_r
 missing_noCP
 
 
-png("figure/funil.png", height = 800, width = 1600)
+png("figure/funil.png", height = 600, width = 1600)
 
 par(mfrow = c(2, 4), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = .8, font = 2, family = "sans")
 
@@ -344,6 +344,60 @@ funil_m2 <- metafor::funnel(
   cex.main = 1.7
 )
 
+funil_global_noCP1 <- metafor::funnel(
+  missing_noCP,
+  yaxis = "sei",
+  addtau2 = FALSE,
+  main = "Global without positive controls",
+  xlab = "Effect size",
+  ylab = "Standard error",
+  back = "gray94",
+  level = c(90, 95, 99),
+  shade = c("white", "grey80", "grey60"),
+  hlines = "white",
+  xlim = c(-60,60),
+  ylim = c(13,0), 
+  lty = 2,
+  pch = 19,
+  pch.fill = 1,
+  col = 25,
+  label = "F",
+  legend = "topright",
+  offset = 0.1,
+  ci.res = 1000,
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
+)
+
+
+funil_global_noCP2 <- metafor::funnel(
+  missing_noCP,
+  yaxis = "sqrtninv",
+  addtau2 = FALSE,
+  main = "Global without positive controls",
+  xlab = "Effect size",
+  ylab = "1/√n",
+  back = "gray94",
+  level = c(90, 95, 99),
+  shade = c("white", "aquamarine", "aquamarine3"),
+  hlines = "white",
+  xlim = c(-60,60),
+  ylim = c(0.500,0.100),
+  lty = 2,
+  pch = 19,
+  pch.fill = 1,
+  col = 25,
+  label = "F",
+  offset = 0.1,
+  ci.res = 1000,
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
+)
+
+
+
 funil_r1 <- metafor::funnel(
   missing_r,
   yaxis = "sei",
@@ -431,7 +485,7 @@ wf_rat
 wnoCP <- Efeito %>% 
   filter(positive_control == 0)
 
-wf_noCP <- weightfunct(wnoCP$yi, wrat$vi, table = TRUE, steps = 0.05)
+wf_noCP <- weightfunct(wnoCP$yi, wnoCP$vi, table = TRUE, steps = 0.05)
 
 # Subgroup analysis ----
 
