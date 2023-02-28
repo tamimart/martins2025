@@ -465,7 +465,7 @@ data_geral_reord$more2arms <- factor(data_geral_reord$more2arms, exclude = NULL,
 
 # Save clean and transformed df FOR FURTHER DATA ANALYSIS
 
-write_xlsx(data_geral_reord,"data/Dataclean_200FST_2sR.xlsx")
+write_xlsx(data_geral_reord,"data/Dataclean_200FST.xlsx")
 
 saveRDS(data_geral_reord, "data/Dataclean_200FST.rds")
 
