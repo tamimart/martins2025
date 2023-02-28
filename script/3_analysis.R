@@ -48,31 +48,31 @@ df <- df %>%
 
 # table
 
-library(gtsummary)
-
-df_table <- df %>% 
-  select(species, sex, age, weight) %>% 
-  mutate(sex = factor(sex,
-    levels = c("F", "M", "M and F", "NA"),
-    labels = c("Female", "Male", "Both sexes", "Unknown"))
-  ) %>%
-  labelled::set_variable_labels(
-    species = "Species",
-    age = "Age",
-    sex = "Sex",
-    weight = "Weight"
-  )
-
-
-table_pop <- df_table %>% 
-  tbl_summary(
-    by = species
-  ) %>% 
-  add_stat_label() %>%
-  modify_spanning_header(
-    all_stat_cols() ~ "**Species**"
-  )
-
+# library(gtsummary)
+# 
+# df_table <- df %>% 
+#   select(species, sex, age, weight) %>% 
+#   mutate(sex = factor(sex,
+#     levels = c("F", "M", "M and F", "NA"),
+#     labels = c("Female", "Male", "Both sexes", "Unknown"))
+#   ) %>%
+#   labelled::set_variable_labels(
+#     species = "Species",
+#     age = "Age",
+#     sex = "Sex",
+#     weight = "Weight"
+#   )
+# 
+# 
+# table_pop <- df_table %>% 
+#   tbl_summary(
+#     by = species
+#   ) %>% 
+#   add_stat_label() %>%
+#   modify_spanning_header(
+#     all_stat_cols() ~ "**Species**"
+#   )
+# 
 
 # Calculate effect size in SDM hedges g
 
@@ -187,6 +187,10 @@ Teste_rat <- rma(yi, vi, subset = (species == "rat"), data = Efeito)
 regtest(Teste_rat, model = "rma", predictor = "sei")
 regtest(Teste_rat, model = "rma", predictor = "sqrtninv")
 
+Teste_noCP <- rma(yi, vi, subset = (positive_control == 0), data = Efeito)
+regtest(Teste_noCP, model = "rma", predictor = "sei")
+regtest(Teste_noCP, model = "rma", predictor = "sqrtninv")
+
 # [trim and fill]
 
 missing <-
@@ -216,14 +220,25 @@ missing_r <-
     verbose = FALSE
   )
 
+
+missing_noCP <-
+  metafor::trimfill(
+    Teste_noCP,
+    side = "left",
+    estimator = "R0",
+    maxiter = 100,
+    verbose = FALSE
+  )
+
 missing
 missing_m
 missing_r 
+missing_noCP
 
 
-png("figure/funil.png", height = 800, width = 800)
+png("figure/funil.png", height = 800, width = 1600)
 
-par(mfrow = c(3, 2), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = .8, font = 2, family = "sans")
+par(mfrow = c(2, 4), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = .8, font = 2, family = "sans")
 
 funil_global1 <- metafor::funnel(
   missing,
@@ -412,6 +427,11 @@ wrat <- Efeito %>%
 wf_rat <- weightfunct(wrat$yi, wrat$vi, table = TRUE, steps = 0.05)
 wf_rat
 
+# no positive control
+wnoCP <- Efeito %>% 
+  filter(positive_control == 0)
+
+wf_noCP <- weightfunct(wnoCP$yi, wrat$vi, table = TRUE, steps = 0.05)
 
 # Subgroup analysis ----
 
