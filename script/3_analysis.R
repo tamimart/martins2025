@@ -236,9 +236,9 @@ missing_r
 missing_noCP
 
 
-png("figure/funil.png", height = 600, width = 1600)
+png("figure/funil.png", height = 1200, width = 800)
 
-par(mfrow = c(2, 4), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = .8, font = 2, family = "sans")
+par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = .8, font = 2, family = "sans")
 
 funil_global1 <- metafor::funnel(
   missing,
@@ -280,58 +280,6 @@ funil_global2 <- metafor::funnel(
   hlines = "white",
   xlim = c(-60,60),
   ylim = c(0.500,0.100),
-  lty = 2,
-  pch = 19,
-  pch.fill = 1,
-  col = 25,
-  label = "F",
-  offset = 0.1,
-  ci.res = 1000,
-  cex.lab = 1.7,
-  cex.axis = 1.4,
-  cex.main = 1.7
-)
-
-funil_m1 <- metafor::funnel(
-  missing_m,
-  yaxis = "sei",
-  addtau2 = FALSE,
-  main = "Mice",
-  xlab = "Effect Size",
-  ylab = "Standard error",
-  back = "gray94",
-  level = c(90, 95, 99),
-  shade = c("white", "#ff9400", "#FE7700"),
-  hlines = "white",
-  xlim = c(-60,60),
-  ylim = c(13,0), 
-  lty = 2,
-  pch = 19,
-  pch.fill = 1,
-  col = 25,
-  label = "F",
-  offset = 0.1,
-  legend = "topright",
-  ci.res = 1000,
-  cex.lab = 1.7,
-  cex.axis = 1.4,
-  cex.main = 1.7
-)
-
-
-funil_m2 <- metafor::funnel(
-  missing_m,
-  yaxis = "sqrtninv",
-  addtau2 = FALSE,
-  main = "Mice",
-  xlab = "Effect size",
-  ylab = "1/√n",
-  back = "gray94",
-  level = c(90, 95, 99),
-  shade = c("white", "#ff9400", "#FE7700"),
-  hlines = "white",
-  xlim = c(-60,60),
-  ylim = c(0.500,0.100), 
   lty = 2,
   pch = 19,
   pch.fill = 1,
@@ -397,6 +345,57 @@ funil_global_noCP2 <- metafor::funnel(
 )
 
 
+funil_m1 <- metafor::funnel(
+  missing_m,
+  yaxis = "sei",
+  addtau2 = FALSE,
+  main = "Mice",
+  xlab = "Effect Size",
+  ylab = "Standard error",
+  back = "gray94",
+  level = c(90, 95, 99),
+  shade = c("white", "#ff9400", "#FE7700"),
+  hlines = "white",
+  xlim = c(-60,60),
+  ylim = c(13,0), 
+  lty = 2,
+  pch = 19,
+  pch.fill = 1,
+  col = 25,
+  label = "F",
+  offset = 0.1,
+  legend = "topright",
+  ci.res = 1000,
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
+)
+
+
+funil_m2 <- metafor::funnel(
+  missing_m,
+  yaxis = "sqrtninv",
+  addtau2 = FALSE,
+  main = "Mice",
+  xlab = "Effect size",
+  ylab = "1/√n",
+  back = "gray94",
+  level = c(90, 95, 99),
+  shade = c("white", "#ff9400", "#FE7700"),
+  hlines = "white",
+  xlim = c(-60,60),
+  ylim = c(0.500,0.100), 
+  lty = 2,
+  pch = 19,
+  pch.fill = 1,
+  col = 25,
+  label = "F",
+  offset = 0.1,
+  ci.res = 1000,
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
+)
 
 funil_r1 <- metafor::funnel(
   missing_r,
