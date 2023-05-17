@@ -1475,7 +1475,7 @@ sub_pop_c <- ppt_sub_pop_c + ppt_sub_pop_c_i + plot_layout(widths = c(6, 1))
 
 save_plot(filename = "ppt_sub_pop_c.png",
           plot = sub_pop_c,
-          dpi = 300,
+          dpi = 600,
           path = "figure")
 
 
@@ -1568,7 +1568,7 @@ sub_pop_r <- ppt_sub_pop_r + ppt_sub_pop_r_i + plot_layout(widths = c(6, 1))
 
 save_plot(filename = "ppt_sub_pop_r.png",
           plot = sub_pop_r,
-          dpi = 300,
+          dpi = 600,
           path = "figure")
 
 
@@ -1599,7 +1599,7 @@ ppt_sub_int_c <- dfsubgrupos %>%
   geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
             ymin = 2,ymax = Inf, color = "grey82") +
   geom_pointrange() +
-  scale_y_continuous(limits = c(-2, 18)) +
+  scale_y_continuous(limits = c(-3, 18)) +
   labs(x = "", y = "") +
   scale_colour_manual(values = "#ff9400") +
   geom_hline(yintercept = 0, lty = 2) +
@@ -1664,7 +1664,7 @@ sub_int_c <- ppt_sub_int_c + ppt_sub_int_c_i + plot_layout(widths = c(6, 1))
 
 save_plot(filename = "ppt_sub_int_c.png",
           plot = sub_int_c,
-          dpi = 300,
+          dpi = 600,
           path = "figure")
 
 
@@ -1693,7 +1693,7 @@ ppt_sub_int_r <- dfsubgrupos %>%
   geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
             ymin = 2,ymax = Inf, color = "grey82") +
   geom_pointrange() +
-  scale_y_continuous(limits = c(-2, 18)) +
+  scale_y_continuous(limits = c(-3, 18)) +
   labs(x = "", y = "Effect size") +
   scale_colour_manual(values = "#ec2b2b") +
   geom_hline(yintercept = 0, lty = 2) +
@@ -1759,7 +1759,7 @@ sub_int_r <- ppt_sub_int_r + ppt_sub_int_r_i + plot_layout(widths = c(6, 1))
 
 save_plot(filename = "ppt_sub_int_r.png",
           plot = sub_int_r,
-          dpi = 300,
+          dpi = 600,
           path = "figure")
 
 
@@ -1854,7 +1854,7 @@ sub_des_c <- ppt_sub_des_c + ppt_sub_des_c_i + plot_layout(widths = c(6, 1))
 
 save_plot(filename = "ppt_sub_des_c.png",
           plot = sub_des_c,
-          dpi = 300,
+          dpi = 600,
           path = "figure")
 
 
@@ -1948,7 +1948,7 @@ sub_des_r <- ppt_sub_des_r + ppt_sub_des_r_i + plot_layout(widths = c(6, 1))
 
 save_plot(filename = "ppt_sub_des_r.png",
           plot = sub_des_r,
-          dpi = 300,
+          dpi = 600,
           path = "figure")
 
 
@@ -2245,6 +2245,6 @@ quality <- robplot / camaradesplot + plot_layout(heights = c(5,5), width = 5)
 
 save_plot(filename = "quality.png",
           plot = quality,
-          dpi = 300,
+          dpi = 600,
           path = "figure")
 
