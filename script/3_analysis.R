@@ -14,6 +14,11 @@ library(lubridate) # date manipulation
 library(weightr)   # test pub bias
 library(patchwork) # to join plots
 
+
+# import font
+
+font_import(paths = "C:/Windows/Fonts")
+
 # power ----
 
 # create function to convert hedges g to cohen's d
@@ -1260,10 +1265,17 @@ dfsubgrupos <- read_excel("data/subgruposppt.xlsx")
 dfsubgrupos <- dfsubgrupos %>% 
   rename(IC95LL = `IC95-L`,
          IC95UL = `IC95-U`,
-         inconsistency = `I² (%)`)
-
-dfsubgrupos$tau2 <- round(dfsubgrupos$tau2, digits = 1)
-
+         inconsistency = `I² (%)`) |> 
+  separate(k, c("k", "nested")) |> 
+  mutate(tau2 = round(dfsubgrupos$tau2, digits = 1),
+         moderator = as.factor(moderator),
+         category = as.factor(category),
+         category = fct_reorder(category, k),
+         k = as.numeric(k),
+         nested = case_when(nested == "" ~ "*"),
+         nested = replace_na(nested,"")) 
+  
+ 
 dfsubgrupos$moderator <-
   factor(
     dfsubgrupos$moderator,
@@ -1294,7 +1306,6 @@ dfsubgrupos$category <-
                 "Male",
                 "Female",
                 "Both sexes",
-                "No info",
                 "Swiss",
                 "CD-1",
                 "C57BL",
@@ -1375,9 +1386,11 @@ dfsubgrupos$category <-
                 "Manual",
                 "No",
                 "Yes",
-                "T15’", 
+                "T15’",
                 "PT?’ + T6’ + S4’",
-                "PT15’ + T6’ + S5’"))
+                "PT15’ + T6’ + S5’",
+                "No info"))
+
 
 
 theme_set(theme_minimal(base_family = "Gadugi"))
@@ -1389,7 +1402,7 @@ ppt_sub_pop_c <- dfsubgrupos %>%
   filter(species == "Mice",
          type == "Population") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = GES,
     ymin = IC95LL,
     ymax = IC95UL,
@@ -1410,7 +1423,7 @@ ppt_sub_pop_c <- dfsubgrupos %>%
   geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
             ymin = 2,ymax = Inf, color = "grey82") +
   geom_pointrange() +
-  scale_y_continuous(limits = c(-1, 18)) +
+  scale_y_continuous(limits = c(-2, 18)) +
   labs(x = "", y = "Effect Size") +
   scale_colour_manual(values = "#ff9400") +
   geom_hline(yintercept = 0, lty = 2) +
@@ -1419,6 +1432,7 @@ ppt_sub_pop_c <- dfsubgrupos %>%
     aes(label = paste(
       "k = ",
       k,
+      fct_reorder(nested, k),
       sep = ""
     )),
     y = Inf - 1,
@@ -1434,14 +1448,13 @@ ppt_sub_pop_c <- dfsubgrupos %>%
     strip.text = element_blank(),
     axis.title = element_blank(),
     axis.text.x = element_blank(),
-    axis.text.y = element_text(size = 9, color = "black")
-)
+    axis.text.y = element_text(size = 9, color = "black"))
 
 ppt_sub_pop_c_i <- dfsubgrupos %>%
   filter(species == "Mice",
          type == "Population") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = inconsistency,
     fill = "#ff9400"
   )) +
@@ -1469,22 +1482,27 @@ ppt_sub_pop_c_i <- dfsubgrupos %>%
   )
 
 
-
-sub_pop_c <- ppt_sub_pop_c + ppt_sub_pop_c_i + plot_layout(widths = c(6, 1))
-
-
-save_plot(filename = "ppt_sub_pop_c.png",
-          plot = sub_pop_c,
-          dpi = 600,
-          path = "figure")
-
+label_pop_c <- 
+  ggplot() +
+  annotate(
+    "text", label = paste(c("Species","Sex","Strain","Precondition","Light cycle")),
+    x = c(1,1,1,1,1), y = c(28,24,15,5.5,1),     
+    size = 3,
+    family = "Gadugi",
+    hjust = 0,
+    vjust = -0.5,
+    fontface = "bold",
+    colour = "black"
+  ) +
+  scale_y_continuous(limits = c(1, 28), position = "right") +
+  theme_void()
 
 
 ppt_sub_pop_r <- dfsubgrupos %>%
   filter(species == "Rat",
          type == "Population") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = GES,
     ymin = IC95LL,
     ymax = IC95UL,
@@ -1505,7 +1523,7 @@ ppt_sub_pop_r <- dfsubgrupos %>%
   geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
             ymin = 2,ymax = Inf, color = "grey82") +
   geom_pointrange() +
-  scale_y_continuous(limits = c(-1, 18)) +
+  scale_y_continuous(limits = c(-2, 18)) +
   labs(x = "", y = "Effect size") +
   scale_colour_manual(values = "#ec2b2b") +
   geom_hline(yintercept = 0, lty = 2) +
@@ -1514,6 +1532,7 @@ ppt_sub_pop_r <- dfsubgrupos %>%
     aes(label = paste(
       "k = ",
       k,
+      fct_reorder(nested, k),
       sep = ""
     )),
     y = Inf - 1,
@@ -1535,7 +1554,7 @@ ppt_sub_pop_r_i <- dfsubgrupos %>%
   filter(species == "Rat",
          type == "Population") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = inconsistency,
     fill = "#ec2b2b"
   )) +
@@ -1559,17 +1578,64 @@ ppt_sub_pop_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", hjust = -0.2),
+    axis.title = element_text(size = 9, color = "black", hjust = 0.225),
     axis.text.x = element_text(size = 9, color = "black", vjust = -2)
   )
 
+label_pop_r <- 
+  ggplot() +
+  annotate(
+    "text", label = paste(c("Species","Sex","Strain","Precondition","Light cycle")),
+    x = c(1,1,1,1,1), y = c(28,24,16,9,3),     
+    size = 3,
+    family = "Gadugi",
+    hjust = 0,
+    vjust = -0.5,
+    fontface = "bold",
+    colour = "black"
+  ) +
+  scale_y_continuous(limits = c(1, 28), position = "right") +
+  theme_void() 
 
-sub_pop_r <- ppt_sub_pop_r + ppt_sub_pop_r_i + plot_layout(widths = c(6, 1))
+label_direction <- 
+  ggplot() +
+  annotate(
+    "text", label = paste(c("Favours to","control","antidepressants")),
+    x = c(0,-0.5,0.5), y = c(4,2,2),     
+    size = 3,
+    family = "Gadugi",
+    hjust = c(0.5,1,0),
+    vjust = 0,
+    fontface = "bold",
+    colour = "black"
+  ) +
+  geom_segment(aes(x=-.5, y=1, xend = -1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
+  geom_segment(aes(x=0.5, y = 1, xend = 1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
+  scale_y_continuous(limits = c(1, 10)) +
+  scale_x_continuous(limits = c(-2, 18)) +
+  theme_void()
 
-save_plot(filename = "ppt_sub_pop_r.png",
-          plot = sub_pop_r,
+layout <-"
+####GGGGGGGGGG##
+CCCCAAAAAAAAAABB
+CCCCAAAAAAAAAABB
+CCCCAAAAAAAAAABB
+CCCCAAAAAAAAAABB
+FFFFDDDDDDDDDDEE
+FFFFDDDDDDDDDDEE
+FFFFDDDDDDDDDDEE
+FFFFDDDDDDDDDDEE
+"
+
+
+plot_pop <- ppt_sub_pop_c + ppt_sub_pop_c_i + label_pop_c + ppt_sub_pop_r + ppt_sub_pop_r_i + label_pop_r + label_direction + plot_layout(design = layout)
+
+
+save_plot(filename = "plot_pop.jpg",
+          plot = plot_pop,
           dpi = 600,
-          path = "figure")
+          path = "figure",
+          base_height = 8, base_width = 8)
 
 
 #intervencao 
@@ -1578,7 +1644,7 @@ ppt_sub_int_c <- dfsubgrupos %>%
   filter(species == "Mice",
          type == "Intervention") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = GES,
     ymin = IC95LL,
     ymax = IC95UL,
@@ -1599,7 +1665,7 @@ ppt_sub_int_c <- dfsubgrupos %>%
   geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
             ymin = 2,ymax = Inf, color = "grey82") +
   geom_pointrange() +
-  scale_y_continuous(limits = c(-3, 18)) +
+  scale_y_continuous(limits = c(-2, 18)) +
   labs(x = "", y = "") +
   scale_colour_manual(values = "#ff9400") +
   geom_hline(yintercept = 0, lty = 2) +
@@ -1608,6 +1674,7 @@ ppt_sub_int_c <- dfsubgrupos %>%
     aes(label = paste(
       "k = ",
       k,
+      fct_reorder(nested, k),
       sep = ""
     )),
     y = Inf - 1,
@@ -1622,14 +1689,15 @@ ppt_sub_int_c <- dfsubgrupos %>%
     strip.background = element_blank(),
     strip.text = element_blank(),
     axis.text.x = element_blank(),
-    axis.text.y = element_text(size = 7, color = "black")
+    axis.text.y = element_text(size = 7, color = "black"),
+    plot.margin = margin(0, 0,-5, 0)
   )
 
 ppt_sub_int_c_i <- dfsubgrupos %>%
   filter(species == "Mice",
          type == "Intervention") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = inconsistency,
     fill = "#ff9400"
   )) +
@@ -1654,25 +1722,34 @@ ppt_sub_int_c_i <- dfsubgrupos %>%
     strip.background = element_blank(),
     strip.text = element_blank(),
     axis.title = element_blank(),
-    axis.text = element_blank()
+    axis.text = element_blank(),
+    plot.margin = margin(0, 0,-5, 0)
     )
   
 
+label_int_c <- 
+  ggplot() +
+  annotate(
+    "text", label = paste(c("Drug", "Via")),
+    x = c(1,1), y = c(20, 1.5),     
+    size = 3,
+    family = "Gadugi",
+    hjust = 0,
+    vjust = -0.5,
+    fontface = "bold",
+    colour = "black"
+  ) +
+  scale_y_continuous(limits = c(1, 33), position = "right") +
+  theme_void()
 
-sub_int_c <- ppt_sub_int_c + ppt_sub_int_c_i + plot_layout(widths = c(6, 1))
 
-
-save_plot(filename = "ppt_sub_int_c.png",
-          plot = sub_int_c,
-          dpi = 600,
-          path = "figure")
 
 
 ppt_sub_int_r <- dfsubgrupos %>%
   filter(species == "Rat",
          type == "Intervention") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = GES,
     ymin = IC95LL,
     ymax = IC95UL,
@@ -1693,7 +1770,7 @@ ppt_sub_int_r <- dfsubgrupos %>%
   geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
             ymin = 2,ymax = Inf, color = "grey82") +
   geom_pointrange() +
-  scale_y_continuous(limits = c(-3, 18)) +
+  scale_y_continuous(limits = c(-2, 18)) +
   labs(x = "", y = "Effect size") +
   scale_colour_manual(values = "#ec2b2b") +
   geom_hline(yintercept = 0, lty = 2) +
@@ -1702,6 +1779,7 @@ ppt_sub_int_r <- dfsubgrupos %>%
     aes(label = paste(
       "k = ",
       k,
+      fct_reorder(nested, k),
       sep = ""
     )),
     y = Inf - 1,
@@ -1717,7 +1795,8 @@ ppt_sub_int_r <- dfsubgrupos %>%
     strip.text = element_blank(),
     axis.title.x = element_text(size = 8, color = "black"),
     axis.text.x = element_text(size = 8, color = "black"),
-    axis.text.y = element_text(size = 7, color = "black")
+    axis.text.y = element_text(size = 7, color = "black"),
+    plot.margin = margin(-5, 0,0, 0)
   )
 
 
@@ -1726,7 +1805,7 @@ ppt_sub_int_r_i <- dfsubgrupos %>%
   filter(species == "Rat",
          type == "Intervention") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = inconsistency,
     fill = "#ec2b2b"
   )) +
@@ -1750,17 +1829,66 @@ ppt_sub_int_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 8, color = "black", hjust = 0.1),
-    axis.text.x = element_text(size = 8, color = "black", vjust = -2)
+    axis.title = element_text(size = 8, color = "black", hjust = 0.425),
+    axis.text.x = element_text(size = 8, color = "black", vjust = -2),
+    plot.margin = margin(-5, 0,0, 0)
   )
 
+label_int_r <- 
+  ggplot() +
+  annotate(
+    "text", label = paste(c("Drug", "Via")),
+    x = c(1,1), y = c(20, 2),     
+    size = 3,
+    family = "Gadugi",
+    hjust = 0,
+    vjust = -0.5,
+    fontface = "bold",
+    colour = "black"
+  ) +
+  scale_y_continuous(limits = c(1, 33), position = "right") +
+  theme_void()
 
-sub_int_r <- ppt_sub_int_r + ppt_sub_int_r_i + plot_layout(widths = c(6, 1))
 
-save_plot(filename = "ppt_sub_int_r.png",
-          plot = sub_int_r,
+
+label_direction <- 
+  ggplot() +
+  annotate(
+    "text", label = paste(c("Favours to","control","antidepressants")),
+    x = c(0,-0.5,0.5), y = c(4,2,2),     
+    size = 3,
+    family = "Gadugi",
+    hjust = c(0.5,1,0),
+    vjust = 0,
+    fontface = "bold",
+    colour = "black"
+  ) +
+  geom_segment(aes(x=-.5, y=1, xend = -1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
+  geom_segment(aes(x=0.5, y = 1, xend = 1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
+  scale_y_continuous(limits = c(1, 10)) +
+  scale_x_continuous(limits = c(-2, 18)) +
+  theme_void()
+
+layout <-"
+#GGGGGG##
+CAAAAAABB
+CAAAAAABB
+CAAAAAABB
+CAAAAAABB
+FDDDDDDEE
+FDDDDDDEE
+FDDDDDDEE
+FDDDDDDEE
+"
+
+plot_int <- ppt_sub_int_c + ppt_sub_int_c_i + label_int_c + ppt_sub_int_r + ppt_sub_int_r_i + label_int_r + label_direction + plot_layout(design = layout)
+
+
+save_plot(filename = "plot_int.jpg",
+          plot = plot_int,
           dpi = 600,
-          path = "figure")
+          path = "figure",
+          base_height = 8, base_width = 8)
 
 
 #desfecho
@@ -1769,7 +1897,7 @@ ppt_sub_des_c <- dfsubgrupos %>%
   filter(species == "Mice",
          type == "Outcome") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = GES,
     ymin = IC95LL,
     ymax = IC95UL,
@@ -1799,6 +1927,7 @@ ppt_sub_des_c <- dfsubgrupos %>%
     aes(label = paste(
       "k = ",
       k,
+      fct_reorder(nested, k),
       sep = ""
     )),
     y = Inf - 1,
@@ -1821,7 +1950,7 @@ ppt_sub_des_c_i <- dfsubgrupos %>%
   filter(species == "Mice",
          type == "Outcome") %>% 
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = inconsistency,
     fill = "#ff9400"
   )) +
@@ -1849,20 +1978,27 @@ ppt_sub_des_c_i <- dfsubgrupos %>%
   )
 
 
-sub_des_c <- ppt_sub_des_c + ppt_sub_des_c_i + plot_layout(widths = c(6, 1))
-
-
-save_plot(filename = "ppt_sub_des_c.png",
-          plot = sub_des_c,
-          dpi = 600,
-          path = "figure")
+label_des_c <- 
+  ggplot() +
+  annotate(
+    "text", label = paste(c("Protocol", "Scoring\n method", "Test\n battery")),
+    x = c(1,1,1), y = c(15, 5, 1),     
+    size = 3,
+    family = "Gadugi",
+    hjust = 0,
+    vjust = 0.5,
+    fontface = "bold",
+    colour = "black"
+  ) +
+  scale_y_continuous(limits = c(1, 22), position = "right") +
+  theme_void()
 
 
 ppt_sub_des_r <- dfsubgrupos %>%
   filter(species == "Rat",
          type == "Outcome") %>%
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = GES,
     ymin = IC95LL,
     ymax = IC95UL,
@@ -1892,6 +2028,7 @@ ppt_sub_des_r <- dfsubgrupos %>%
     aes(label = paste(
       "k = ",
       k,
+      fct_reorder(nested, k),
       sep = ""
     )),
     y = Inf - 1,
@@ -1914,7 +2051,7 @@ ppt_sub_des_r_i <- dfsubgrupos %>%
   filter(species == "Rat",
          type == "Outcome") %>% 
   ggplot(aes(
-    x = category,
+    x = fct_reorder(category, k),
     y = inconsistency,
     fill = "#ec2b2b"
   )) +
@@ -1938,19 +2075,70 @@ ppt_sub_des_r_i <- dfsubgrupos %>%
     legend.position = "none",
     strip.background = element_blank(),
     strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", hjust = -0.4),
+    axis.title = element_text(size = 9, color = "black", hjust = 0.3),
     axis.text.x = element_text(size = 9, color = "black", vjust = -2)
   )
 
 
 
-sub_des_r <- ppt_sub_des_r + ppt_sub_des_r_i + plot_layout(widths = c(6, 1))
 
-save_plot(filename = "ppt_sub_des_r.png",
-          plot = sub_des_r,
+label_des_r <- 
+  ggplot() +
+  annotate(
+    "text", label = paste(c("Protocol", "Scoring\n method", "Test\n battery")),
+    x = c(1,1,1), y = c(11, 4.5, 0.5),     
+    size = 3,
+    family = "Gadugi",
+    hjust = 0,
+    vjust = 0.5,
+    fontface = "bold",
+    colour = "black"
+  ) +
+  scale_y_continuous(limits = c(0, 14), position = "right") +
+  theme_void()
+
+
+
+label_direction <- 
+  ggplot() +
+  annotate(
+    "text", label = paste(c("Favours to","control","antidepressants")),
+    x = c(0,-0.5,0.5), y = c(4,2,2),     
+    size = 3,
+    family = "Gadugi",
+    hjust = c(0.5,1,0),
+    vjust = 0,
+    fontface = "bold",
+    colour = "black"
+  ) +
+  geom_segment(aes(x=-.5, y=1, xend = -1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
+  geom_segment(aes(x=0.5, y = 1, xend = 1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
+  scale_y_continuous(limits = c(1, 10)) +
+  scale_x_continuous(limits = c(-2, 22)) +
+  theme_void()
+
+
+layout <-"
+###GGGGGGGGG##
+CCCAAAAAAAAABB
+CCCAAAAAAAAABB
+CCCAAAAAAAAABB
+CCCAAAAAAAAABB
+FFFDDDDDDDDDEE
+FFFDDDDDDDDDEE
+FFFDDDDDDDDDEE
+"
+
+
+
+plot_des <- ppt_sub_des_c + ppt_sub_des_c_i + label_des_c + ppt_sub_des_r + ppt_sub_des_r_i + label_des_r + label_direction + plot_layout(design = layout)
+
+
+save_plot(filename = "plot_des.jpg",
+          plot = plot_des,
           dpi = 600,
-          path = "figure")
-
+          path = "figure",
+          base_height = 8, base_width = 8)
 
 
 # Metaregression -----
