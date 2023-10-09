@@ -460,6 +460,66 @@ dev.off()
 
 
 
+png("figure/funil_ibro.png", height = 1000, width = 2400)
+
+par(mfrow = c(1, 2), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = 2, font = 2, family = "sans")
+
+
+funil_global1 <- metafor::funnel(
+  missing,
+  yaxis = "sei",
+  addtau2 = FALSE,
+  main = "Complete sample (CS)",
+  xlab = "Effect size",
+  ylab = "Standard error",
+  back = "gray94",
+  level = c(90, 95, 99),
+  shade = c("white", "#3b446f", "#05064f"),
+  hlines = "white",
+  xlim = c(-60,60),
+  ylim = c(13,0), 
+  lty = 2,
+  pch = 19,
+  pch.fill = 1,
+  col = 25,
+  label = "F",
+  legend = "topright",
+  offset = 0.1,
+  ci.res = 1000,
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
+)
+
+
+funil_global_noCP1 <- metafor::funnel(
+  missing_noCP,
+  yaxis = "sei",
+  addtau2 = FALSE,
+  main = "Excluding positive controls (-PC)",
+  xlab = "Effect size",
+  ylab = "Standard error",
+  back = "gray94",
+  level = c(90, 95, 99),
+  shade = c("white", "#b5948e", "#883b32"),
+  hlines = "white",
+  xlim = c(-60,60),
+  ylim = c(13,0), 
+  lty = 2,
+  pch = 19,
+  pch.fill = 1,
+  col = 25,
+  label = "F",
+  legend = "topright",
+  offset = 0.1,
+  ci.res = 1000,
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
+)
+
+dev.off()
+
 # [weight function model]
 # Specific publication bias test - 
 # increases the weight of studies that are less likely to be published and 
@@ -1273,7 +1333,8 @@ dfsubgrupos <- dfsubgrupos %>%
          category = fct_reorder(category, k),
          k = as.numeric(k),
          nested = case_when(nested == "" ~ "*"),
-         nested = replace_na(nested,"")) 
+         nested = replace_na(nested,""),
+         outline = 100) 
   
  
 dfsubgrupos$moderator <-
@@ -1397,6 +1458,7 @@ theme_set(theme_minimal(base_family = "Gadugi"))
 
 
 #populacao
+# EDIT OTHER FIGURES LIKE THIS ONE
 
 ppt_sub_pop_c <- dfsubgrupos %>%
   filter(species == "Mice",
@@ -1454,15 +1516,14 @@ ppt_sub_pop_c_i <- dfsubgrupos %>%
   filter(species == "Mice",
          type == "Population") %>%
   ggplot(aes(
-    x = fct_reorder(category, k),
-    y = inconsistency,
-    fill = "#ff9400"
+    x = fct_reorder(category, k)
   )) +
-  geom_bar(stat = "identity") +
+  geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity") + #HERE
+  geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") + #HERE
   scale_y_continuous(limits = c(0, 200), position = "right") +
   labs(x = "", y = "I² (%) |𝜏² ") +
-  scale_fill_manual(values = "#ff9400") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
+  scale_fill_manual(values = c("inconsistency" = "#ff9400", "outline" = "black"), guide = "none") + #HERE
+  geom_hline(yintercept = 100, lty = 1, linewidth = .2, color = "black") +
   geom_text(
     aes(label = tau2),
     y = 104,
@@ -1554,14 +1615,13 @@ ppt_sub_pop_r_i <- dfsubgrupos %>%
   filter(species == "Rat",
          type == "Population") %>%
   ggplot(aes(
-    x = fct_reorder(category, k),
-    y = inconsistency,
-    fill = "#ec2b2b"
+    x = fct_reorder(category, k)
   )) +
-  geom_bar(stat = "identity") +
+  geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity") +
+  geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") +
   scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
   labs(x = "", y = "I² (%) |𝜏² ") +
-  scale_fill_manual(values = "#ec2b2b") +
+  scale_fill_manual(values = c("inconsistency" = "#ec2b2b", "outline" = "black"), guide = "none") + 
   geom_hline(yintercept = 100, lty = 1, size = .3, color = "black") +
   geom_text(
     aes(label = tau2),
