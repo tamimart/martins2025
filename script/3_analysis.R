@@ -1321,7 +1321,7 @@ Teste_otherT_r
 
 # I tabulated the results of the subgroups in an excel spreadsheet
 
-dfsubgrupos <- read_excel("data/subgruposppt.xlsx")
+dfsubgrupos <- read_excel("data/subgroupresults.xlsx")
 dfsubgrupos <- dfsubgrupos %>% 
   rename(IC95LL = `IC95-L`,
          IC95UL = `IC95-U`,
@@ -1450,7 +1450,7 @@ dfsubgrupos$category <-
                 "T15’",
                 "PT?’ + T6’ + S4’",
                 "PT15’ + T6’ + S5’",
-                "No info"))
+                "Not reported"))
 
 
 
