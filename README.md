@@ -1,8 +1,10 @@
+<!--
 ---
 editor_options: 
   markdown: 
     wrap: 72
 ---
+-->
 
 This project contains the data and scripts from the publication
 **reference**.
