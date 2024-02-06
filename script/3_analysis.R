@@ -1522,8 +1522,7 @@ ppt_sub_pop_c_i <- dfsubgrupos %>%
   geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") + #HERE
   scale_y_continuous(limits = c(0, 200), position = "right") +
   labs(x = "", y = "I² (%) |𝜏² ") +
-  scale_fill_manual(values = c("inconsistency" = "#ff9400", "outline" = "black"), guide = "none") + #HERE
-  geom_hline(yintercept = 100, lty = 1, linewidth = .2, color = "black") +
+  scale_fill_manual(values = c("inconsistency" = "#ff9400", "outline" = "black"), guide = "none") + #HERE and the next
   geom_text(
     aes(label = tau2),
     y = 104,
@@ -1622,7 +1621,6 @@ ppt_sub_pop_r_i <- dfsubgrupos %>%
   scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
   labs(x = "", y = "I² (%) |𝜏² ") +
   scale_fill_manual(values = c("inconsistency" = "#ec2b2b", "outline" = "black"), guide = "none") + 
-  geom_hline(yintercept = 100, lty = 1, size = .3, color = "black") +
   geom_text(
     aes(label = tau2),
     y = 104,
