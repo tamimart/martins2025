@@ -2,7 +2,6 @@
 editor_options: 
   markdown: 
     wrap: 72
-title: "Title"
 ---
 
 This project contains the data and scripts from the publication
