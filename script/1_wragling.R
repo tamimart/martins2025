@@ -22,7 +22,7 @@ meus_dados_quality <- read_excel("data/DataExtraction_Raw.xlsx", sheet = "Refere
 
 # Remove lines from articles excluded in the extraction step
 
-meus_dados_library <- meus_dados_library %>% 
+meus_dados_library <- meus_dados_library |> 
   filter(Included == TRUE)
 
 
@@ -45,11 +45,11 @@ view(data_geral)
 ####### MUDAR
 # Select columns that will remain in the final worksheet
 
-data_geral <- data_geral %>% 
+data_geral <- data_geral |> 
   select(everything(), -...25, -Included, -`First author.y`, -comp.y, `First author`, -exclusion_reason, -FSTApparatus_conditions, -`Housing conditions`, -year.y, -source.y, `First author.y`, -comp.y, -`Escale (mm)`, -`Escale (s or %)`, -`mean CTRL or ATD (mm)`, -`SEM CTRL or ATD (mm)`, -`mean ADT (mm)` , -`SEM ADT (mm)`) 
 
 
-data_geral <- data_geral %>% # Rename columns/variables according to best practices
+data_geral <- data_geral |> # Rename columns/variables according to best practices
   rename(first_author = `First author.x`,
          sex = `Sex (M, F)`,
          species = `Species (Rat, Mice)`,
@@ -111,8 +111,8 @@ data_geral <- data_geral %>% # Rename columns/variables according to best practi
          CAMARADES10 = `20- Relato sobre o método do teste comportamental e aquisição dos desfechos comportamentais.`,
          CAMARADES11 = `21- Relato do cálculo amostral. (*)`,
          obs_quali = `10`
-         ) %>% 
-  rename_with(., ~ tolower(gsub(".", "_", .x, fixed = TRUE))) %>% 
+         ) |> 
+  rename_with(., ~ tolower(gsub(".", "_", .x, fixed = TRUE))) |> 
   clean_names()
 
 
@@ -120,89 +120,89 @@ data_geral <- data_geral %>% # Rename columns/variables according to best practi
 
 # age
 
-marg_age <- data_geral %>%
-  select(age) %>% 
-  separate(col = age, sep = "-", into = c("v1", "v2")) %>% 
+marg_age <- data_geral |>
+  select(age) |> 
+  separate(col = age, sep = "-", into = c("v1", "v2")) |> 
   mutate(v1 = as.numeric(v1),
          v2 = as.numeric(v2)) # Split the column into two and make it numeric
-marg_age <- marg_age %>% 
+marg_age <- marg_age |> 
   mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))  # Create new column with average of values that have margin
-marg_age <- marg_age %>%
-  mutate(b = coalesce(marg_age$g, marg_age$v1)) %>% # Create a new column with the fusion of values (average and single value)
+marg_age <- marg_age |>
+  mutate(b = coalesce(marg_age$g, marg_age$v1)) |> # Create a new column with the fusion of values (average and single value)
   select(b)
 
 # weight
 
-marg_weight <- data_geral %>%
-  select(weight) %>% 
-  separate(col = weight, sep = "-", into = c("v1", "v2")) %>% 
+marg_weight <- data_geral |>
+  select(weight) |> 
+  separate(col = weight, sep = "-", into = c("v1", "v2")) |> 
   mutate(v1 = as.numeric(v1),
          v2 = as.numeric(v2)) 
-marg_weight <- marg_weight %>% 
+marg_weight <- marg_weight |> 
   mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_weight <- marg_weight %>% 
-  mutate(b = coalesce(marg_weight$g, marg_weight$v1)) %>% 
+marg_weight <- marg_weight |> 
+  mutate(b = coalesce(marg_weight$g, marg_weight$v1)) |> 
   select(b)
 
 # bioterium_temp
 
-marg_bioterium_temp <- data_geral %>%
-  select(bioterium_temp) %>% 
-  separate(col = bioterium_temp, sep = "-", into = c("v1", "v2")) %>% 
+marg_bioterium_temp <- data_geral |>
+  select(bioterium_temp) |> 
+  separate(col = bioterium_temp, sep = "-", into = c("v1", "v2")) |> 
   mutate(v1 = as.numeric(v1),
          v2 = as.numeric(v2)) 
-marg_bioterium_temp <- marg_bioterium_temp %>% 
+marg_bioterium_temp <- marg_bioterium_temp |> 
   mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_bioterium_temp <- marg_bioterium_temp %>% 
-  mutate(b = coalesce(marg_bioterium_temp$g, marg_bioterium_temp$v1)) %>% 
+marg_bioterium_temp <- marg_bioterium_temp |> 
+  mutate(b = coalesce(marg_bioterium_temp$g, marg_bioterium_temp$v1)) |> 
   select(b)
 
 # bioterium_umi
 
 
-marg_bioterium_umid <- data_geral %>%
-  select(bioterium_umid) %>% 
-  separate(col = bioterium_umid, sep = "-", into = c("v1", "v2")) %>% 
+marg_bioterium_umid <- data_geral |>
+  select(bioterium_umid) |> 
+  separate(col = bioterium_umid, sep = "-", into = c("v1", "v2")) |> 
   mutate(v1 = as.numeric(v1),
          v2 = as.numeric(v2)) 
-marg_bioterium_umid <- marg_bioterium_umid %>% 
+marg_bioterium_umid <- marg_bioterium_umid |> 
   mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_bioterium_umid <- marg_bioterium_umid %>% 
-  mutate(b = coalesce(marg_bioterium_umid$g, marg_bioterium_umid$v1)) %>% 
+marg_bioterium_umid <- marg_bioterium_umid |> 
+  mutate(b = coalesce(marg_bioterium_umid$g, marg_bioterium_umid$v1)) |> 
   select(b)
 
 
 # water_temperature
 
 
-marg_water_temperature <- data_geral %>%
-  select(water_temperature) %>% 
-  separate(col = water_temperature, sep = "-", into = c("v1", "v2")) %>% 
+marg_water_temperature <- data_geral |>
+  select(water_temperature) |> 
+  separate(col = water_temperature, sep = "-", into = c("v1", "v2")) |> 
   mutate(v1 = as.numeric(v1),
          v2 = as.numeric(v2)) 
-marg_water_temperature <- marg_water_temperature %>% 
+marg_water_temperature <- marg_water_temperature |> 
   mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_water_temperature <- marg_water_temperature %>% 
-  mutate(b = coalesce(marg_water_temperature$g, marg_water_temperature$v1)) %>% 
+marg_water_temperature <- marg_water_temperature |> 
+  mutate(b = coalesce(marg_water_temperature$g, marg_water_temperature$v1)) |> 
   select(b)
 
 # water_depth
 
-marg_water_depth <- data_geral %>%
-  select(water_depth) %>% 
-  separate(col = water_depth, sep = "-", into = c("v1", "v2")) %>% 
+marg_water_depth <- data_geral |>
+  select(water_depth) |> 
+  separate(col = water_depth, sep = "-", into = c("v1", "v2")) |> 
   mutate(v1 = as.numeric(v1),
          v2 = as.numeric(v2)) 
-marg_water_depth <- marg_water_depth %>% 
+marg_water_depth <- marg_water_depth |> 
   mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_water_depth <- marg_water_depth %>% 
-  mutate(b = coalesce(marg_water_depth$g, marg_water_depth$v1)) %>% 
+marg_water_depth <- marg_water_depth |> 
+  mutate(b = coalesce(marg_water_depth$g, marg_water_depth$v1)) |> 
   select(b)
 
 # Transform type of variables according to their characteristics: character, factor, numeric...
 # In the case of numerics, if there was text, these will be transformed into "NA".
 
-data_geral <- data_geral %>%
+data_geral <- data_geral |>
   mutate(ctr_n_round = as.numeric(ctr_n_round),
          atd_n_round = as.numeric(atd_n_round),
          id = as.character(id),
@@ -269,8 +269,8 @@ data_geral <- data_geral %>%
 # Separate method from method detail (FST)
 # change date type to numeric
 
-data_geral <- data_geral %>%
-  separate(col = measurement_method, sep = ", ", into = c("measurement_method", "measurement_method_detail"))  %>% # separate variable into two
+data_geral <- data_geral |>
+  separate(col = measurement_method, sep = ", ", into = c("measurement_method", "measurement_method_detail"))  |> # separate variable into two
   mutate(ctr_n_corr = as.integer(ctr_n_round / n_comparisons),
          N = as.integer(ctr_n_corr + atd_n_round),
          measurement_method_detail = as.factor(measurement_method_detail), # add separate variables in parent df

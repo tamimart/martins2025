@@ -46,7 +46,7 @@ df <- read_excel("data/Dataclean_200FST.xlsx") # load df
 
 # change date type to numeric
 
-df <- df %>% 
+df <- df  |>  
   mutate(year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y"))) 
 
 
@@ -55,12 +55,12 @@ df <- df %>%
 
 # library(gtsummary)
 # 
-# df_table <- df %>% 
-#   select(species, sex, age, weight) %>% 
+# df_table <- df |> 
+#   select(species, sex, age, weight) |> 
 #   mutate(sex = factor(sex,
 #     levels = c("F", "M", "M and F", "NA"),
 #     labels = c("Female", "Male", "Both sexes", "Unknown"))
-#   ) %>%
+#   ) |>
 #   labelled::set_variable_labels(
 #     species = "Species",
 #     age = "Age",
@@ -69,11 +69,11 @@ df <- df %>%
 #   )
 # 
 # 
-# table_pop <- df_table %>% 
+# table_pop <- df_table |> 
 #   tbl_summary(
 #     by = species
-#   ) %>% 
-#   add_stat_label() %>%
+#   ) |> 
+#   add_stat_label() |>
 #   modify_spanning_header(
 #     all_stat_cols() ~ "**Species**"
 #   )
@@ -174,7 +174,7 @@ leave1df <- as.data.frame(leave1) # transf object list into df
 final_df <- as.data.frame(t(leave1df)) # invert lines and columns
 copia_final_df <- final_df # create copy
 copia_final_df$rn <- row.names(final_df) # add row name as column in copied df
-copia_final_df <- copia_final_df %>%
+copia_final_df <- copia_final_df |>
   select(rn, everything()) # bring column of names to front of df
 
 write_xlsx(copia_final_df, "data/leave.xlsx") # save
@@ -532,21 +532,21 @@ dev.off()
 wf_global <- weightfunct(Efeito$yi, Efeito$vi, table = TRUE, steps = .05)
 
 # mice
-wmice <- Efeito %>% 
+wmice <- Efeito |> 
   filter(species == "mice")
 
 wf_mice <- weightfunct(wmice$yi, wmice$vi, table = TRUE, steps = 0.05)
 wf_mice
 
 # rat
-wrat <- Efeito %>% 
+wrat <- Efeito |> 
   filter(species == "rat")
 
 wf_rat <- weightfunct(wrat$yi, wrat$vi, table = TRUE, steps = 0.05)
 wf_rat
 
 # no positive control
-wnoCP <- Efeito %>% 
+wnoCP <- Efeito |> 
   filter(positive_control == 0)
 
 wf_noCP <- weightfunct(wnoCP$yi, wnoCP$vi, table = TRUE, steps = 0.05)
@@ -571,16 +571,16 @@ Teste_sexoambos_m <- rma(yi, vi, subset = (sex == "M and F" & species == "mice")
 Teste_sexoambos_m
 
 
-Efeito %>% 
-  filter(sex == "M and F" & species == "mice") %>% 
+Efeito |> 
+  filter(sex == "M and F" & species == "mice") |> 
   select(authors) # same publication?
 
 
 Teste_sexoind_m <- rma(yi, vi, subset = (sex == "NA" & species == "mice"), data = Efeito)
 Teste_sexoind_m
 
-Efeito %>% 
-  filter(sex == "NA" & species == "mice") %>% 
+Efeito |> 
+  filter(sex == "NA" & species == "mice") |> 
   select(authors) # same publication?
 
 #strain
@@ -600,64 +600,64 @@ Teste_BALB
 Teste_ddY <- rma(yi, vi, subset = (strain == "ddY" & species == "mice"), data = Efeito)
 Teste_ddY
 
-Efeito %>% 
-  filter(strain == "ddY") %>% 
+Efeito |> 
+  filter(strain == "ddY") |> 
   select(authors) # same publication?
 
 Teste_laca <- rma(yi, vi, subset = (strain == "laca" & species == "mice"), data = Efeito)
 Teste_laca
 
-Efeito %>% 
-  filter(strain == "laca") %>% 
+Efeito |> 
+  filter(strain == "laca") |> 
   select(authors) # same publication?
 
 Teste_OF1 <- rma(yi, vi, subset = (strain == "OF1" & species == "mice"), data = Efeito)
 Teste_OF1
 
-Efeito %>% 
-  filter(strain == "OF1") %>% 
+Efeito |> 
+  filter(strain == "OF1") |> 
   select(authors) # same publication?
 
 Teste_NMRI <- rma(yi, vi, subset = (strain == "NMRI" & species == "mice"), data = Efeito)
 Teste_NMRI
 
-Efeito %>% 
-  filter(strain == "NMRI") %>% 
+Efeito |> 
+  filter(strain == "NMRI") |> 
   select(authors) # same publication?
 
 Teste_sabra <- rma(yi, vi, subset = (strain == "sabra" & species == "mice"), data = Efeito)
 Teste_sabra
 
-Efeito %>% 
-  filter(strain == "sabra") %>% 
+Efeito |> 
+  filter(strain == "sabra") |> 
   select(authors) # same publication?
 
 Teste_BKTO <- rma(yi, vi, subset = (strain == "BKTO" & species == "mice"), data = Efeito)
 Teste_BKTO
 
-Efeito %>% 
-  filter(strain == "BKTO") %>% 
+Efeito |> 
+  filter(strain == "BKTO") |> 
   select(authors) # same publication?
 
 Teste_NA_m <- rma(yi, vi, subset = (strain == "NA" & species == "mice"), data = Efeito)
 Teste_NA_m
 
-Efeito %>% 
-  filter(strain == "NA") %>% 
+Efeito |> 
+  filter(strain == "NA") |> 
   select(authors) # same publication?
 
 Teste_DBA2 <- rma(yi, vi, subset = (strain == "DBA/2" & species == "mice"), data = Efeito)
 Teste_DBA2
 
-Efeito %>% 
-  filter(strain == "DBA/2") %>% 
+Efeito |> 
+  filter(strain == "DBA/2") |> 
   select(authors) # same publication?
 
 Teste_B6SJL <- rma(yi, vi, subset = (strain == "B6SJL (R406W transgenic)" & species == "mice"), data = Efeito)
 Teste_B6SJL 
 
-Efeito %>% 
-  filter(strain == "B6SJL (R406W transgenic)") %>% 
+Efeito |> 
+  filter(strain == "B6SJL (R406W transgenic)") |> 
   select(authors) # same publication?
 
 
@@ -717,15 +717,15 @@ Teste_femea_r
 Teste_sexoambos_r <- rma(yi, vi, subset = (sex == "M and F" & species == "rat"), data = Efeito)
 Teste_sexoambos_r
 
-Efeito %>% 
-  filter(sex == "M and F" & species == "rat") %>% 
+Efeito |> 
+  filter(sex == "M and F" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_sexoind_r <- rma(yi, vi, subset = (sex == "NA" & species == "rat"), data = Efeito)
 Teste_sexoind_r
 
-Efeito %>% 
-  filter(sex == "NA" & species == "rat") %>% 
+Efeito |> 
+  filter(sex == "NA" & species == "rat") |> 
   select(authors) # same publication?
 
 #strain
@@ -739,36 +739,36 @@ Teste_sd
 Teste_LE <- rma(yi, vi, subset = (strain == "long-evans" & species == "rat"), data = Efeito)
 Teste_LE
 
-Efeito %>% 
-  filter(strain == "long-evans" & species == "rat") %>% 
+Efeito |> 
+  filter(strain == "long-evans" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_FS <- rma(yi, vi, subset = (strain == "flinders sensitive" & species == "rat"), data = Efeito)
 Teste_FS
 
-Efeito %>% 
-  filter(strain == "flinders sensitive" & species == "rat") %>% 
+Efeito |> 
+  filter(strain == "flinders sensitive" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_CDCOBS <- rma(yi, vi, subset = (strain == "CD-COBS" & species == "rat"), data = Efeito)
 Teste_CDCOBS
 
-Efeito %>% 
-  filter(strain == "CD-COBS" & species == "rat") %>% 
+Efeito |> 
+  filter(strain == "CD-COBS" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_WK <- rma(yi, vi, subset = (strain == "wistar kyoto" & species == "rat"), data = Efeito)
 Teste_WK 
 
-Efeito %>% 
-  filter(strain == "wistar kyoto" & species == "rat") %>% 
+Efeito |> 
+  filter(strain == "wistar kyoto" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_FR <- rma(yi, vi, subset = (strain == "flinders resistant" & species == "rat"), data = Efeito)
 Teste_FR
 
-Efeito %>% 
-  filter(strain == "flinders resistant" & species == "rat") %>% 
+Efeito |> 
+  filter(strain == "flinders resistant" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_BN <- rma(yi, vi, subset = (strain == "brown norway" & species == "rat"), data = Efeito)
@@ -801,8 +801,8 @@ doze_doze_r
 cycle_NA_r <- rma(yi, vi, subset = (bioterium_lightcycle == "NA" & species == "rat"), data = Efeito)
 cycle_NA_r 
 
-Efeito %>% 
-  filter(bioterium_lightcycle == "NA" & species == "rat") %>% 
+Efeito |> 
+  filter(bioterium_lightcycle == "NA" & species == "rat") |> 
   select(authors) # same publication?
 
 natural_r <- rma(yi, vi, subset = (bioterium_lightcycle == "natural" & species == "rat"), data = Efeito)
@@ -811,15 +811,15 @@ natural_r
 inverso_r <- rma(yi, vi, subset = (bioterium_lightcycle == "12/12 reverse" & species == "rat"), data = Efeito)
 inverso_r
 
-Efeito %>% 
-  filter(bioterium_lightcycle == "12/12 reverse" & species == "rat") %>% 
+Efeito |> 
+  filter(bioterium_lightcycle == "12/12 reverse" & species == "rat") |> 
   select(authors) # same publication?
 
 dez_q_r <- rma(yi, vi, subset = (bioterium_lightcycle == "10/14" & species == "rat"), data = Efeito)
 dez_q_r 
 
-Efeito %>% 
-  filter(bioterium_lightcycle == "10/14" & species == "rat") %>% 
+Efeito |> 
+  filter(bioterium_lightcycle == "10/14" & species == "rat") |> 
   select(authors) # same publication?
 
 
@@ -843,15 +843,15 @@ Teste_ami_m
 Teste_clo_m <- rma(yi, vi, subset = (atd_type == "clomipramine" & species == "mice"), data = Efeito)
 Teste_clo_m
 
-Efeito %>% 
-  filter(atd_type == "clomipramine" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "clomipramine" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_nor_m <- rma(yi, vi, subset = (atd_type == "nortriptyline" & species == "mice"), data = Efeito)
 Teste_nor_m
 
-Efeito %>% 
-  filter(atd_type == "nortriptyline" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "nortriptyline" & species == "mice") |> 
   select(authors) # same publication?
 
 #SSRI
@@ -865,29 +865,29 @@ Teste_flu_m
 Teste_par_m <- rma(yi, vi, subset = (atd_type == "paroxetine" & species == "mice"), data = Efeito)
 Teste_par_m
 
-Efeito %>% 
-  filter(atd_type == "paroxetine" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "paroxetine" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_esc_m <- rma(yi, vi, subset = (atd_type == "escitalopram" & species == "mice"), data = Efeito)
 Teste_esc_m
 
-Efeito %>% 
-  filter(atd_type == "escitalopram" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "escitalopram" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_cit_m <- rma(yi, vi, subset = (atd_type == "citalopram" & species == "mice"), data = Efeito)
 Teste_cit_m
 
-Efeito %>% 
-  filter(atd_type == "citalopram" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "citalopram" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_fluv_m <- rma(yi, vi, subset = (atd_type == "fluvoxamine" & species == "mice"), data = Efeito)
 Teste_fluv_m
 
-Efeito %>% 
-  filter(atd_type == "fluvoxamine" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "fluvoxamine" & species == "mice") |> 
   select(authors) # same publication?
 
 #SNRI
@@ -898,15 +898,15 @@ Teste_SNRI_m
 Teste_ven_m <- rma(yi, vi, subset = (atd_type == "venlafaxine" & species == "mice"), data = Efeito)
 Teste_ven_m
 
-Efeito %>% 
-  filter(atd_type == "venlafaxine" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "venlafaxine" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_tra_m <- rma(yi, vi, subset = (atd_type == "tramadol" & species == "mice"), data = Efeito)
 Teste_tra_m
 
-Efeito %>% 
-  filter(atd_type == "tramadol" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "tramadol" & species == "mice") |> 
   select(authors) # same publication?
 
 #IMAO
@@ -917,15 +917,15 @@ Teste_IMAO_m
 Teste_sel_m <- rma(yi, vi, subset = (atd_type == "selegiline" & species == "mice"), data = Efeito)
 Teste_sel_m
 
-Efeito %>% 
-  filter(atd_type == "selegiline" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "selegiline" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_moc_m <- rma(yi, vi, subset = (atd_type == "moclobemide" & species == "mice"), data = Efeito)
 Teste_moc_m
 
-Efeito %>% 
-  filter(atd_type == "moclobemide" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "moclobemide" & species == "mice") |> 
   select(authors) # same publication?
 
 #NDRI
@@ -941,15 +941,15 @@ Teste_TeCA_m
 Teste_map_m <- rma(yi, vi, subset = (atd_type == "maprotiline" & species == "mice"), data = Efeito)
 Teste_map_m
 
-Efeito %>% 
-  filter(atd_type == "maprotiline" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "maprotiline" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_mia_m <- rma(yi, vi, subset = (atd_type == "mianserin" & species == "mice"), data = Efeito)
 Teste_mia_m
 
-Efeito %>% 
-  filter(atd_type == "mianserin" & species == "mice") %>% 
+Efeito |> 
+  filter(atd_type == "mianserin" & species == "mice") |> 
   select(authors) # same publication?
 
 # VIA adm
@@ -969,8 +969,8 @@ Teste_subc_m
 Teste_viaNA_m <- rma(yi, vi, subset = (treatment_via == "NA" & species == "mice"), data = Efeito)
 Teste_viaNA_m
 
-Efeito %>% 
-  filter(treatment_via == "NA" & species == "mice") %>% 
+Efeito |> 
+  filter(treatment_via == "NA" & species == "mice") |> 
   select(authors) # same publication?
 
 # [rat] -----
@@ -991,8 +991,8 @@ Teste_ami_r
 Teste_clo_r <- rma(yi, vi, subset = (atd_type == "clomipramine" & species == "rat"), data = Efeito)
 Teste_clo_r
 
-Efeito %>% 
-  filter(atd_type == "clomipramine" & species == "rat") %>% 
+Efeito |> 
+  filter(atd_type == "clomipramine" & species == "rat") |> 
   select(authors) # same publication?
 
 
@@ -1010,29 +1010,29 @@ Teste_ser_r
 Teste_par_r <- rma(yi, vi, subset = (atd_type == "paroxetine" & species == "rat"), data = Efeito)
 Teste_par_r
 
-Efeito %>% 
-  filter(atd_type == "paroxetine" & species == "rat") %>% 
+Efeito |> 
+  filter(atd_type == "paroxetine" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_fluv_r <- rma(yi, vi, subset = (atd_type == "fluvoxamine" & species == "rat"), data = Efeito)
 Teste_fluv_r
 
-Efeito %>% 
-  filter(atd_type == "fluvoxamine" & species == "rat") %>% 
+Efeito |> 
+  filter(atd_type == "fluvoxamine" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_cit_r <- rma(yi, vi, subset = (atd_type == "citalopram" & species == "rat"), data = Efeito)
 Teste_cit_r
 
-Efeito %>% 
-  filter(atd_type == "citalopram" & species == "rat") %>% 
+Efeito |> 
+  filter(atd_type == "citalopram" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_esc_r <- rma(yi, vi, subset = (atd_type == "escitalopram" & species == "rat"), data = Efeito)
 Teste_esc_r
 
-Efeito %>% 
-  filter(atd_type == "escitalopram" & species == "rat") %>% 
+Efeito |> 
+  filter(atd_type == "escitalopram" & species == "rat") |> 
   select(authors) # same publication?
 
 
@@ -1047,22 +1047,22 @@ Teste_ven_r
 Teste_desv_r <- rma(yi, vi, subset = (atd_type == "desvenlafaxine" & species == "rat"), data = Efeito)
 Teste_desv_r
 
-Efeito %>% 
-  filter(atd_type == "desvenlafaxine" & species == "rat") %>% 
+Efeito |> 
+  filter(atd_type == "desvenlafaxine" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_reb_r <- rma(yi, vi, subset = (atd_type == "reboxetine" & species == "rat"), data = Efeito)
 Teste_reb_r
 
-Efeito %>% 
-  filter(atd_type == "reboxetine" & species == "rat") %>% 
+Efeito |> 
+  filter(atd_type == "reboxetine" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_sib_r <- rma(yi, vi, subset = (atd_type == "sibutramine" & species == "rat"), data = Efeito)
 Teste_sib_r
 
-Efeito %>% 
-  filter(atd_type == "sibutramine" & species == "rat") %>% 
+Efeito |> 
+  filter(atd_type == "sibutramine" & species == "rat") |> 
   select(authors) # same publication?
 
 #TECA
@@ -1101,24 +1101,24 @@ Teste_mi_r <- rma(yi, vi, subset = (treatment_via == "microinjection (dorsal hip
 Teste_mi_r
 
 
-Efeito %>% 
-  filter(treatment_via == "microinjection (dorsal hippocampus)" & species == "rat") %>% 
+Efeito |> 
+  filter(treatment_via == "microinjection (dorsal hippocampus)" & species == "rat") |> 
   select(authors) # same publication?
 
 
 Teste_od_r <- rma(yi, vi, subset = (treatment_via == "oral (dietary treatment)" & species == "rat"), data = Efeito)
 Teste_od_r
 
-Efeito %>% 
-  filter(treatment_via == "oral (dietary treatment)" & species == "rat") %>% 
+Efeito |> 
+  filter(treatment_via == "oral (dietary treatment)" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_in_r <- rma(yi, vi, subset = (treatment_via == "intranasal" & species == "rat"), data = Efeito)
 Teste_in_r
 
 
-Efeito %>% 
-  filter(treatment_via == "intranasal" & species == "rat") %>% 
+Efeito |> 
+  filter(treatment_via == "intranasal" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_viaNA_r <- rma(yi, vi, subset = (treatment_via == "NA" & species == "rat"), data = Efeito)
@@ -1130,10 +1130,10 @@ Teste_viaNA_r # k < 3
 #protocol
 
 
-fst_pro_m <- Efeito %>% 
-  filter(species == "mice") %>% 
-  group_by(fst_protocol) %>% 
-  summarise(soma = n()) %>% 
+fst_pro_m <- Efeito |> 
+  filter(species == "mice") |> 
+  group_by(fst_protocol) |> 
+  summarise(soma = n()) |> 
   arrange(desc(soma)) # see which protocols were used and leave only those used by at least 3 studies
 
 
@@ -1152,78 +1152,78 @@ Teste_PT15T6_m
 Teste_PT15T5_m <- rma(yi, vi, subset = (fst_protocol == "pre15test5" & species == "mice"), data = Efeito)
 Teste_PT15T5_m
 
-Efeito %>% 
-  filter(fst_protocol == "pre15test5" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "pre15test5" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_T5_m <- rma(yi, vi, subset = (fst_protocol == "test5" & species == "mice"), data = Efeito)
 Teste_T5_m
 
-Efeito %>% 
-  filter(fst_protocol == "test5" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "test5" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_PT5T5_m <- rma(yi, vi, subset = (fst_protocol == "pre5test5" & species == "mice"), data = Efeito)
 Teste_PT5T5_m
 
-Efeito %>% 
-  filter(fst_protocol == "pre5test5" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "pre5test5" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_T5S4_m <- rma(yi, vi, subset = (fst_protocol == "test5score4" & species == "mice"), data = Efeito)
 Teste_T5S4_m
 
-Efeito %>% 
-  filter(fst_protocol == "test5score4" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "test5score4" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_T7S6_m <- rma(yi, vi, subset = (fst_protocol == "test7score6" & species == "mice"), data = Efeito)
 Teste_T7S6_m
 
-Efeito %>% 
-  filter(fst_protocol == "test7score6" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "test7score6" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_T6S5_m <- rma(yi, vi, subset = (fst_protocol == "test6score5" & species == "mice"), data = Efeito)
 Teste_T6S5_m
 
-Efeito %>% 
-  filter(fst_protocol == "test6score5" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "test6score5" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_T9_m <- rma(yi, vi, subset = (fst_protocol == "test9" & species == "mice"), data = Efeito)
 Teste_T9_m
 
-Efeito %>% 
-  filter(fst_protocol == "test9" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "test9" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_PT15T6S5_m <- rma(yi, vi, subset = (fst_protocol == "pre15test6score5" & species == "mice"), data = Efeito)
 Teste_PT15T6S5_m
 
-Efeito %>% 
-  filter(fst_protocol == "pre15test6score5" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "pre15test6score5" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_T10_m <- rma(yi, vi, subset = (fst_protocol == "test10" & species == "mice"), data = Efeito)
 Teste_T10_m
 
-Efeito %>% 
-  filter(fst_protocol == "test10" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "test10" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_PT15TNA_m <- rma(yi, vi, subset = (fst_protocol == "pre15test?" & species == "mice"), data = Efeito)
 Teste_PT15TNA_m
 
-Efeito %>% 
-  filter(fst_protocol == "pre15test?" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "pre15test?" & species == "mice") |> 
   select(authors) # same publication?
 
 Teste_T15S5_m <- rma(yi, vi, subset = (fst_protocol == "test15score5" & species == "mice"), data = Efeito)
 Teste_T15S5_m
 
-Efeito %>% 
-  filter(fst_protocol == "test15score5" & species == "mice") %>% 
+Efeito |> 
+  filter(fst_protocol == "test15score5" & species == "mice") |> 
   select(authors) # same publication?
 
 # method
@@ -1249,10 +1249,10 @@ Teste_otherT_m
 
 #protocol
 
-fst_pro_r <- Efeito %>% 
-  filter(species == "rat") %>% 
-  group_by(fst_protocol) %>% 
-  summarise(soma = n()) %>% 
+fst_pro_r <- Efeito |> 
+  filter(species == "rat") |> 
+  group_by(fst_protocol) |> 
+  summarise(soma = n()) |> 
   arrange(desc(soma)) # ver quais protocolos foram usados e deixar só com pelo menos 3 estudos
 
 
@@ -1265,36 +1265,36 @@ Teste_T5_r
 Teste_PT13T6_r <- rma(yi, vi, subset = (fst_protocol == "pre13test6" & species == "rat"), data = Efeito)
 Teste_PT13T6_r
 
-Efeito %>% 
-  filter(fst_protocol == "pre13test6" & species == "rat") %>% 
+Efeito |> 
+  filter(fst_protocol == "pre13test6" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_PTNAT6S4_r <- rma(yi, vi, subset = (fst_protocol == "pre?test6score4" & species == "rat"), data = Efeito)
 Teste_PTNAT6S4_r
 
-Efeito %>% 
-  filter(fst_protocol == "pre?test6score4" & species == "rat") %>% 
+Efeito |> 
+  filter(fst_protocol == "pre?test6score4" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_PT5T5_r <- rma(yi, vi, subset = (fst_protocol == "pre5test5" & species == "rat"), data = Efeito)
 Teste_PT5T5_r
 
-Efeito %>% 
-  filter(fst_protocol == "pre5test5" & species == "rat") %>% 
+Efeito |> 
+  filter(fst_protocol == "pre5test5" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_T15_r <- rma(yi, vi, subset = (fst_protocol == "test15" & species == "rat"), data = Efeito)
 Teste_T15_r
 
-Efeito %>% 
-  filter(fst_protocol == "test15" & species == "rat") %>% 
+Efeito |> 
+  filter(fst_protocol == "test15" & species == "rat") |> 
   select(authors) # same publication?
 
 Teste_PT15T6S5_r <- rma(yi, vi, subset = (fst_protocol == "pre15test6score5" & species == "rat"), data = Efeito)
 Teste_PT15T6S5_r
 
-Efeito %>% 
-  filter(fst_protocol == "pre15test6score5" & species == "rat") %>% 
+Efeito |> 
+  filter(fst_protocol == "pre15test6score5" & species == "rat") |> 
   select(authors) # same publication?
 
 
@@ -1322,7 +1322,7 @@ Teste_otherT_r
 # I tabulated the results of the subgroups in an excel spreadsheet
 
 dfsubgrupos <- read_excel("data/subgroupresults.xlsx")
-dfsubgrupos <- dfsubgrupos %>% 
+dfsubgrupos <- dfsubgrupos |> 
   rename(IC95LL = `IC95-L`,
          IC95UL = `IC95-U`,
          inconsistency = `I² (%)`) |> 
@@ -1363,94 +1363,96 @@ dfsubgrupos$moderator <-
 dfsubgrupos$category <-
   factor(
     dfsubgrupos$category,
-    levels =  c("Mice",
-                "Male",
-                "Female",
-                "Both sexes",
-                "Swiss",
-                "CD-1",
-                "C57BL",
-                "ddY",
-                "BALB",
-                "LACA",
-                "OF1",
-                "NMRI",
-                "Sabra",
-                "BKTO",
-                "DBA/2",
-                "B6SJL (R406W)",
-                "Stress",
-                "No stress",
-                "Rat",
-                "Wistar",
-                "Sprague Dawley",
-                "Long Evans",
-                "Flinders sensitive",
-                "CD-COBS",
-                "Wistar kyoto",
-                "Flinders resistant",
-                "12/12 normal",
-                "12/12",
-                "Natural",
-                "12/12 reverse",
-                "11/14",
-                "All TCA",
-                "imipramine",
-                "desipramine",
-                "amitriptiline",
-                "clomipramine",
-                "nortriptiline",
-                "All SSRI",
-                "fluoxetine",
-                "sertraline",
-                "paroxetine",
-                "escitalopram",
-                "citalopram",
-                "fluvoxamine",
-                "All SNRI",
-                "venlafaxine",
-                "tramadol",
-                "desvenlafaxine",
-                "reboxetine",
-                "sibutramine",
-                "All MAOI",
-                "selegiline",
-                "moclobemide",
-                "bupropion",
-                "All TeCA",
-                "maprotiline",
-                "mianserin",
-                "amoxapine",
-                "Intraperitoneal",
-                "Oral",
-                "Gavage",
-                "Subcutaneous",
-                "Microinjection",
-                "Oral (food)",
-                "Intranasal",
-                "T6’ + S4’",
-                "T6’",
-                "PT15’ + T6’ + S4’",
-                "PT15’ + T6’",
-                "PT15’ + T5’",
-                "T5’",
-                "PT13’ + T6’",
-                "PT5’ + T5’",
-                "T5’ + S4’",
-                "T7’ + S6’",
-                "T6’ + S5’",
-                "T9’",
-                "T10’",
-                "PT15’ + T?",
-                "T15’ + S5’",
-                "Video analysis",
-                "Manual",
-                "No",
-                "Yes",
-                "T15’",
-                "PT?’ + T6’ + S4’",
-                "PT15’ + T6’ + S5’",
-                "Not reported"))
+    levels =  c(
+      "Not reported",
+      "Mice",
+      "Male",
+      "Female",
+      "Both sexes",
+      "Swiss",
+      "CD-1",
+      "C57BL",
+      "ddY",
+      "BALB",
+      "LACA",
+      "OF1",
+      "NMRI",
+      "Sabra",
+      "BKTO",
+      "DBA/2",
+      "B6SJL (R406W)",
+      "Stress",
+      "No stress",
+      "Rat",
+      "Wistar",
+      "Sprague Dawley",
+      "Long Evans",
+      "Flinders sensitive",
+      "CD-COBS",
+      "Wistar kyoto",
+      "Flinders resistant",
+      "12/12 normal",
+      "12/12",
+      "Natural",
+      "12/12 reverse",
+      "11/14",
+      "All TCA",
+      "imipramine",
+      "desipramine",
+      "amitriptiline",
+      "clomipramine",
+      "nortriptiline",
+      "All SSRI",
+      "fluoxetine",
+      "sertraline",
+      "paroxetine",
+      "escitalopram",
+      "citalopram",
+      "fluvoxamine",
+      "All SNRI",
+      "venlafaxine",
+      "tramadol",
+      "desvenlafaxine",
+      "reboxetine",
+      "sibutramine",
+      "All MAOI",
+      "selegiline",
+      "moclobemide",
+      "bupropion",
+      "All TeCA",
+      "maprotiline",
+      "mianserin",
+      "amoxapine",
+      "Intraperitoneal",
+      "Oral",
+      "Gavage",
+      "Subcutaneous",
+      "Microinjection",
+      "Oral (food)",
+      "Intranasal",
+      "T6’ + S4’",
+      "T6’",
+      "PT15’ + T6’ + S4’",
+      "PT15’ + T6’",
+      "PT15’ + T5’",
+      "T5’",
+      "PT13’ + T6’",
+      "PT5’ + T5’",
+      "T5’ + S4’",
+      "T7’ + S6’",
+      "T6’ + S5’",
+      "T9’",
+      "T10’",
+      "PT15’ + T?",
+      "T15’ + S5’",
+      "Video analysis",
+      "Manual",
+      "No",
+      "Yes",
+      "T15’",
+      "PT?’ + T6’ + S4’",
+      "PT15’ + T6’ + S5’"
+    ))
 
 
 
@@ -1460,9 +1462,9 @@ theme_set(theme_minimal(base_family = "Gadugi"))
 #populacao
 # EDIT OTHER FIGURES LIKE THIS ONE
 
-ppt_sub_pop_c <- dfsubgrupos %>%
+ppt_sub_pop_c <- dfsubgrupos |>
   filter(species == "Mice",
-         type == "Population") %>%
+         type == "Population") |>
   ggplot(aes(
     x = fct_reorder(category, k),
     y = GES,
@@ -1512,9 +1514,9 @@ ppt_sub_pop_c <- dfsubgrupos %>%
     axis.text.x = element_blank(),
     axis.text.y = element_text(size = 9, color = "black"))
 
-ppt_sub_pop_c_i <- dfsubgrupos %>%
+ppt_sub_pop_c_i <- dfsubgrupos |>
   filter(species == "Mice",
-         type == "Population") %>%
+         type == "Population") |>
   ggplot(aes(
     x = fct_reorder(category, k)
   )) +
@@ -1558,9 +1560,9 @@ label_pop_c <-
   theme_void()
 
 
-ppt_sub_pop_r <- dfsubgrupos %>%
+ppt_sub_pop_r <- dfsubgrupos |>
   filter(species == "Rat",
-         type == "Population") %>%
+         type == "Population") |>
   ggplot(aes(
     x = fct_reorder(category, k),
     y = GES,
@@ -1610,9 +1612,9 @@ ppt_sub_pop_r <- dfsubgrupos %>%
     axis.text = element_text(size = 9, color = "black")
   )
 
-ppt_sub_pop_r_i <- dfsubgrupos %>%
+ppt_sub_pop_r_i <- dfsubgrupos |>
   filter(species == "Rat",
-         type == "Population") %>%
+         type == "Population") |>
   ggplot(aes(
     x = fct_reorder(category, k)
   )) +
@@ -1667,13 +1669,13 @@ label_direction <-
     fontface = "bold",
     colour = "black"
   ) +
-  geom_segment(aes(x=-.5, y=1, xend = -1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
-  geom_segment(aes(x=0.5, y = 1, xend = 1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
+  geom_segment(aes(x = -.5, y = 1, xend = -1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
+  geom_segment(aes(x = 0.5, y = 1, xend = 1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
   scale_y_continuous(limits = c(1, 10)) +
   scale_x_continuous(limits = c(-2, 18)) +
   theme_void()
 
-layout <-"
+layout <- "
 ####GGGGGGGGGG##
 CCCCAAAAAAAAAABB
 CCCCAAAAAAAAAABB
@@ -1693,14 +1695,15 @@ save_plot(filename = "plot_pop.jpg",
           plot = plot_pop,
           dpi = 600,
           path = "figure",
-          base_height = 8, base_width = 8)
+          base_height = 8, base_width = 8,
+          device = ragg::agg_png())
 
 
 #intervencao 
 
-ppt_sub_int_c <- dfsubgrupos %>%
+ppt_sub_int_c <- dfsubgrupos |>
   filter(species == "Mice",
-         type == "Intervention") %>%
+         type == "Intervention") |>
   ggplot(aes(
     x = fct_reorder(category, k),
     y = GES,
@@ -1751,9 +1754,9 @@ ppt_sub_int_c <- dfsubgrupos %>%
     plot.margin = margin(0, 0,-5, 0)
   )
 
-ppt_sub_int_c_i <- dfsubgrupos %>%
+ppt_sub_int_c_i <- dfsubgrupos |>
   filter(species == "Mice",
-         type == "Intervention") %>%
+         type == "Intervention") |>
   ggplot(aes(
     x = fct_reorder(category, k),
     y = inconsistency,
@@ -1803,9 +1806,9 @@ label_int_c <-
 
 
 
-ppt_sub_int_r <- dfsubgrupos %>%
+ppt_sub_int_r <- dfsubgrupos |>
   filter(species == "Rat",
-         type == "Intervention") %>%
+         type == "Intervention") |>
   ggplot(aes(
     x = fct_reorder(category, k),
     y = GES,
@@ -1859,9 +1862,9 @@ ppt_sub_int_r <- dfsubgrupos %>%
 
 
 
-ppt_sub_int_r_i <- dfsubgrupos %>%
+ppt_sub_int_r_i <- dfsubgrupos |>
   filter(species == "Rat",
-         type == "Intervention") %>%
+         type == "Intervention") |>
   ggplot(aes(
     x = fct_reorder(category, k),
     y = inconsistency,
@@ -1921,13 +1924,13 @@ label_direction <-
     fontface = "bold",
     colour = "black"
   ) +
-  geom_segment(aes(x=-.5, y=1, xend = -1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
-  geom_segment(aes(x=0.5, y = 1, xend = 1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
+  geom_segment(aes(x = -.5, y=1, xend = -1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
+  geom_segment(aes(x = 0.5, y = 1, xend = 1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
   scale_y_continuous(limits = c(1, 10)) +
   scale_x_continuous(limits = c(-2, 18)) +
   theme_void()
 
-layout <-"
+layout <- "
 #GGGGGG##
 CAAAAAABB
 CAAAAAABB
@@ -1946,14 +1949,15 @@ save_plot(filename = "plot_int.jpg",
           plot = plot_int,
           dpi = 600,
           path = "figure",
-          base_height = 8, base_width = 8)
+          base_height = 8, base_width = 8,
+          device = ragg::agg_png())
 
 
 #desfecho
 
-ppt_sub_des_c <- dfsubgrupos %>%
+ppt_sub_des_c <- dfsubgrupos |>
   filter(species == "Mice",
-         type == "Outcome") %>%
+         type == "Outcome") |>
   ggplot(aes(
     x = fct_reorder(category, k),
     y = GES,
@@ -2004,9 +2008,9 @@ ppt_sub_des_c <- dfsubgrupos %>%
     axis.text.x = element_blank()
   )
 
-ppt_sub_des_c_i <- dfsubgrupos %>%
+ppt_sub_des_c_i <- dfsubgrupos |>
   filter(species == "Mice",
-         type == "Outcome") %>% 
+         type == "Outcome") |> 
   ggplot(aes(
     x = fct_reorder(category, k),
     y = inconsistency,
@@ -2052,9 +2056,9 @@ label_des_c <-
   theme_void()
 
 
-ppt_sub_des_r <- dfsubgrupos %>%
+ppt_sub_des_r <- dfsubgrupos |>
   filter(species == "Rat",
-         type == "Outcome") %>%
+         type == "Outcome") |>
   ggplot(aes(
     x = fct_reorder(category, k),
     y = GES,
@@ -2105,9 +2109,9 @@ ppt_sub_des_r <- dfsubgrupos %>%
   )
 
 
-ppt_sub_des_r_i <- dfsubgrupos %>%
+ppt_sub_des_r_i <- dfsubgrupos |>
   filter(species == "Rat",
-         type == "Outcome") %>% 
+         type == "Outcome") |> 
   ggplot(aes(
     x = fct_reorder(category, k),
     y = inconsistency,
@@ -2169,14 +2173,14 @@ label_direction <-
     fontface = "bold",
     colour = "black"
   ) +
-  geom_segment(aes(x=-.5, y=1, xend = -1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
-  geom_segment(aes(x=0.5, y = 1, xend = 1.5, yend=1), arrow = arrow(length=unit(0.1, 'cm'))) +
+  geom_segment(aes(x = -.5, y = 1, xend = -1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
+  geom_segment(aes(x = 0.5, y = 1, xend = 1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
   scale_y_continuous(limits = c(1, 10)) +
   scale_x_continuous(limits = c(-2, 22)) +
   theme_void()
 
 
-layout <-"
+layout <- "
 ###GGGGGGGGG##
 CCCAAAAAAAAABB
 CCCAAAAAAAAABB
@@ -2196,7 +2200,8 @@ save_plot(filename = "plot_des.jpg",
           plot = plot_des,
           dpi = 600,
           path = "figure",
-          base_height = 8, base_width = 8)
+          base_height = 8, base_width = 8,
+          device = ragg::agg_png())
 
 
 # Metaregression -----
@@ -2258,7 +2263,7 @@ Efeito$rob8 <- ifelse(Efeito$rob8 == 'Unclear', 0, ifelse(Efeito$rob8 == 'Yes', 
 Efeito$rob9 <- ifelse(Efeito$rob9 == 'Unclear', 0, ifelse(Efeito$rob9 == 'Yes', 1, -1))
 Efeito$rob10 <- ifelse(Efeito$rob10 == 'Unclear', 0, ifelse(Efeito$rob10 == 'Yes', 1, -1))
 
-Efeito <- Efeito %>% 
+Efeito <- Efeito |> 
   mutate(pont_quali = rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10) # New variable with rob score
 
 png("figure/Reg_year_quality.png", height = 600, width = 1000)
@@ -2286,15 +2291,15 @@ metareg_quali_r
 
 # Isolate variables from ROB SYRCLE
 
-df_rob <- df %>% 
-  mutate(Study = str_c(first_author, ", ", year)) %>% 
+df_rob <- df |> 
+  mutate(Study = str_c(first_author, ", ", year)) |> 
   select(starts_with("rob"), Study) 
 
 
-df_rob <- df_rob %>% 
+df_rob <- df_rob |> 
   distinct() # keep one line per publication
 
-df_rob <- df_rob %>% 
+df_rob <- df_rob |> 
   rename("Allocation sequence adequately generated and applied" = rob1,
          "Groups similar at baseline" = rob2,
          "Allocation adequately concealed" = rob3,
@@ -2304,13 +2309,13 @@ df_rob <- df_rob %>%
          "Outcome assessor blinded" = rob7, 
          "Incomplete outcome data adequately addressed" = rob8, 
          "Free of selective outcome reporting" = rob9,
-         "Free of other problems" = rob10) %>% 
+         "Free of other problems" = rob10) |> 
   relocate(Study, everything())
 
 
 
 
-df_rob_long <- df_rob %>% # put into long format
+df_rob_long <- df_rob |> # put into long format
   pivot_longer(!c(Study),
                names_to = "pergunta",
                values_to = "atribuicao",
@@ -2345,9 +2350,9 @@ df_rob_long$pergunta <-
 
 v_factor_levels <- c("High", "Unclear", "Low")
 
-robplot <- df_rob_long %>% 
-  group_by(Study) %>% 
-  distinct(Study, pergunta, atribuicao) %>% 
+robplot <- df_rob_long |> 
+  group_by(Study) |> 
+  distinct(Study, pergunta, atribuicao) |> 
   ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = v_factor_levels), y = ..count..)) +
   geom_bar(position = "fill") + 
   scale_fill_manual("RoB SYRCLE", values = c("Low" = "#82c236", "Unclear" = "#fec200", "High" = "#ec2b2b"), guide = guide_legend(
@@ -2361,7 +2366,7 @@ robplot <- df_rob_long %>%
   theme_classic() + 
   theme(
     axis.ticks.x = element_blank(),
-    axis.ticks.y = element_line(color = "black", size = .1),
+    axis.ticks.y = element_blank(),
     axis.line = element_line(size = .3),
     axis.text = element_text(size = 8,
                              color = "black"),
@@ -2375,9 +2380,7 @@ robplot <- df_rob_long %>%
     legend.title = element_text(size = 7, hjust = 0, face = "bold"),
     legend.margin = margin(l = -15),
     plot.margin = margin(-5, 0, 0, 0),
-    legend.key.size = unit(.8, "line"),
-    panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_blank()
+    legend.key.size = unit(.8, "line")
   )
 
 
@@ -2387,16 +2390,16 @@ robplot
 
 # Isolate variables from CAMARADES
 
-df_camarades <- df %>% 
-  mutate(Study = str_c(first_author, ", ", year)) %>% 
+df_camarades <- df |> 
+  mutate(Study = str_c(first_author, ", ", year)) |> 
   select(starts_with("camarades"), Study) 
 
-df_camarades <- df_camarades %>% 
+df_camarades <- df_camarades |> 
   distinct() 
 
-df_camarades <- df_camarades %>% 
-  select(everything(), -camarades1) %>% 
-  rename("Studies following ARRIVE (or other) guidelines" = camarades2,
+df_camarades <- df_camarades |> 
+  rename("Study is a peer-reviewed publication" = camarades1,
+         "Study following ARRIVE (or other) guidelines" = camarades2,
          "Compliance with animal testing regulations and legislation" = camarades3,
          "Declaration of interest" = camarades4, 
          "Report of husbandry conditions and improve animal welfare" = camarades5, 
@@ -2408,7 +2411,7 @@ df_camarades <- df_camarades %>%
          "Report sample size calculation" = camarades11) 
 
 
-df_camarades_longo <- df_camarades %>% 
+df_camarades_longo <- df_camarades |> 
   pivot_longer(!c(Study),
                names_to = "pergunta",
                values_to = "atribuicao",
@@ -2417,7 +2420,8 @@ df_camarades_longo <- df_camarades %>%
 
 df_camarades_longo$pergunta <- 
   fct_relevel(
-    df_camarades_longo$pergunta, "Studies following ARRIVE (or other) guidelines",
+    df_camarades_longo$pergunta, "Study is a peer-reviewed publication",
+    "Studies following ARRIVE (or other) guidelines",
     "Compliance with animal testing regulations and legislation",
     "Declaration of interest", 
     "Report of husbandry conditions and improve animal welfare", 
@@ -2450,9 +2454,9 @@ c_factor_levels <- c("No", "Unclear", "Yes")
 
 # visualize CAMARADES resume
 
-camaradesplot <- df_camarades_longo %>% 
-  group_by(Study) %>% 
-  distinct(Study, pergunta, atribuicao) %>% 
+camaradesplot <- df_camarades_longo |> 
+  group_by(Study) |> 
+  distinct(Study, pergunta, atribuicao) |> 
   ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = c_factor_levels), y = ..count..)) +
   geom_bar(position = "fill") + 
   scale_fill_manual("CAMARADES", values = c("Yes" = "#82c236", "Unclear" = "#fec200", "No" = "#ec2b2b"), guide = guide_legend(
@@ -2465,7 +2469,7 @@ camaradesplot <- df_camarades_longo %>%
   coord_flip()  + 
   theme_classic() +
   theme(axis.ticks.x = element_line(size = .3),
-        axis.ticks.y = element_line(color = "black", size = .1),
+        axis.ticks.y = element_blank(),
         axis.line = element_line(size = .3),
         axis.text = element_text(
           size = 8,
@@ -2480,9 +2484,7 @@ camaradesplot <- df_camarades_longo %>%
         legend.title = element_text(size = 7, hjust = 0, face = "bold"),
         plot.margin = margin(0, 0, 0, 0),
         legend.margin = margin(l = -15),
-        legend.key.size = unit(.8, "line"),
-        panel.grid.major.y = element_blank(),
-        panel.grid.major.x = element_blank()
+        legend.key.size = unit(.8, "line")
   )
 
 
@@ -2492,5 +2494,6 @@ quality <- robplot / camaradesplot + plot_layout(heights = c(5,5), width = 5)
 save_plot(filename = "quality.png",
           plot = quality,
           dpi = 600,
-          path = "figure")
+          path = "figure",
+          device = ragg::agg_png())
 
