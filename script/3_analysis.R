@@ -11,11 +11,11 @@ library(extrafont) # extra font
 library(cowplot)   # plot annotation and alignment
 library(metapower) # power calculation
 library(lubridate) # date manipulation
-library(weightr)   # test pub bias
-library(patchwork) # to join plots
+library(weightr)   # test publication bias
+library(patchwork) # join plots
 
 
-# import font
+# import font (only once)
 
 font_import(paths = "C:/Windows/Fonts")
 
@@ -41,15 +41,12 @@ plot_mpower(poder_geral)
 
 # data treatment ----
 
-
-df <- read_excel("data/Dataclean_200FST.xlsx") # load df
+# import df
+df <- read_excel("data/Dataclean_200FST.xlsx") 
 
 # change date type to numeric
-
 df <- df  |>  
   mutate(year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y"))) 
-
-
 
 # table
 
@@ -79,7 +76,7 @@ df <- df  |>
 #   )
 # 
 
-# Calculate effect size in SDM hedges g
+# calculate effect size in SDM hedges g
 
 Efeito <- escalc(measure = "SMD", n1i = ctr_n_corr, n2i = atd_n_round, m1i = ctr_mean, m2i = atd_mean, 
                  sd1i = ctr_sd, sd2i = atd_sd, data = df, 
@@ -106,7 +103,7 @@ predict(Teste, digits = 3)
 
 # Plot e save forestplot 
 
-pdf("figure/floresta_all.pdf", height = 120, width = 25)
+pdf("figure/florest_all.pdf", height = 120, width = 25)
 
 floresta <- forest(
   Teste,
@@ -115,10 +112,9 @@ floresta <- forest(
   slab = (paste(
     Efeito$first_author, as.character(Efeito$year), sep = ", "
   )),
-  mlab = "",
   order = Efeito$yi,
   xlab = "Hedges g",
-  xlim =  c(-40, 40),
+  xlim =  c(-20, 60),
   showweight = T,
   cex.lab = 2,
   cex.axis = 1.5,
@@ -127,24 +123,13 @@ floresta <- forest(
   fonts = "sans"
 )
 
-# Adicionar textos
-
+# Add texts
 
 op <- par(cex = 0.75, font = 2, family = "sans")
-text(c(-6, 7.75),     568, font = 2.5,
-     cex = 2, c("Control", "Antidepressant"))
-text(c(90),
-     568,
-     font = 2.5,
-     cex = 2,
-     c("Weights Hedges g [95% CI]"))
-text(c(-35),
-     568,
-     font = 2.5,
-     cex = 2,
-     c("Author(s), year"))
-
-text(-40, -1, pos = 4, cex = 2, bquote(paste("RE Model (Q = ", .(formatC(Teste$QE, digits = 2, format = "f")),
+text(c(-6, 7.75), 568, font = 2, cex = 2.5, c("Favours control", "Favours antidepressants"))
+text(53, 568,font = 2.5, cex = 2.5, c("Weights Hedges g [95% CI]"))
+text(-16, 568, font = 2.5, cex = 2.5, c("Author(s), year"))
+text(0, -20, pos = 4, cex = 4, bquote(paste("RE Model (g = ", .(formatC(Teste$b, digits = 2, format = "f")), ", Q = ", .(formatC(Teste$QE, digits = 2, format = "f")),
                                              ", df = ", .(Teste$k - Teste$p),
                                              ", p ", .(metafor:::.pval(Teste$QEp, digits = 2, showeq = TRUE, sep = " ")), "; ",
                                              I^2, " = ", .(formatC(Teste$I2, digits = 1, format = "f")), "%, ",
@@ -163,7 +148,7 @@ inf <- influence(Teste)
 dev.off()
 
 tinf <- print(inf) # create table with results
-tinf$id <- Efeito$line # add id clumn
+tinf$id <- Efeito$line # add column id
 tinf$sr <- Efeito$study_reference # add reference column
 write_xlsx(tinf,"data/influence.xlsx") # save as excel file
 
@@ -205,7 +190,7 @@ missing <-
     estimator = "R0",
     maxiter = 100,
     verbose = FALSE
-  ) #R0 preferable when the MA has >k Rothstein HR, Sutton AJ, Borenstein M. Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments. Chichester, UK: John Wiley & Sons; 2005. An advantage of estimator "R0" is that it provides a test of the null hypothesis that the number of missing studies (on the chosen side) is zero
+  ) #R0 preferable when the MA has >k. Reference: Rothstein HR, Sutton AJ, Borenstein M. Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments. Chichester, UK: John Wiley & Sons; 2005. An advantage of estimator "R0" is that it provides a test of the null hypothesis that the number of missing studies (on the chosen side) is zero
 
 missing_m <-
   metafor::trimfill(
@@ -240,6 +225,7 @@ missing_m
 missing_r 
 missing_noCP
 
+# [Funnel plot]
 
 png("figure/funil.png", height = 1200, width = 800)
 
@@ -458,73 +444,75 @@ funil_r2 <- metafor::funnel(
 
 dev.off()
 
+# plot for a poster presented on IBRO [ignore]
+# 
+# png("figure/funil_ibro.png", height = 1000, width = 2400)
+# 
+# par(mfrow = c(1, 2), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = 2, font = 2, family = "sans")
+# 
+# 
+# funil_global1 <- metafor::funnel(
+#   missing,
+#   yaxis = "sei",
+#   addtau2 = FALSE,
+#   main = "Complete sample (CS)",
+#   xlab = "Effect size",
+#   ylab = "Standard error",
+#   back = "gray94",
+#   level = c(90, 95, 99),
+#   shade = c("white", "#3b446f", "#05064f"),
+#   hlines = "white",
+#   xlim = c(-60,60),
+#   ylim = c(13,0), 
+#   lty = 2,
+#   pch = 19,
+#   pch.fill = 1,
+#   col = 25,
+#   label = "F",
+#   legend = "topright",
+#   offset = 0.1,
+#   ci.res = 1000,
+#   cex.lab = 1.7,
+#   cex.axis = 1.4,
+#   cex.main = 1.7
+# )
+# 
+# 
+# funil_global_noCP1 <- metafor::funnel(
+#   missing_noCP,
+#   yaxis = "sei",
+#   addtau2 = FALSE,
+#   main = "Excluding positive controls (-PC)",
+#   xlab = "Effect size",
+#   ylab = "Standard error",
+#   back = "gray94",
+#   level = c(90, 95, 99),
+#   shade = c("white", "#b5948e", "#883b32"),
+#   hlines = "white",
+#   xlim = c(-60,60),
+#   ylim = c(13,0), 
+#   lty = 2,
+#   pch = 19,
+#   pch.fill = 1,
+#   col = 25,
+#   label = "F",
+#   legend = "topright",
+#   offset = 0.1,
+#   ci.res = 1000,
+#   cex.lab = 1.7,
+#   cex.axis = 1.4,
+#   cex.main = 1.7
+# )
+# 
+# dev.off()
 
 
-png("figure/funil_ibro.png", height = 1000, width = 2400)
-
-par(mfrow = c(1, 2), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = 2, font = 2, family = "sans")
-
-
-funil_global1 <- metafor::funnel(
-  missing,
-  yaxis = "sei",
-  addtau2 = FALSE,
-  main = "Complete sample (CS)",
-  xlab = "Effect size",
-  ylab = "Standard error",
-  back = "gray94",
-  level = c(90, 95, 99),
-  shade = c("white", "#3b446f", "#05064f"),
-  hlines = "white",
-  xlim = c(-60,60),
-  ylim = c(13,0), 
-  lty = 2,
-  pch = 19,
-  pch.fill = 1,
-  col = 25,
-  label = "F",
-  legend = "topright",
-  offset = 0.1,
-  ci.res = 1000,
-  cex.lab = 1.7,
-  cex.axis = 1.4,
-  cex.main = 1.7
-)
-
-
-funil_global_noCP1 <- metafor::funnel(
-  missing_noCP,
-  yaxis = "sei",
-  addtau2 = FALSE,
-  main = "Excluding positive controls (-PC)",
-  xlab = "Effect size",
-  ylab = "Standard error",
-  back = "gray94",
-  level = c(90, 95, 99),
-  shade = c("white", "#b5948e", "#883b32"),
-  hlines = "white",
-  xlim = c(-60,60),
-  ylim = c(13,0), 
-  lty = 2,
-  pch = 19,
-  pch.fill = 1,
-  col = 25,
-  label = "F",
-  legend = "topright",
-  offset = 0.1,
-  ci.res = 1000,
-  cex.lab = 1.7,
-  cex.axis = 1.4,
-  cex.main = 1.7
-)
-
-dev.off()
 
 # [weight function model]
+
 # Specific publication bias test - 
 # increases the weight of studies that are less likely to be published and 
 # decreases the weight of those that are more likely to be published - based on p-value
-
 # likehood test alfa = 0.10
 
 # global
@@ -1321,13 +1309,16 @@ Teste_otherT_r
 
 # I tabulated the results of the subgroups in an excel spreadsheet
 
-dfsubgrupos <- read_excel("data/subgroupresults.xlsx")
-dfsubgrupos <- dfsubgrupos |> 
+# load data
+dfsubgroups <- read_excel("data/subgroupresults.xlsx")
+
+# transform variables
+dfsubgroups <- dfsubgroups |> 
   rename(IC95LL = `IC95-L`,
          IC95UL = `IC95-U`,
          inconsistency = `I² (%)`) |> 
   separate(k, c("k", "nested")) |> 
-  mutate(tau2 = round(dfsubgrupos$tau2, digits = 1),
+  mutate(tau2 = round(dfsubgroups$tau2, digits = 1),
          moderator = as.factor(moderator),
          category = as.factor(category),
          category = fct_reorder(category, k),
@@ -1335,873 +1326,314 @@ dfsubgrupos <- dfsubgrupos |>
          nested = case_when(nested == "" ~ "*"),
          nested = replace_na(nested,""),
          outline = 100) 
-  
- 
-dfsubgrupos$moderator <-
-  factor(
-    dfsubgrupos$moderator,
-    levels =  c(
-      "Mice",
-      "Rat",
-      "Sex",
-      "Strain",
-      "Stress",
-      "Light cycle",
-      "All TCA",
-      "All SSRI",
-      "All SNRI",
-      "All MAOI",
-      "MAOI",
-      "All NDRI",
-      "NDRI",
-      "All TeCA",
-      "Route of administration",
-      "FST Protocol",
-      "Analysis method",
-      "Tests before FST"))
-
-dfsubgrupos$category <-
-  factor(
-    dfsubgrupos$category,
-    levels =  c(
-      "Not reported",
-      "Mice",
-      "Male",
-      "Female",
-      "Both sexes",
-      "Swiss",
-      "CD-1",
-      "C57BL",
-      "ddY",
-      "BALB",
-      "LACA",
-      "OF1",
-      "NMRI",
-      "Sabra",
-      "BKTO",
-      "DBA/2",
-      "B6SJL (R406W)",
-      "Stress",
-      "No stress",
-      "Rat",
-      "Wistar",
-      "Sprague Dawley",
-      "Long Evans",
-      "Flinders sensitive",
-      "CD-COBS",
-      "Wistar kyoto",
-      "Flinders resistant",
-      "12/12 normal",
-      "12/12",
-      "Natural",
-      "12/12 reverse",
-      "11/14",
-      "All TCA",
-      "imipramine",
-      "desipramine",
-      "amitriptiline",
-      "clomipramine",
-      "nortriptiline",
-      "All SSRI",
-      "fluoxetine",
-      "sertraline",
-      "paroxetine",
-      "escitalopram",
-      "citalopram",
-      "fluvoxamine",
-      "All SNRI",
-      "venlafaxine",
-      "tramadol",
-      "desvenlafaxine",
-      "reboxetine",
-      "sibutramine",
-      "All MAOI",
-      "selegiline",
-      "moclobemide",
-      "bupropion",
-      "All TeCA",
-      "maprotiline",
-      "mianserin",
-      "amoxapine",
-      "Intraperitoneal",
-      "Oral",
-      "Gavage",
-      "Subcutaneous",
-      "Microinjection",
-      "Oral (food)",
-      "Intranasal",
-      "T6’ + S4’",
-      "T6’",
-      "PT15’ + T6’ + S4’",
-      "PT15’ + T6’",
-      "PT15’ + T5’",
-      "T5’",
-      "PT13’ + T6’",
-      "PT5’ + T5’",
-      "T5’ + S4’",
-      "T7’ + S6’",
-      "T6’ + S5’",
-      "T9’",
-      "T10’",
-      "PT15’ + T?",
-      "T15’ + S5’",
-      "Video analysis",
-      "Manual",
-      "No",
-      "Yes",
-      "T15’",
-      "PT?’ + T6’ + S4’",
-      "PT15’ + T6’ + S5’"
-    ))
 
 
+# assig the order of levels
+transform_levels <- function(data, column_name) { #function to modify the levels' order for factor variables
+  data |> 
+    mutate({{ column_name }} := fct_inorder({{ column_name }}))
+}
 
+dfsubgroups <- transform_levels(dfsubgroups, moderator)
+dfsubgroups <- transform_levels(dfsubgroups, category)
+
+
+# vset a global font
 theme_set(theme_minimal(base_family = "Gadugi"))
 
 
-#populacao
-# EDIT OTHER FIGURES LIKE THIS ONE
-
-ppt_sub_pop_c <- dfsubgrupos |>
-  filter(species == "Mice",
-         type == "Population") |>
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = GES,
-    ymin = IC95LL,
-    ymax = IC95UL,
-    color = "#ff9400"
-  )) +
-  geom_rect(fill = "white",xmin = 0,xmax = Inf,
-            ymin = -Inf,ymax = 0, color = "white") +
-  geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
-            ymin = 0.01,ymax = .19, color = "grey100") +
-  geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
-            ymin = 0.2,ymax = .49, color = "grey96") +
-  geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
-            ymin = 0.5,ymax = .79, color = "grey92") +
-  geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
-            ymin = 0.8,ymax = 1.19, color = "grey88") +
-  geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
-            ymin = 1.2,ymax = 1.99, color = "grey84") +
-  geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
-            ymin = 2,ymax = Inf, color = "grey82") +
-  geom_pointrange() +
-  scale_y_continuous(limits = c(-2, 18)) +
-  labs(x = "", y = "Effect Size") +
-  scale_colour_manual(values = "#ff9400") +
-  geom_hline(yintercept = 0, lty = 2) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  geom_text(
-    aes(label = paste(
-      "k = ",
-      k,
-      fct_reorder(nested, k),
-      sep = ""
-    )),
-    y = Inf - 1,
-    color = "black",
-    size = 3,
-    family = "Gadugi",
-    hjust = 1
-  ) +
-  coord_flip() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title = element_blank(),
-    axis.text.x = element_blank(),
-    axis.text.y = element_text(size = 9, color = "black"))
-
-ppt_sub_pop_c_i <- dfsubgrupos |>
-  filter(species == "Mice",
-         type == "Population") |>
-  ggplot(aes(
-    x = fct_reorder(category, k)
-  )) +
-  geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity") + #HERE
-  geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") + #HERE
-  scale_y_continuous(limits = c(0, 200), position = "right") +
-  labs(x = "", y = "I² (%) |𝜏² ") +
-  scale_fill_manual(values = c("inconsistency" = "#ff9400", "outline" = "black"), guide = "none") + #HERE and the next
-  geom_text(
-    aes(label = tau2),
-    y = 104,
-    color = "black",
-    size = 3,
-    family = "Gadugi",
-    hjust = -0.1
-  ) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  coord_flip() +
-  theme_void() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title =  element_blank()
-  )
+# list specified settings
+pio_info <- list(population = list(type = "Population", 
+                               label = c("Species","Sex","Strain","Precondition","Light cycle"), 
+                               label_position_m = c(28,24,15,5.5,1), 
+                               label_y_m = c(1, 28),
+                               label_position_r = c(28,24,16,9,3),
+                               label_y_r = c(1, 28),
+                               layout = "####GGGGGGGGGG##\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE",
+                               width = 8, 
+                               height = 8),
+             intervention = list(type = "Intervention", 
+                                 label = c("Drug", "Via"),
+                                 label_position_m = c(20, 1.5),
+                                 label_y_m = c(1, 33),
+                                 label_position_r = c(20, 2),
+                                 label_y_r = c(1, 33),
+                                 layout = "##GGGGGG##\nCCAAAAAABB\nCCAAAAAABB\nCCAAAAAABB\nCCAAAAAABB\nFFDDDDDDEE\nFFDDDDDDEE\nFFDDDDDDEE\nFFDDDDDDEE",
+                                 width = 8, 
+                                 height = 9),
+             outcome = list(type = "Outcome", 
+                            label = c("Protocol", "Scoring\n method", "Test\n battery"),
+                            label_position_m = c(30, 5, .1),
+                            label_y_m = c(0, 44),
+                            label_position_r = c(22, 6, .1), 
+                            label_y_r = c(0, 28),
+                            layout = "###GGGGGGGGG##\nCCCAAAAAAAAABB\nCCCAAAAAAAAABB\nCCCAAAAAAAAABB\nCCCAAAAAAAAABB\nFFFDDDDDDDDDEE\nFFFDDDDDDDDDEE\nFFFDDDDDDDDDEE",
+                            width = 8, 
+                            height = 7))
 
 
-label_pop_c <- 
-  ggplot() +
-  annotate(
-    "text", label = paste(c("Species","Sex","Strain","Precondition","Light cycle")),
-    x = c(1,1,1,1,1), y = c(28,24,15,5.5,1),     
-    size = 3,
-    family = "Gadugi",
-    hjust = 0,
-    vjust = -0.5,
-    fontface = "bold",
-    colour = "black"
-  ) +
-  scale_y_continuous(limits = c(1, 28), position = "right") +
-  theme_void()
-
-
-ppt_sub_pop_r <- dfsubgrupos |>
-  filter(species == "Rat",
-         type == "Population") |>
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = GES,
-    ymin = IC95LL,
-    ymax = IC95UL,
-    color = "#ec2b2b"
-  )) +
-  geom_rect(fill = "white",xmin = 0,xmax = Inf,
-            ymin = -Inf,ymax = 0, color = "white") +
-  geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
-            ymin = 0.01,ymax = .19, color = "grey100") +
-  geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
-            ymin = 0.2,ymax = .49, color = "grey96") +
-  geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
-            ymin = 0.5,ymax = .79, color = "grey92") +
-  geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
-            ymin = 0.8,ymax = 1.19, color = "grey88") +
-  geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
-            ymin = 1.2,ymax = 1.99, color = "grey84") +
-  geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
-            ymin = 2,ymax = Inf, color = "grey82") +
-  geom_pointrange() +
-  scale_y_continuous(limits = c(-2, 18)) +
-  labs(x = "", y = "Effect size") +
-  scale_colour_manual(values = "#ec2b2b") +
-  geom_hline(yintercept = 0, lty = 2) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  geom_text(
-    aes(label = paste(
-      "k = ",
-      k,
-      fct_reorder(nested, k),
-      sep = ""
-    )),
-    y = Inf - 1,
-    color = "black",
-    size = 3,
-    family = "Gadugi",
-    hjust = 1
-  ) +
-  coord_flip() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", vjust = -1),
-    axis.text = element_text(size = 9, color = "black")
-  )
-
-ppt_sub_pop_r_i <- dfsubgrupos |>
-  filter(species == "Rat",
-         type == "Population") |>
-  ggplot(aes(
-    x = fct_reorder(category, k)
-  )) +
-  geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity") +
-  geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") +
-  scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
-  labs(x = "", y = "I² (%) |𝜏² ") +
-  scale_fill_manual(values = c("inconsistency" = "#ec2b2b", "outline" = "black"), guide = "none") + 
-  geom_text(
-    aes(label = tau2),
-    y = 104,
-    color = "black",
-    size = 3,
-    family = "Gadugi",
-    hjust = -0.1
-  ) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  coord_flip() +
-  theme_void() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", hjust = 0.225),
-    axis.text.x = element_text(size = 9, color = "black", vjust = -2)
-  )
-
-label_pop_r <- 
-  ggplot() +
-  annotate(
-    "text", label = paste(c("Species","Sex","Strain","Precondition","Light cycle")),
-    x = c(1,1,1,1,1), y = c(28,24,16,9,3),     
-    size = 3,
-    family = "Gadugi",
-    hjust = 0,
-    vjust = -0.5,
-    fontface = "bold",
-    colour = "black"
-  ) +
-  scale_y_continuous(limits = c(1, 28), position = "right") +
-  theme_void() 
-
-label_direction <- 
-  ggplot() +
-  annotate(
-    "text", label = paste(c("Favours to","control","antidepressants")),
-    x = c(0,-0.5,0.5), y = c(4,2,2),     
-    size = 3,
-    family = "Gadugi",
-    hjust = c(0.5,1,0),
-    vjust = 0,
-    fontface = "bold",
-    colour = "black"
-  ) +
-  geom_segment(aes(x = -.5, y = 1, xend = -1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
-  geom_segment(aes(x = 0.5, y = 1, xend = 1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
-  scale_y_continuous(limits = c(1, 10)) +
-  scale_x_continuous(limits = c(-2, 18)) +
-  theme_void()
-
-layout <- "
-####GGGGGGGGGG##
-CCCCAAAAAAAAAABB
-CCCCAAAAAAAAAABB
-CCCCAAAAAAAAAABB
-CCCCAAAAAAAAAABB
-FFFFDDDDDDDDDDEE
-FFFFDDDDDDDDDDEE
-FFFFDDDDDDDDDDEE
-FFFFDDDDDDDDDDEE
-"
-
-
-plot_pop <- ppt_sub_pop_c + ppt_sub_pop_c_i + label_pop_c + ppt_sub_pop_r + ppt_sub_pop_r_i + label_pop_r + label_direction + plot_layout(design = layout)
-
-
-save_plot(filename = "plot_pop.jpg",
-          plot = plot_pop,
-          dpi = 600,
-          path = "figure",
-          base_height = 8, base_width = 8,
-          device = ragg::agg_png())
-
-
-#intervencao 
-
-ppt_sub_int_c <- dfsubgrupos |>
-  filter(species == "Mice",
-         type == "Intervention") |>
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = GES,
-    ymin = IC95LL,
-    ymax = IC95UL,
-    color = "#ff9400"
-  )) +
-  geom_rect(fill = "white",xmin = 0,xmax = Inf,
-            ymin = -Inf,ymax = 0, color = "white") +
-  geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
-            ymin = 0.01,ymax = .19, color = "grey100") +
-  geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
-            ymin = 0.2,ymax = .49, color = "grey96") +
-  geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
-            ymin = 0.5,ymax = .79, color = "grey92") +
-  geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
-            ymin = 0.8,ymax = 1.19, color = "grey88") +
-  geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
-            ymin = 1.2,ymax = 1.99, color = "grey84") +
-  geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
-            ymin = 2,ymax = Inf, color = "grey82") +
-  geom_pointrange() +
-  scale_y_continuous(limits = c(-2, 18)) +
-  labs(x = "", y = "") +
-  scale_colour_manual(values = "#ff9400") +
-  geom_hline(yintercept = 0, lty = 2) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  geom_text(
-    aes(label = paste(
-      "k = ",
-      k,
-      fct_reorder(nested, k),
-      sep = ""
-    )),
-    y = Inf - 1,
-    color = "black",
-    size = 2.5,
-    family = "Gadugi",
-    hjust = 1
-  ) +
-  coord_flip() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.text.x = element_blank(),
-    axis.text.y = element_text(size = 7, color = "black"),
-    plot.margin = margin(0, 0,-5, 0)
-  )
-
-ppt_sub_int_c_i <- dfsubgrupos |>
-  filter(species == "Mice",
-         type == "Intervention") |>
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = inconsistency,
-    fill = "#ff9400"
-  )) +
-  geom_bar(stat = "identity") +
-  scale_y_continuous(limits = c(0, 200)) +
-  labs(x = "", y = "") +
-  scale_fill_manual(values = "#ff9400") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
-  geom_text(
-    aes(label = tau2),
-    y = 104,
-    color = "black",
-    size = 2.5,
-    family = "Gadugi",
-    hjust = -0.1
-  ) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  coord_flip() +
-  theme_void() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title = element_blank(),
-    axis.text = element_blank(),
-    plot.margin = margin(0, 0,-5, 0)
+# create function to create plot 
+generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
+  
+  pio_info <- pio_info[[pio]]
+  
+  color_mice <- "#ff9400"
+  
+  color_rat <- "#ec2b2b"
+  
+  forest_m <- dfsubgroups |>
+    filter(species == "Mice",
+           type == pio_info$type) |>
+    ggplot(aes(
+      x = fct_reorder(category, k),
+      y = GES,
+      ymin = IC95LL,
+      ymax = IC95UL,
+      color = color_mice
+    )) +
+    geom_rect(fill = "white",xmin = 0,xmax = Inf,
+              ymin = -Inf,ymax = 0, color = "white") +
+    geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
+              ymin = 0.01,ymax = .19, color = "grey100") +
+    geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
+              ymin = 0.2,ymax = .49, color = "grey96") +
+    geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
+              ymin = 0.5,ymax = .79, color = "grey92") +
+    geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
+              ymin = 0.8,ymax = 1.19, color = "grey88") +
+    geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
+              ymin = 1.2,ymax = 1.99, color = "grey84") +
+    geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
+              ymin = 2,ymax = Inf, color = "grey82") +
+    geom_pointrange() +
+    scale_y_continuous(limits = c(-2, 22)) +
+    labs(x = "", y = "") +
+    scale_colour_manual(values = color_mice) +
+    geom_hline(yintercept = 0, lty = 2, linewidth = .2) +
+    facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
+    geom_text(
+      aes(label = paste(
+        "k = ",
+        k,
+        fct_reorder(nested, k),
+        sep = ""
+      )),
+      y = Inf - 1,
+      color = "black",
+      size = 3,
+      family = "Gadugi",
+      hjust = 1
+    ) +
+    coord_flip() +
+    theme(
+      legend.position = "none",
+      strip.background = element_blank(),
+      strip.text = element_blank(),
+      axis.title = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_text(size = 9, color = "black"),
+      plot.background = element_rect(colour = "white"),
+      plot.margin = margin(0, 0, 0, 0)
     )
   
+  incon_m <- dfsubgroups |>
+    filter(species == "Mice",
+           type == pio_info$type) |>
+    ggplot(aes(
+      x = fct_reorder(category, k)
+    )) +
+    geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity", position = "identity") + #HERE
+    geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") + #HERE
+    scale_y_continuous(limits = c(0, 200), position = "right") +
+    labs(x = "", y = "") +
+    scale_fill_manual(values = c("inconsistency" = color_mice, "outline" = "black"), guide = "none") + #HERE and the next
+    geom_text(
+      aes(label = tau2),
+      y = 104,
+      color = "black",
+      size = 3,
+      family = "Gadugi",
+      hjust = -0.1
+    ) +
+    facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
+    coord_flip() +
+    theme_void() +
+    theme(
+      legend.position = "none",
+      strip.background = element_blank(),
+      strip.text = element_blank(),
+      axis.title = element_blank(),
+      plot.margin = margin(0, 0, 0, 0)
+    )
 
-label_int_c <- 
-  ggplot() +
-  annotate(
-    "text", label = paste(c("Drug", "Via")),
-    x = c(1,1), y = c(20, 1.5),     
-    size = 3,
-    family = "Gadugi",
-    hjust = 0,
-    vjust = -0.5,
-    fontface = "bold",
-    colour = "black"
-  ) +
-  scale_y_continuous(limits = c(1, 33), position = "right") +
-  theme_void()
-
-
-
-
-ppt_sub_int_r <- dfsubgrupos |>
-  filter(species == "Rat",
-         type == "Intervention") |>
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = GES,
-    ymin = IC95LL,
-    ymax = IC95UL,
-    color = "#ec2b2b"
-  )) +
-  geom_rect(fill = "white",xmin = 0,xmax = Inf,
-            ymin = -Inf,ymax = 0, color = "white") +
-  geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
-            ymin = 0.01,ymax = .19, color = "grey100") +
-  geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
-            ymin = 0.2,ymax = .49, color = "grey96") +
-  geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
-            ymin = 0.5,ymax = .79, color = "grey92") +
-  geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
-            ymin = 0.8,ymax = 1.19, color = "grey88") +
-  geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
-            ymin = 1.2,ymax = 1.99, color = "grey84") +
-  geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
-            ymin = 2,ymax = Inf, color = "grey82") +
-  geom_pointrange() +
-  scale_y_continuous(limits = c(-2, 18)) +
-  labs(x = "", y = "Effect size") +
-  scale_colour_manual(values = "#ec2b2b") +
-  geom_hline(yintercept = 0, lty = 2) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  geom_text(
-    aes(label = paste(
-      "k = ",
-      k,
-      fct_reorder(nested, k),
-      sep = ""
-    )),
-    y = Inf - 1,
-    color = "black",
-    size = 2.5,
-    family = "Gadugi",
-    hjust = 1
-  ) +
-  coord_flip() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title.x = element_text(size = 8, color = "black"),
-    axis.text.x = element_text(size = 8, color = "black"),
-    axis.text.y = element_text(size = 7, color = "black"),
-    plot.margin = margin(-5, 0,0, 0)
+  
+  label_m <- 
+    ggplot() +
+    labs(title = "A") + 
+    annotate(
+      "text", label = paste(pio_info$label),
+      x = rep(1, length(pio_info$label_position_m)), y = pio_info$label_position_m,     
+      size = 3,
+      family = "Gadugi",
+      hjust = 0,
+      vjust = -0.5,
+      fontface = "bold",
+      colour = "black"
+    ) +
+    scale_y_continuous(limits = pio_info$label_y_m, position = "right") +
+    theme_void() + 
+    theme(plot.title = element_text(hjust = 0.5, vjust = 4, margin = margin(t = -5, r = -5, b = -5, l = -5, unit = "pt")))
+  
+  
+  forest_r <- dfsubgroups |>
+    filter(species == "Rat",
+           type == pio_info$type) |>
+    ggplot(aes(
+      x = fct_reorder(category, k),
+      y = GES,
+      ymin = IC95LL,
+      ymax = IC95UL,
+      color = color_rat
+    )) +
+    geom_rect(fill = "white",xmin = 0,xmax = Inf,
+              ymin = -Inf,ymax = 0, color = "white") +
+    geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
+              ymin = 0.01,ymax = .19, color = "grey100") +
+    geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
+              ymin = 0.2,ymax = .49, color = "grey96") +
+    geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
+              ymin = 0.5,ymax = .79, color = "grey92") +
+    geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
+              ymin = 0.8,ymax = 1.19, color = "grey88") +
+    geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
+              ymin = 1.2,ymax = 1.99, color = "grey84") +
+    geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
+              ymin = 2,ymax = Inf, color = "grey82") +
+    geom_pointrange() +
+    scale_y_continuous(limits = c(-2, 22)) +
+    labs(x = "", y = "Combined Effect Size") +
+    scale_colour_manual(values = color_rat) +
+    geom_hline(yintercept = 0, lty = 2, linewidth = .2) +
+    facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
+    geom_text(
+      aes(label = paste(
+        "k = ",
+        k,
+        fct_reorder(nested, k),
+        sep = ""
+      )),
+      y = Inf - 1,
+      color = "black",
+      size = 3,
+      family = "Gadugi",
+      hjust = 1
+    ) +
+    coord_flip() +
+    theme(
+      legend.position = "none",
+      strip.background = element_blank(),
+      strip.text = element_blank(),
+      axis.title = element_text(size = 9, color = "black", vjust = -1),
+      axis.text = element_text(size = 9, color = "black"),
+      axis.ticks.length = unit(0.1,"cm"),
+      axis.ticks.y = element_blank(),
+      axis.ticks.x = element_line(linewidth = .2, color = "black"),
+      axis.line.x = element_line(linewidth = .2, colour = "black", linetype = 1),
+      plot.background = element_rect(colour = "white")
+    )
+  
+  incon_r <- dfsubgroups |>
+    filter(species == "Rat",
+           type == pio_info$type) |>
+    ggplot(aes(
+      x = fct_reorder(category, k)
+    )) +
+    geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity", position = "identity") +
+    geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") +
+    scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
+    labs(x = "", y = "I² (%) |𝜏² ") +
+    scale_fill_manual(values = c("inconsistency" = color_rat, "outline" = "black"), guide = "none") + 
+    geom_text(
+      aes(label = tau2),
+      y = 104,
+      color = "black",
+      size = 3,
+      family = "Gadugi",
+      hjust = -0.1
+    ) +
+    facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
+    coord_flip() +
+    theme_void() +
+    theme(
+      legend.position = "none",
+      strip.background = element_blank(),
+      strip.text = element_blank(),
+      axis.ticks.length = unit(0.1,"cm"),
+      axis.ticks.x = element_line(linewidth = .2, color = "black"),
+      axis.title = element_text(size = 9, color = "black", hjust = 0.225),
+      axis.text.x = element_text(size = 9, color = "black", vjust = -2)
+    )
+  
+  label_r <- 
+    ggplot() +
+    labs(title = "B") + 
+    annotate(
+      "text", label = paste(paste(pio_info$label)),
+      x = rep(1, length(pio_info$label_position_r)), y = pio_info$label_position_r,     
+      size = 3,
+      family = "Gadugi",
+      hjust = 0,
+      vjust = -0.5,
+      fontface = "bold",
+      colour = "black"
+    ) +
+    scale_y_continuous(limits = pio_info$label_y_r, position = "right") +
+    theme_void() +
+    theme(plot.title = element_text(hjust = 0.5, vjust = 4, margin = margin(t = -5, r = -5, b = -5, l = -5, unit = "pt")))
+  
+  label_direction <- 
+    ggplot() +
+    annotate(
+      "text", label = paste(c("Favours to","control","antidepressants")),
+      x = c(0,-0.5,0.5), y = c(4,2,2),     
+      size = 3,
+      family = "Gadugi",
+      hjust = c(0.5,1,0),
+      vjust = 0,
+      fontface = "bold",
+      colour = "black"
+    ) +
+    geom_segment(aes(x = -.5, y = 1, xend = -1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
+    geom_segment(aes(x = 0.5, y = 1, xend = 1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
+    scale_y_continuous(limits = c(1, 10)) +
+    scale_x_continuous(limits = c(-2, 22)) +
+    theme_void()
+  
+  
+  plot <- forest_m + incon_m + label_m + forest_r + incon_r + label_r + label_direction + plot_layout(design = pio_info$layout) 
+  
+  plot
+  
+  ggsave(
+    filename = paste0(pio, ".png"),
+    plot = last_plot(),
+    dpi = 600,
+    path = "figure",
+    height = pio_info$height,
+    width =  pio_info$width,
+    bg = "white",
+    device = ragg::agg_png()
   )
 
+}
 
+# create plot to population - stratified 
+generate_subgroup_plot(dfsubgroups, pio_info, pio = "population")
+# create plot to intervention - stratified 
+generate_subgroup_plot(dfsubgroups, pio_info, pio = "intervention")
+# create plot to outcome - stratified 
+generate_subgroup_plot(dfsubgroups, pio_info, pio = "outcome")
 
-ppt_sub_int_r_i <- dfsubgrupos |>
-  filter(species == "Rat",
-         type == "Intervention") |>
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = inconsistency,
-    fill = "#ec2b2b"
-  )) +
-  geom_bar(stat = "identity") +
-  scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
-  labs(x = "", y = "I² (%) |𝜏² ") +
-  scale_fill_manual(values = "#ec2b2b") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
-  geom_text(
-    aes(label = tau2),
-    y = 104,
-    color = "black",
-    size = 2.5,
-    family = "Gadugi",
-    hjust = -0.1
-  ) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  coord_flip() +
-  theme_void() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title = element_text(size = 8, color = "black", hjust = 0.425),
-    axis.text.x = element_text(size = 8, color = "black", vjust = -2),
-    plot.margin = margin(-5, 0,0, 0)
-  )
-
-label_int_r <- 
-  ggplot() +
-  annotate(
-    "text", label = paste(c("Drug", "Via")),
-    x = c(1,1), y = c(20, 2),     
-    size = 3,
-    family = "Gadugi",
-    hjust = 0,
-    vjust = -0.5,
-    fontface = "bold",
-    colour = "black"
-  ) +
-  scale_y_continuous(limits = c(1, 33), position = "right") +
-  theme_void()
-
-
-
-label_direction <- 
-  ggplot() +
-  annotate(
-    "text", label = paste(c("Favours to","control","antidepressants")),
-    x = c(0,-0.5,0.5), y = c(4,2,2),     
-    size = 3,
-    family = "Gadugi",
-    hjust = c(0.5,1,0),
-    vjust = 0,
-    fontface = "bold",
-    colour = "black"
-  ) +
-  geom_segment(aes(x = -.5, y=1, xend = -1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
-  geom_segment(aes(x = 0.5, y = 1, xend = 1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
-  scale_y_continuous(limits = c(1, 10)) +
-  scale_x_continuous(limits = c(-2, 18)) +
-  theme_void()
-
-layout <- "
-#GGGGGG##
-CAAAAAABB
-CAAAAAABB
-CAAAAAABB
-CAAAAAABB
-FDDDDDDEE
-FDDDDDDEE
-FDDDDDDEE
-FDDDDDDEE
-"
-
-plot_int <- ppt_sub_int_c + ppt_sub_int_c_i + label_int_c + ppt_sub_int_r + ppt_sub_int_r_i + label_int_r + label_direction + plot_layout(design = layout)
-
-
-save_plot(filename = "plot_int.jpg",
-          plot = plot_int,
-          dpi = 600,
-          path = "figure",
-          base_height = 8, base_width = 8,
-          device = ragg::agg_png())
-
-
-#desfecho
-
-ppt_sub_des_c <- dfsubgrupos |>
-  filter(species == "Mice",
-         type == "Outcome") |>
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = GES,
-    ymin = IC95LL,
-    ymax = IC95UL,
-    color = "#ff9400"
-  )) +
-  geom_rect(fill = "white",xmin = 0,xmax = Inf,
-            ymin = -Inf,ymax = 0, color = "white") +
-  geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
-            ymin = 0.01,ymax = .19, color = "grey100") +
-  geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
-            ymin = 0.2,ymax = .49, color = "grey96") +
-  geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
-            ymin = 0.5,ymax = .79, color = "grey92") +
-  geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
-            ymin = 0.8,ymax = 1.19, color = "grey88") +
-  geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
-            ymin = 1.2,ymax = 1.99, color = "grey84") +
-  geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
-            ymin = 2,ymax = Inf, color = "grey82") +
-  geom_pointrange() +
-  scale_y_continuous(limits = c(-2, 22)) +
-  labs(x = "", y = "") +
-  scale_colour_manual(values = "#ff9400") +
-  geom_hline(yintercept = 0, lty = 2) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  geom_text(
-    aes(label = paste(
-      "k = ",
-      k,
-      fct_reorder(nested, k),
-      sep = ""
-    )),
-    y = Inf - 1,
-    color = "black",
-    size = 3,
-    family = "Gadugi",
-    hjust = 1
-  ) +
-  coord_flip() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title = element_blank(),
-    axis.text.y = element_text(size = 9, color = "black"),
-    axis.text.x = element_blank()
-  )
-
-ppt_sub_des_c_i <- dfsubgrupos |>
-  filter(species == "Mice",
-         type == "Outcome") |> 
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = inconsistency,
-    fill = "#ff9400"
-  )) +
-  geom_bar(stat = "identity") +
-  scale_y_continuous(limits = c(0, 200)) +
-  labs(x = "", y = "I² (%) |𝜏² ") +
-  scale_fill_manual(values = "#ff9400") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
-  geom_text(
-    aes(label = tau2),
-    y = 104,
-    color = "black",
-    size = 3,
-    family = "Gadugi",
-    hjust = -0.1
-  ) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  coord_flip() +
-  theme_void() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.text = element_blank()
-  )
-
-
-label_des_c <- 
-  ggplot() +
-  annotate(
-    "text", label = paste(c("Protocol", "Scoring\n method", "Test\n battery")),
-    x = c(1,1,1), y = c(15, 5, 1),     
-    size = 3,
-    family = "Gadugi",
-    hjust = 0,
-    vjust = 0.5,
-    fontface = "bold",
-    colour = "black"
-  ) +
-  scale_y_continuous(limits = c(1, 22), position = "right") +
-  theme_void()
-
-
-ppt_sub_des_r <- dfsubgrupos |>
-  filter(species == "Rat",
-         type == "Outcome") |>
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = GES,
-    ymin = IC95LL,
-    ymax = IC95UL,
-    color = "#ec2b2b"
-  )) +
-  geom_rect(fill = "white",xmin = 0,xmax = Inf,
-            ymin = -Inf,ymax = 0, color = "white") +
-  geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
-            ymin = 0.01,ymax = .19, color = "grey100") +
-  geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
-            ymin = 0.2,ymax = .49, color = "grey96") +
-  geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
-            ymin = 0.5,ymax = .79, color = "grey92") +
-  geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
-            ymin = 0.8,ymax = 1.19, color = "grey88") +
-  geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
-            ymin = 1.2,ymax = 1.99, color = "grey84") +
-  geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
-            ymin = 2,ymax = Inf, color = "grey82") +
-  geom_pointrange() +
-  scale_y_continuous(limits = c(-2, 22)) +
-  labs(x = "", y = "Effect size") +
-  scale_colour_manual(values = "#ec2b2b") +
-  geom_hline(yintercept = 0, lty = 2) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  geom_text(
-    aes(label = paste(
-      "k = ",
-      k,
-      fct_reorder(nested, k),
-      sep = ""
-    )),
-    y = Inf - 1,
-    color = "black",
-    size = 3,
-    family = "Gadugi",
-    hjust = 1
-  ) +
-  coord_flip() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", vjust = -1),
-    axis.text = element_text(size = 9, color = "black")
-  )
-
-
-ppt_sub_des_r_i <- dfsubgrupos |>
-  filter(species == "Rat",
-         type == "Outcome") |> 
-  ggplot(aes(
-    x = fct_reorder(category, k),
-    y = inconsistency,
-    fill = "#ec2b2b"
-  )) +
-  geom_bar(stat = "identity") +
-  scale_y_continuous(limits = c(0, 200), breaks = c(0,  100)) +
-  labs(x = "", y = "I² (%) |𝜏² ") +
-  scale_fill_manual(values = "#ec2b2b") +
-  geom_hline(yintercept = 100, lty = 1, size = .2, color = "black") +
-  geom_text(
-    aes(label = tau2),
-    y = 104,
-    color = "black",
-    size = 3,
-    family = "Gadugi",
-    hjust = -0.1
-  ) +
-  facet_grid(moderator ~ ., scales = "free", space = "free") +
-  coord_flip() +
-  theme_void() +
-  theme(
-    legend.position = "none",
-    strip.background = element_blank(),
-    strip.text = element_blank(),
-    axis.title = element_text(size = 9, color = "black", hjust = 0.3),
-    axis.text.x = element_text(size = 9, color = "black", vjust = -2)
-  )
-
-
-
-
-label_des_r <- 
-  ggplot() +
-  annotate(
-    "text", label = paste(c("Protocol", "Scoring\n method", "Test\n battery")),
-    x = c(1,1,1), y = c(11, 4.5, 0.5),     
-    size = 3,
-    family = "Gadugi",
-    hjust = 0,
-    vjust = 0.5,
-    fontface = "bold",
-    colour = "black"
-  ) +
-  scale_y_continuous(limits = c(0, 14), position = "right") +
-  theme_void()
-
-
-
-label_direction <- 
-  ggplot() +
-  annotate(
-    "text", label = paste(c("Favours to","control","antidepressants")),
-    x = c(0,-0.5,0.5), y = c(4,2,2),     
-    size = 3,
-    family = "Gadugi",
-    hjust = c(0.5,1,0),
-    vjust = 0,
-    fontface = "bold",
-    colour = "black"
-  ) +
-  geom_segment(aes(x = -.5, y = 1, xend = -1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
-  geom_segment(aes(x = 0.5, y = 1, xend = 1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
-  scale_y_continuous(limits = c(1, 10)) +
-  scale_x_continuous(limits = c(-2, 22)) +
-  theme_void()
-
-
-layout <- "
-###GGGGGGGGG##
-CCCAAAAAAAAABB
-CCCAAAAAAAAABB
-CCCAAAAAAAAABB
-CCCAAAAAAAAABB
-FFFDDDDDDDDDEE
-FFFDDDDDDDDDEE
-FFFDDDDDDDDDEE
-"
-
-
-
-plot_des <- ppt_sub_des_c + ppt_sub_des_c_i + label_des_c + ppt_sub_des_r + ppt_sub_des_r_i + label_des_r + label_direction + plot_layout(design = layout)
-
-
-save_plot(filename = "plot_des.jpg",
-          plot = plot_des,
-          dpi = 600,
-          path = "figure",
-          base_height = 8, base_width = 8,
-          device = ragg::agg_png())
 
 
 # Metaregression -----
@@ -2491,7 +1923,7 @@ camaradesplot <- df_camarades_longo |>
 quality <- robplot / camaradesplot + plot_layout(heights = c(5,5), width = 5)
 
 
-save_plot(filename = "quality.png",
+ggsave(filename = "quality.png",
           plot = quality,
           dpi = 600,
           path = "figure",
