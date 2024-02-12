@@ -1358,7 +1358,7 @@ pio_info <- list(population = list(type = "Population",
                                  label_y_m = c(1, 33),
                                  label_position_r = c(20, 2),
                                  label_y_r = c(1, 33),
-                                 layout = "##GGGGGG##\nCCAAAAAABB\nCCAAAAAABB\nCCAAAAAABB\nCCAAAAAABB\nFFDDDDDDEE\nFFDDDDDDEE\nFFDDDDDDEE\nFFDDDDDDEE",
+                                 layout = "####GGGGGGGGGG##\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE",
                                  width = 8, 
                                  height = 9),
              outcome = list(type = "Outcome", 
@@ -1367,8 +1367,8 @@ pio_info <- list(population = list(type = "Population",
                             label_y_m = c(0, 44),
                             label_position_r = c(22, 6, .1), 
                             label_y_r = c(0, 28),
-                            layout = "###GGGGGGGGG##\nCCCAAAAAAAAABB\nCCCAAAAAAAAABB\nCCCAAAAAAAAABB\nCCCAAAAAAAAABB\nFFFDDDDDDDDDEE\nFFFDDDDDDDDDEE\nFFFDDDDDDDDDEE",
-                            width = 8, 
+                            layout = "####GGGGGGGGGG##\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE",
+                            width = 7, 
                             height = 7))
 
 
@@ -1570,8 +1570,8 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
       strip.text = element_blank(),
       axis.ticks.length = unit(0.1,"cm"),
       axis.ticks.x = element_line(linewidth = .2, color = "black"),
-      axis.title = element_text(size = 9, color = "black", hjust = 0.225),
-      axis.text.x = element_text(size = 9, color = "black", vjust = -2)
+      axis.title = element_text(size = 9, color = "black", hjust = 0.1),
+      axis.text.x = element_text(size = 9, color = "black", vjust = 0)
     )
   
   label_r <- 
