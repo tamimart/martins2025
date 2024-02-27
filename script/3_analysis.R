@@ -1640,6 +1640,12 @@ generate_subgroup_plot(dfsubgroups, pio_info, pio = "outcome")
 
 
 # age and weight (population), dose (intervention), water depth (outcome)
+study = ifelse(metareg_ano_r$subset == TRUE, paste0(metareg_ano_r$data$first_author, metareg_ano_r$data$year), NA)
+study <- study[!is.na(study)]
+
+dfr <- data.frame(yi = metareg_ano_r$yi.f, w = metareg_ano_r$X.f, size = 1/metareg_ano_r$vi.f, study = study)
+ggplot(data=dfr, aes(y=yi, x=w.year)) + geom_smooth(method="lm") + geom_point(size = size, alpha =.5)
+
 
 png("figure/metareg_pio.png", height = 1200, width = 1000)
 
