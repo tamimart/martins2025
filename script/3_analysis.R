@@ -1638,92 +1638,83 @@ generate_subgroup_plot(dfsubgroups, pio_info, pio = "outcome")
 
 # Metaregression -----
 
-
 # age and weight (population), dose (intervention), water depth (outcome)
-study = ifelse(metareg_ano_r$subset == TRUE, paste0(metareg_ano_r$data$first_author, metareg_ano_r$data$year), NA)
-study <- study[!is.na(study)]
 
-dfr <- data.frame(yi = metareg_ano_r$yi.f, w = metareg_ano_r$X.f, size = 1/metareg_ano_r$vi.f, study = study)
-ggplot(data=dfr, aes(y=yi, x=w.year)) + geom_smooth(method="lm") + geom_point(size = size, alpha =.5)
-
-
-png("figure/metareg_pio.png", height = 1200, width = 1000)
-
-
-metareg_age_c <- rma(yi, vi, subset = species == "mice", mods = ~ age, data = Efeito)
+metareg_age_m <- rma(yi, vi, subset = species == "mice", mods = ~ age, data = Efeito)
 metareg_age_r <- rma(yi, vi, subset = species == "rat", mods = ~ age, data = Efeito)
-metareg_peso_c <- rma(yi, vi, subset = species == "mice", mods = ~ weight, data = Efeito)
-metareg_peso_r <- rma(yi, vi, subset = species == "rat", mods = ~ weight, data = Efeito)
-metareg_dose_c <- rma(yi, vi, subset = species == "mice" & dose_unit == "mg/kg", mods = ~dose, data = Efeito) 
-metareg_dose_r <- rma(yi, vi, subset = species == "rat" & dose_unit == "mg/kg", mods = ~dose, data = Efeito) 
-metareg_pa_c <- rma(yi, vi, subset = species == "mice", mods = ~ water_depth, data = Efeito)
-metareg_pa_r <- rma(yi, vi, subset = species == "rat", mods = ~ water_depth, data = Efeito)
-
-
-
-par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(5,5,2,2), cex = 1, font = 2, family = "sans")
-
-
-regplot(metareg_age_c, xlab = "Age (days)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), main = "Mice", cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(0, 600), ylim = c(0,65))
-regplot(metareg_age_r, xlab = "Age (days)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), main = "Rat", cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(0, 600), ylim = c(0,25))
-regplot(metareg_peso_c, xlab = "Weight (g)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, ylim = c(0,65))
-regplot(metareg_peso_r, xlab = "Weight (g)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, ylim = c(0,25))
-regplot(metareg_dose_c, xlab = "Dose (mg/kg)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, xlim = c(0, 100), ylim = c(0,65))
-regplot(metareg_dose_r, xlab = "Dose (mg/kg)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, xlim = c(0, 100), ylim = c(0,25))
-regplot(metareg_pa_c, xlab = "Water depth (cm)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(5, 50), ylim = c(0,65))
-regplot(metareg_pa_r, xlab = "Water depth (cm)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.main = 2, cex.lab = 2, cex.axis = 2, xlim = c(5, 50), ylim = c(0,25))
-
-
-dev.off()
-
-metareg_age_c
-metareg_age_r
-metareg_peso_c
-metareg_peso_r
-metareg_dose_c
-metareg_dose_r
-metareg_pa_c 
-metareg_pa_r
-
-
-
+metareg_weight_m <- rma(yi, vi, subset = species == "mice", mods = ~ weight, data = Efeito)
+metareg_weight_r <- rma(yi, vi, subset = species == "rat", mods = ~ weight, data = Efeito)
+metareg_wd_m <- rma(yi, vi, subset = species == "mice", mods = ~ water_depth, data = Efeito)
+metareg_wd_r <- rma(yi, vi, subset = species == "rat", mods = ~ water_depth, data = Efeito)
+metareg_imi_dose_m <- rma(yi, vi, subset = species == "mice" & atd_type == "imipramine" & dose_unit == "mg/kg", mods = ~dose, data = Efeito) 
+metareg_imi_dose_r <- rma(yi, vi, subset = species == "rat" & atd_type == "imipramine" & dose_unit == "mg/kg", mods = ~dose, data = Efeito)
+metareg_flx_dose_m <- rma(yi, vi, subset = species == "mice" & atd_type == "fluoxetine" & dose_unit == "mg/kg", mods = ~dose, data = Efeito) 
+metareg_flx_dose_r <- rma(yi, vi, subset = species == "rat" & atd_type == "fluoxetine" & dose_unit == "mg/kg", mods = ~dose, data = Efeito)
 
 # year and quality
 
-Efeito$rob1 <- ifelse(Efeito$rob1 == 'Unclear', 0, ifelse(Efeito$rob1 == 'Yes', 1, -1)) # turn assignments into points
-Efeito$rob2 <- ifelse(Efeito$rob2 == 'Unclear', 0, ifelse(Efeito$rob2 == 'Yes', 1, -1))
-Efeito$rob3 <- ifelse(Efeito$rob3 == 'Unclear', 0, ifelse(Efeito$rob3 == 'Yes', 1, -1))
-Efeito$rob4 <- ifelse(Efeito$rob4 == 'Unclear', 0, ifelse(Efeito$rob4 == 'Yes', 1, -1))
-Efeito$rob5 <- ifelse(Efeito$rob5 == 'Unclear', 0, ifelse(Efeito$rob5 == 'Yes', 1, -1))
-Efeito$rob6 <- ifelse(Efeito$rob6 == 'Unclear', 0, ifelse(Efeito$rob6 == 'Yes', 1, -1))
-Efeito$rob7 <- ifelse(Efeito$rob7 == 'Unclear', 0, ifelse(Efeito$rob7 == 'Yes', 1, -1))
-Efeito$rob8 <- ifelse(Efeito$rob8 == 'Unclear', 0, ifelse(Efeito$rob8 == 'Yes', 1, -1))
-Efeito$rob9 <- ifelse(Efeito$rob9 == 'Unclear', 0, ifelse(Efeito$rob9 == 'Yes', 1, -1))
-Efeito$rob10 <- ifelse(Efeito$rob10 == 'Unclear', 0, ifelse(Efeito$rob10 == 'Yes', 1, -1))
+metareg_quali_m <- rma(yi, vi, subset = species == "mice", mods = FILL , data = Efeito) 
+metareg_quali_r <- rma(yi, vi, subset = species == "rat", mods = FILL , data = Efeito) 
 
-Efeito <- Efeito |> 
-  mutate(pont_quali = rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10) # New variable with rob score
 
-png("figure/Reg_year_quality.png", height = 600, width = 1000)
+color_mice <- "#ff9400"
+color_rat <- "#ec2b2b"
 
-metareg_quali_c <- rma(yi, vi, subset = species == "mice", mods = ~pont_quali, data = Efeito) 
-metareg_quali_r <- rma(yi, vi, subset = species == "rat", mods = ~pont_quali, data = Efeito) 
-metareg_ano_c <- rma(yi, vi, subset = species == "mice", mods = ~year, data = Efeito) 
-metareg_ano_r <- rma(yi, vi, subset = species == "rat", mods = ~year, data = Efeito) 
 
-par(mfrow = c(2, 2), oma = c(0,2,0,1), mar = c(5,5,3,2),  cex = 1, font = 2, family = "sans")
+# create a function to generate metaregression plots
+generate_metareg_plot <- function(metareg_model, tag, colour, xlim, ylim, xlab){
+  
+  # name of authors + year of studies included at the metareg
+  study <-  ifelse(
+    metareg_model$subset == TRUE,
+    paste0(metareg_model$data$first_author, metareg_model$data$year),
+    NA
+  )
+  # list studies included in the metareg
+  study <- study[!is.na(study)] 
+  
+  # create dataframe with meta-reg data
+  metareg_model_df <- data.frame(
+    yi = metareg_model$yi.f,
+    X = metareg_model$X.f[,2],
+    size = 1/metareg_model$vi.f,
+    study = study
+  ) 
+  
+  # remove rows with NA on moderator 
+  metareg_model_df <- metareg_model_df[complete.cases(metareg_model_df$X), ]
+  
+  plot <- ggplot(
+    data = metareg_model_df,
+    aes(y = yi, x = X
+    )) +  
+    scale_x_continuous(lim = xlim) +
+    scale_y_continuous(lim = ylim) +
+    geom_smooth(method = "lm", colour = colour) + 
+    geom_point(size = metareg_model_df$size, alpha =.5) +
+    labs(title = tag, x = xlab, y = "Effect size (Hedges'g)") + 
+    theme(plot.title = element_text(hjust = 0, vjust = 1, face = "bold", margin = margin(t = -5, r = -5, b = -5, l = -5, unit = "pt")))
+  
+  return(plot)
+}
 
-regplot(metareg_ano_c, xlab = "Year", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), main = "Mice", cex.main = 2, cex.lab = 2, cex.axis = 2)
-regplot(metareg_ano_r, xlab = "Year", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"),  main = "Rat", cex.main = 2, cex.lab = 2, cex.axis = 2)
-regplot(metareg_quali_c, xlab = "Quality Score (ROB SYRCLE)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2)
-regplot(metareg_quali_r, xlab = "Quality Score (ROB SYRCLE)", ylab = "Hedges' g", lwd = 1.2, col = "black", pch = 1, pi = TRUE, shade = c("grey", "grey90"), cex.lab = 2, cex.axis = 2, xlim = c(0,7))
+# METAREGRESSION PLOTS: age and weight (population), dose (intervention), water depth (outcome)
 
-dev.off()
+# Figure 6
 
-metareg_ano_c
-metareg_ano_r
-metareg_quali_c
-metareg_quali_r
+plot_A <- generate_metareg_plot(metareg_age_m, "A", color_mice, xlim = c(0, 600), ylim = c(0,60), xlab = "Age (days)")
+plot_B <- generate_metareg_plot(metareg_age_r, "B", color_rat, xlim = c(0, 600), ylim = c(0,25), xlab = "Age (days)")
+plot_C <- generate_metareg_plot(metareg_weight_m, "C", color_mice, xlim = c(0, 40), ylim = c(0,60), xlab = "Weight (g)")
+plot_D <- generate_metareg_plot(metareg_weight_r, "D", color_rat, xlim = c(0, 600), ylim = c(0,25), xlab = "Weight (g)")
+plot_E <- generate_metareg_plot(metareg_wd_m, "E", color_mice, xlim = c(0, 55), ylim = c(0,60), xlab = "Water depth (cm)")
+plot_F <- generate_metareg_plot(metareg_wd_r, "F", color_rat, xlim = c(0, 55), ylim = c(0,25), xlab = "Water depth (cm)")
+plot_G <- generate_metareg_plot(metareg_imi_dose_m, "G", color_mice, xlim = c(0, 60), ylim = c(0,60), xlab = "imipramine dose (mg/kg)")
+plot_H <- generate_metareg_plot(metareg_imi_dose_r, "H", color_rat, xlim = c(0, 60), ylim = c(0,25), xlab = "imipramine dose (mg/kg)")
+plot_I <- generate_metareg_plot(metareg_flx_dose_m, "I", color_mice, xlim = c(0, 60), ylim = c(0,60), xlab = "fluoxetine dose (mg/kg)")
+plot_I <- generate_metareg_plot(metareg_flx_dose_r, "I", color_rat, xlim = c(0, 60), ylim = c(0,25), xlab = "fluoxetine dose (mg/kg)")
+
+# Figure 7
+
 
 # Quality ROB/CAMARADES ----
 
@@ -1791,9 +1782,9 @@ v_factor_levels <- c("High", "Unclear", "Low")
 robplot <- df_rob_long |> 
   group_by(Study) |> 
   distinct(Study, pergunta, atribuicao) |> 
-  ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = v_factor_levels), y = ..count..)) +
+  ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = v_factor_levels), y = after_stat(count))) +
   geom_bar(position = "fill") + 
-  scale_fill_manual("RoB SYRCLE", values = c("Low" = "#82c236", "Unclear" = "#fec200", "High" = "#ec2b2b"), guide = guide_legend(
+  scale_fill_manual("SYRCLE", values = c("Low" = "#82c236", "Unclear" = "#fec200", "High" = "#ec2b2b"), guide = guide_legend(
     title.position = "top")) +
   scale_y_continuous(labels = scales::percent, ) +
   scale_x_discrete(
@@ -1859,7 +1850,7 @@ df_camarades_longo <- df_camarades |>
 df_camarades_longo$pergunta <- 
   fct_relevel(
     df_camarades_longo$pergunta, "Study is a peer-reviewed publication",
-    "Studies following ARRIVE (or other) guidelines",
+    "Study following ARRIVE (or other) guidelines",
     "Compliance with animal testing regulations and legislation",
     "Declaration of interest", 
     "Report of husbandry conditions and improve animal welfare", 
@@ -1895,7 +1886,7 @@ c_factor_levels <- c("No", "Unclear", "Yes")
 camaradesplot <- df_camarades_longo |> 
   group_by(Study) |> 
   distinct(Study, pergunta, atribuicao) |> 
-  ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = c_factor_levels), y = ..count..)) +
+  ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = c_factor_levels), y = after_stat(count))) +
   geom_bar(position = "fill") + 
   scale_fill_manual("CAMARADES", values = c("Yes" = "#82c236", "Unclear" = "#fec200", "No" = "#ec2b2b"), guide = guide_legend(
     title.position = "top")) +
@@ -1933,5 +1924,6 @@ ggsave(filename = "quality.png",
           plot = quality,
           dpi = 600,
           path = "figure",
+          height = 4,
           device = ragg::agg_png())
 
