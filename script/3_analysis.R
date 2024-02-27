@@ -229,14 +229,14 @@ missing_noCP
 
 png("figure/funil.png", height = 1200, width = 800)
 
-par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = .8, font = 2, family = "sans")
+par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(5,5,3,1), cex = .8, font = 2, family = "sans")
 
 funil_global1 <- metafor::funnel(
   missing,
   yaxis = "sei",
   addtau2 = FALSE,
   main = "Global",
-  xlab = "Effect size",
+  xlab = "Effect size (Hedges' g)",
   ylab = "Standard error",
   back = "gray94",
   level = c(90, 95, 99),
@@ -263,59 +263,7 @@ funil_global2 <- metafor::funnel(
   yaxis = "sqrtninv",
   addtau2 = FALSE,
   main = "Global",
-  xlab = "Effect size",
-  ylab = "1/√n",
-  back = "gray94",
-  level = c(90, 95, 99),
-  shade = c("white", "aquamarine", "aquamarine3"),
-  hlines = "white",
-  xlim = c(-60,60),
-  ylim = c(0.500,0.100),
-  lty = 2,
-  pch = 19,
-  pch.fill = 1,
-  col = 25,
-  label = "F",
-  offset = 0.1,
-  ci.res = 1000,
-  cex.lab = 1.7,
-  cex.axis = 1.4,
-  cex.main = 1.7
-)
-
-funil_global_noCP1 <- metafor::funnel(
-  missing_noCP,
-  yaxis = "sei",
-  addtau2 = FALSE,
-  main = "Global without positive controls",
-  xlab = "Effect size",
-  ylab = "Standard error",
-  back = "gray94",
-  level = c(90, 95, 99),
-  shade = c("white", "grey80", "grey60"),
-  hlines = "white",
-  xlim = c(-60,60),
-  ylim = c(13,0), 
-  lty = 2,
-  pch = 19,
-  pch.fill = 1,
-  col = 25,
-  label = "F",
-  legend = "topright",
-  offset = 0.1,
-  ci.res = 1000,
-  cex.lab = 1.7,
-  cex.axis = 1.4,
-  cex.main = 1.7
-)
-
-
-funil_global_noCP2 <- metafor::funnel(
-  missing_noCP,
-  yaxis = "sqrtninv",
-  addtau2 = FALSE,
-  main = "Global without positive controls",
-  xlab = "Effect size",
+  xlab = "Effect size (Hedges' g)",
   ylab = "1/√n",
   back = "gray94",
   level = c(90, 95, 99),
@@ -341,7 +289,7 @@ funil_m1 <- metafor::funnel(
   yaxis = "sei",
   addtau2 = FALSE,
   main = "Mice",
-  xlab = "Effect Size",
+  xlab = "Effect size (Hedges' g)",
   ylab = "Standard error",
   back = "gray94",
   level = c(90, 95, 99),
@@ -368,7 +316,7 @@ funil_m2 <- metafor::funnel(
   yaxis = "sqrtninv",
   addtau2 = FALSE,
   main = "Mice",
-  xlab = "Effect size",
+  xlab = "Effect size (Hedges' g)",
   ylab = "1/√n",
   back = "gray94",
   level = c(90, 95, 99),
@@ -393,7 +341,7 @@ funil_r1 <- metafor::funnel(
   yaxis = "sei",
   addtau2 = FALSE,
   main = "Rat",
-  xlab = "Effect size",
+  xlab = "Effect size (Hedges' g)",
   ylab = "Standard error",
   back = "gray94",
   level = c(90, 95, 99),
@@ -421,7 +369,7 @@ funil_r2 <- metafor::funnel(
   yaxis = "sqrtninv",
   addtau2 = FALSE,
   main = "Rat",
-  xlab = "Effect size",
+  xlab = "Effect size (Hedges' g)",
   ylab = "1/√n",
   back = "gray94",
   level = c(90, 95, 99),
@@ -429,6 +377,58 @@ funil_r2 <- metafor::funnel(
   hlines = "white",
   xlim = c(-60,60),
   ylim = c(0.500,0.100), 
+  lty = 2,
+  pch = 19,
+  pch.fill = 1,
+  col = 25,
+  label = "F",
+  offset = 0.1,
+  ci.res = 1000,
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
+)
+
+funil_global_noCP1 <- metafor::funnel(
+  missing_noCP,
+  yaxis = "sei",
+  addtau2 = FALSE,
+  main = "Global without positive controls",
+  xlab = "Effect size (Hedges' g)",
+  ylab = "Standard error",
+  back = "gray94",
+  level = c(90, 95, 99),
+  shade = c("white", "grey80", "grey60"),
+  hlines = "white",
+  xlim = c(-60,60),
+  ylim = c(13,0), 
+  lty = 2,
+  pch = 19,
+  pch.fill = 1,
+  col = 25,
+  label = "F",
+  legend = "topright",
+  offset = 0.1,
+  ci.res = 1000,
+  cex.lab = 1.7,
+  cex.axis = 1.4,
+  cex.main = 1.7
+)
+
+
+funil_global_noCP2 <- metafor::funnel(
+  missing_noCP,
+  yaxis = "sqrtninv",
+  addtau2 = FALSE,
+  main = "Global without positive controls",
+  xlab = "Effect size (Hedges' g)",
+  ylab = "1/√n",
+  back = "gray94",
+  level = c(90, 95, 99),
+  shade = c("white", "aquamarine", "aquamarine3"),
+  hlines = "white",
+  xlim = c(-60,60),
+  ylim = c(0.500,0.100),
   lty = 2,
   pch = 19,
   pch.fill = 1,
@@ -1662,7 +1662,7 @@ color_rat <- "#ec2b2b"
 
 
 # create a function to generate metaregression plots
-generate_metareg_plot <- function(metareg_model, tag, colour, xlim, ylim, xlab){
+generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab){
   
   # name of authors + year of studies included at the metareg
   study <-  ifelse(
@@ -1691,9 +1691,10 @@ generate_metareg_plot <- function(metareg_model, tag, colour, xlim, ylim, xlab){
     scale_x_continuous(lim = xlim) +
     scale_y_continuous(lim = ylim) +
     geom_smooth(method = "lm", colour = colour) + 
-    geom_point(size = metareg_model_df$size, alpha =.5) +
-    labs(title = tag, x = xlab, y = "Effect size (Hedges'g)") + 
-    theme(plot.title = element_text(hjust = 0, vjust = 1, face = "bold", margin = margin(t = -5, r = -5, b = -5, l = -5, unit = "pt")))
+    geom_point(shape = 1, size = metareg_model_df$size, alpha =.5) +
+    labs(x = xlab, y = "Effect size\n(Hedges'g)") + 
+    theme_linedraw() +
+    theme(plot.title = element_blank())
   
   return(plot)
 }
@@ -1702,16 +1703,29 @@ generate_metareg_plot <- function(metareg_model, tag, colour, xlim, ylim, xlab){
 
 # Figure 6
 
-plot_A <- generate_metareg_plot(metareg_age_m, "A", color_mice, xlim = c(0, 600), ylim = c(0,60), xlab = "Age (days)")
-plot_B <- generate_metareg_plot(metareg_age_r, "B", color_rat, xlim = c(0, 600), ylim = c(0,25), xlab = "Age (days)")
-plot_C <- generate_metareg_plot(metareg_weight_m, "C", color_mice, xlim = c(0, 40), ylim = c(0,60), xlab = "Weight (g)")
-plot_D <- generate_metareg_plot(metareg_weight_r, "D", color_rat, xlim = c(0, 600), ylim = c(0,25), xlab = "Weight (g)")
-plot_E <- generate_metareg_plot(metareg_wd_m, "E", color_mice, xlim = c(0, 55), ylim = c(0,60), xlab = "Water depth (cm)")
-plot_F <- generate_metareg_plot(metareg_wd_r, "F", color_rat, xlim = c(0, 55), ylim = c(0,25), xlab = "Water depth (cm)")
-plot_G <- generate_metareg_plot(metareg_imi_dose_m, "G", color_mice, xlim = c(0, 60), ylim = c(0,60), xlab = "imipramine dose (mg/kg)")
-plot_H <- generate_metareg_plot(metareg_imi_dose_r, "H", color_rat, xlim = c(0, 60), ylim = c(0,25), xlab = "imipramine dose (mg/kg)")
-plot_I <- generate_metareg_plot(metareg_flx_dose_m, "I", color_mice, xlim = c(0, 60), ylim = c(0,60), xlab = "fluoxetine dose (mg/kg)")
-plot_I <- generate_metareg_plot(metareg_flx_dose_r, "I", color_rat, xlim = c(0, 60), ylim = c(0,25), xlab = "fluoxetine dose (mg/kg)")
+plot_A <- generate_metareg_plot(metareg_age_m, color_mice, xlim = c(0, 600), ylim = c(0,60), xlab = "Age (days)")
+plot_B <- generate_metareg_plot(metareg_age_r, color_rat, xlim = c(0, 600), ylim = c(0,25), xlab = "Age (days)")
+plot_C <- generate_metareg_plot(metareg_weight_m, color_mice, xlim = c(0, 40), ylim = c(0,60), xlab = "Weight (g)")
+plot_D <- generate_metareg_plot(metareg_weight_r, color_rat, xlim = c(0, 600), ylim = c(0,25), xlab = "Weight (g)")
+plot_E <- generate_metareg_plot(metareg_wd_m, color_mice, xlim = c(0, 55), ylim = c(0,60), xlab = "Water depth (cm)")
+plot_F <- generate_metareg_plot(metareg_wd_r, color_rat, xlim = c(0, 55), ylim = c(0,25), xlab = "Water depth (cm)")
+plot_G <- generate_metareg_plot(metareg_imi_dose_m, color_mice, xlim = c(0, 60), ylim = c(0,60), xlab = "imipramine dose (mg/kg)")
+plot_H <- generate_metareg_plot(metareg_imi_dose_r, color_rat, xlim = c(0, 60), ylim = c(0,25), xlab = "imipramine dose (mg/kg)")
+plot_I <- generate_metareg_plot(metareg_flx_dose_m, color_mice, xlim = c(0, 60), ylim = c(0,60), xlab = "fluoxetine dose (mg/kg)")
+plot_J <- generate_metareg_plot(metareg_flx_dose_r, color_rat, xlim = c(0, 60), ylim = c(0,25), xlab = "fluoxetine dose (mg/kg)")
+
+plot_figure6 <- plot_A + plot_B + plot_C + plot_D + plot_E + plot_F + plot_G + plot_H + plot_I + plot_J + plot_layout(ncol = 2, nrow = 5) + plot_annotation(tag_levels = "A") + theme(plot.tag = element_text(face = "bold"))
+
+ggsave(
+  filename = "figure6.png",
+  plot = last_plot(),
+  dpi = 600,
+  path = "figure",
+  height = 10,
+  width =  8,
+  bg = "white",
+  device = ragg::agg_png()
+)
 
 # Figure 7
 
