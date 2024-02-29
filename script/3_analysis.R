@@ -227,7 +227,7 @@ missing_noCP
 
 # [Funnel plot]
 
-png("figure/funil.png", height = 1200, width = 800)
+png("figure/funnel.png", height = 1200, width = 800)
 
 par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(5,5,3,1), cex = .8, font = 2, family = "sans")
 
@@ -257,6 +257,7 @@ funil_global1 <- metafor::funnel(
   cex.main = 1.7
 )
 
+mtext("A", side = 3, cex = 1.5, line = 1, adj = -.15, font = 1)
 
 funil_global2 <- metafor::funnel(
   missing,
@@ -282,7 +283,7 @@ funil_global2 <- metafor::funnel(
   cex.axis = 1.4,
   cex.main = 1.7
 )
-
+mtext("B", side = 3, cex = 1.5, line = 1, adj = -.15, font = 1)
 
 funil_m1 <- metafor::funnel(
   missing_m,
@@ -309,7 +310,7 @@ funil_m1 <- metafor::funnel(
   cex.axis = 1.4,
   cex.main = 1.7
 )
-
+mtext("C", side = 3, cex = 1.5, line = 1, adj = -.15, font = 1)
 
 funil_m2 <- metafor::funnel(
   missing_m,
@@ -335,6 +336,7 @@ funil_m2 <- metafor::funnel(
   cex.axis = 1.4,
   cex.main = 1.7
 )
+mtext("D", side = 3, cex = 1.5, line = 1, adj = -.15, font = 1)
 
 funil_r1 <- metafor::funnel(
   missing_r,
@@ -361,8 +363,7 @@ funil_r1 <- metafor::funnel(
   cex.axis = 1.4,
   cex.main = 1.7
 )
-
-
+mtext("E", side = 3, cex = 1.5, line = 1, adj = -.15, font = 1)
 
 funil_r2 <- metafor::funnel(
   missing_r,
@@ -388,6 +389,7 @@ funil_r2 <- metafor::funnel(
   cex.axis = 1.4,
   cex.main = 1.7
 )
+mtext("F", side = 3, cex = 1.5, line = 1, adj = -.15, font = 1)
 
 funil_global_noCP1 <- metafor::funnel(
   missing_noCP,
@@ -414,7 +416,7 @@ funil_global_noCP1 <- metafor::funnel(
   cex.axis = 1.4,
   cex.main = 1.7
 )
-
+mtext("G", side = 3, cex = 1.5, line = 1, adj = -.15, font = 1)
 
 funil_global_noCP2 <- metafor::funnel(
   missing_noCP,
@@ -440,7 +442,7 @@ funil_global_noCP2 <- metafor::funnel(
   cex.axis = 1.4,
   cex.main = 1.7
 )
-
+mtext("H", side = 3, cex = 1.5, line = 1, adj = -.15, font = 1)
 
 dev.off()
 
