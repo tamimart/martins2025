@@ -1693,7 +1693,7 @@ generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab){
     scale_x_continuous(lim = xlim) +
     scale_y_continuous(lim = ylim) +
     geom_smooth(method = "lm", colour = colour) + 
-    geom_point(shape = 1, size = metareg_model_df$size, alpha =.5) +
+    geom_point(shape = 1, size = metareg_model_df$size, alpha = .5) +
     labs(x = xlab, y = "Effect size\n(Hedges'g)") + 
     theme_linedraw() +
     theme(plot.title = element_blank())
@@ -1705,16 +1705,16 @@ generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab){
 
 # Figure 6
 
-plot_A <- generate_metareg_plot(metareg_age_m, color_mice, xlim = c(0, 600), ylim = c(0,60), xlab = "Age (days)")
-plot_B <- generate_metareg_plot(metareg_age_r, color_rat, xlim = c(0, 600), ylim = c(0,25), xlab = "Age (days)")
-plot_C <- generate_metareg_plot(metareg_weight_m, color_mice, xlim = c(0, 40), ylim = c(0,60), xlab = "Weight (g)")
-plot_D <- generate_metareg_plot(metareg_weight_r, color_rat, xlim = c(0, 600), ylim = c(0,25), xlab = "Weight (g)")
-plot_E <- generate_metareg_plot(metareg_wd_m, color_mice, xlim = c(0, 55), ylim = c(0,60), xlab = "Water depth (cm)")
-plot_F <- generate_metareg_plot(metareg_wd_r, color_rat, xlim = c(0, 55), ylim = c(0,25), xlab = "Water depth (cm)")
-plot_G <- generate_metareg_plot(metareg_imi_dose_m, color_mice, xlim = c(0, 60), ylim = c(0,60), xlab = "imipramine dose (mg/kg)")
-plot_H <- generate_metareg_plot(metareg_imi_dose_r, color_rat, xlim = c(0, 60), ylim = c(0,25), xlab = "imipramine dose (mg/kg)")
-plot_I <- generate_metareg_plot(metareg_flx_dose_m, color_mice, xlim = c(0, 60), ylim = c(0,60), xlab = "fluoxetine dose (mg/kg)")
-plot_J <- generate_metareg_plot(metareg_flx_dose_r, color_rat, xlim = c(0, 60), ylim = c(0,25), xlab = "fluoxetine dose (mg/kg)")
+plot_A <- generate_metareg_plot(metareg_age_m, color_mice, xlim = c(0, 600), ylim = c(-2,65), xlab = "Age (days)")
+plot_B <- generate_metareg_plot(metareg_age_r, color_rat, xlim = c(0, 600), ylim = c(-2,25), xlab = "Age (days)")
+plot_C <- generate_metareg_plot(metareg_weight_m, color_mice, xlim = c(0, 40), ylim = c(-2,65), xlab = "Weight (g)")
+plot_D <- generate_metareg_plot(metareg_weight_r, color_rat, xlim = c(0, 600), ylim = c(-2,25), xlab = "Weight (g)")
+plot_E <- generate_metareg_plot(metareg_wd_m, color_mice, xlim = c(0, 55), ylim = c(-2,65), xlab = "Water depth (cm)")
+plot_F <- generate_metareg_plot(metareg_wd_r, color_rat, xlim = c(0, 55), ylim = c(-2,25), xlab = "Water depth (cm)")
+plot_G <- generate_metareg_plot(metareg_imi_dose_m, color_mice, xlim = c(0, 70), ylim = c(-2,65), xlab = "imipramine dose (mg/kg)")
+plot_H <- generate_metareg_plot(metareg_imi_dose_r, color_rat, xlim = c(0, 70), ylim = c(-2,25), xlab = "imipramine dose (mg/kg)")
+plot_I <- generate_metareg_plot(metareg_flx_dose_m, color_mice, xlim = c(0, 70), ylim = c(-2,65), xlab = "fluoxetine dose (mg/kg)")
+plot_J <- generate_metareg_plot(metareg_flx_dose_r, color_rat, xlim = c(0, 70), ylim = c(-2,25), xlab = "fluoxetine dose (mg/kg)")
 
 plot_figure6 <- plot_A + plot_B + plot_C + plot_D + plot_E + plot_F + plot_G + plot_H + plot_I + plot_J + plot_layout(ncol = 2, nrow = 5) + plot_annotation(tag_levels = "A") + theme(plot.tag = element_text(face = "bold"))
 
