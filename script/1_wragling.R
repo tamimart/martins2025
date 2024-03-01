@@ -1,6 +1,4 @@
-
 # load packages
-
 library(readxl)
 library(writexl)
 library(tidyverse)
@@ -8,9 +6,10 @@ library(lubridate)
 library(skimr)
 library(janitor)
 
-# Import each spreadsheet tab in excel --------
-# To clean the 1st and 2nd reviewers' sheets, add "_1sR" and "_2sR" at the end of the input and output files.
+# IMPORT ----
 
+# Import each spreadsheet tab from the excel file. 
+# To clean the sheets of the 1st and 2nd reviewers, append "_1sR" and "_2sR" respectively to the input and output file names.
 meus_dados_library <- read_excel("data/DataExtraction_Raw.xlsx", sheet = "Library") 
 
 meus_dados_info <- read_excel("data/DataExtraction_Raw.xlsx", sheet = "Extraction info") 
@@ -19,37 +18,50 @@ meus_dados_outcome <- read_excel("data/DataExtraction_Raw.xlsx", sheet = "FST im
 
 meus_dados_quality <- read_excel("data/DataExtraction_Raw.xlsx", sheet = "References Quality") 
 
-
-# Remove lines from articles excluded in the extraction step
-
+# Remove lines from articles excluded during the extraction step.
 meus_dados_library <- meus_dados_library |> 
   filter(Included == TRUE)
 
-
-# Merge df into a single table
-
-
+# Merge dataframes into a single table.
 data1 <- dplyr::left_join(meus_dados_library, meus_dados_info, by = c("First author", "year"))
 
 data2 <- dplyr::left_join(data1, meus_dados_outcome, by = "line")
 
 data_geral <- dplyr::left_join(data2, meus_dados_quality, by = "ID")
 
-
-# look df
-
+# Display summary information about the dataframe.
 glimpse(data_geral)
 
 view(data_geral)
 
-####### MUDAR
-# Select columns that will remain in the final worksheet
+# CLEAN ----
 
+# Select columns to be retained in the final worksheet.
 data_geral <- data_geral |> 
-  select(everything(), -...25, -Included, -`First author.y`, -comp.y, `First author`, -exclusion_reason, -FSTApparatus_conditions, -`Housing conditions`, -year.y, -source.y, `First author.y`, -comp.y, -`Escale (mm)`, -`Escale (s or %)`, -`mean CTRL or ATD (mm)`, -`SEM CTRL or ATD (mm)`, -`mean ADT (mm)` , -`SEM ADT (mm)`) 
+  select(
+    everything(),
+    -...25,
+    -Included,
+    -`First author.y`,
+    -comp.y,
+    `First author`,
+    -exclusion_reason,
+    -FSTApparatus_conditions,
+    -`Housing conditions`,
+    -year.y,
+    -source.y,
+    `First author.y`,
+    -comp.y,
+    -`Escale (mm)`,
+    -`Escale (s or %)`,
+    -`mean CTRL or ATD (mm)`,
+    -`SEM CTRL or ATD (mm)`,
+    -`mean ADT (mm)` ,
+    -`SEM ADT (mm)`
+    ) 
 
-
-data_geral <- data_geral |> # Rename columns/variables according to best practices
+# Rename columns/variables according to best practices.
+data_geral <- data_geral |> 
   rename(first_author = `First author.x`,
          sex = `Sex (M, F)`,
          species = `Species (Rat, Mice)`,
@@ -112,96 +124,37 @@ data_geral <- data_geral |> # Rename columns/variables according to best practic
          CAMARADES11 = `21- Relato do cálculo amostral. (*)`,
          obs_quali = `10`
          ) |> 
-  rename_with(., ~ tolower(gsub(".", "_", .x, fixed = TRUE))) |> 
+  rename_with( ~ tolower(gsub(".", "_", .x, fixed = TRUE))) |> # rename column with custom function.  fixed = TRUE to perform a literal matching. The dot . is a special character in regular expressions that matches any character. 
   clean_names()
 
+# TRANSFORM ----
 
-# Transform variables with margins (eg 35-50) on average
+# Create function to transform variables with ranges (e.g., 35-50) into averages
+process_ranges_variables <- function(data, variable){
+  
+ converted <- data %>%
+    select({{ variable }}) %>%
+    separate(col = {{ variable }}, sep = "-", into = c("v1", "v2")) %>%
+    mutate(v1 = as.numeric(v1),
+           v2 = as.numeric(v2)) %>%
+    mutate(avarage = ifelse(!is.na(v2), ((v1 + v2) / 2), NA)) %>%
+    mutate(value = coalesce(.$avarage, .$v1)) %>%
+    select(value)
+ 
+ return(converted)
+ 
+}
 
-# age
-
-marg_age <- data_geral |>
-  select(age) |> 
-  separate(col = age, sep = "-", into = c("v1", "v2")) |> 
-  mutate(v1 = as.numeric(v1),
-         v2 = as.numeric(v2)) # Split the column into two and make it numeric
-marg_age <- marg_age |> 
-  mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))  # Create new column with average of values that have margin
-marg_age <- marg_age |>
-  mutate(b = coalesce(marg_age$g, marg_age$v1)) |> # Create a new column with the fusion of values (average and single value)
-  select(b)
-
-# weight
-
-marg_weight <- data_geral |>
-  select(weight) |> 
-  separate(col = weight, sep = "-", into = c("v1", "v2")) |> 
-  mutate(v1 = as.numeric(v1),
-         v2 = as.numeric(v2)) 
-marg_weight <- marg_weight |> 
-  mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_weight <- marg_weight |> 
-  mutate(b = coalesce(marg_weight$g, marg_weight$v1)) |> 
-  select(b)
-
-# bioterium_temp
-
-marg_bioterium_temp <- data_geral |>
-  select(bioterium_temp) |> 
-  separate(col = bioterium_temp, sep = "-", into = c("v1", "v2")) |> 
-  mutate(v1 = as.numeric(v1),
-         v2 = as.numeric(v2)) 
-marg_bioterium_temp <- marg_bioterium_temp |> 
-  mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_bioterium_temp <- marg_bioterium_temp |> 
-  mutate(b = coalesce(marg_bioterium_temp$g, marg_bioterium_temp$v1)) |> 
-  select(b)
-
-# bioterium_umi
-
-
-marg_bioterium_umid <- data_geral |>
-  select(bioterium_umid) |> 
-  separate(col = bioterium_umid, sep = "-", into = c("v1", "v2")) |> 
-  mutate(v1 = as.numeric(v1),
-         v2 = as.numeric(v2)) 
-marg_bioterium_umid <- marg_bioterium_umid |> 
-  mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_bioterium_umid <- marg_bioterium_umid |> 
-  mutate(b = coalesce(marg_bioterium_umid$g, marg_bioterium_umid$v1)) |> 
-  select(b)
-
-
-# water_temperature
-
-
-marg_water_temperature <- data_geral |>
-  select(water_temperature) |> 
-  separate(col = water_temperature, sep = "-", into = c("v1", "v2")) |> 
-  mutate(v1 = as.numeric(v1),
-         v2 = as.numeric(v2)) 
-marg_water_temperature <- marg_water_temperature |> 
-  mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_water_temperature <- marg_water_temperature |> 
-  mutate(b = coalesce(marg_water_temperature$g, marg_water_temperature$v1)) |> 
-  select(b)
-
-# water_depth
-
-marg_water_depth <- data_geral |>
-  select(water_depth) |> 
-  separate(col = water_depth, sep = "-", into = c("v1", "v2")) |> 
-  mutate(v1 = as.numeric(v1),
-         v2 = as.numeric(v2)) 
-marg_water_depth <- marg_water_depth |> 
-  mutate(g = ifelse(v2 != "NA", ((v1 + v2) / 2)))
-marg_water_depth <- marg_water_depth |> 
-  mutate(b = coalesce(marg_water_depth$g, marg_water_depth$v1)) |> 
-  select(b)
+# Apply function to columns
+converted_age <- process_ranges_variables(data_geral, age)
+converted_weight <- process_ranges_variables(data_geral, weight)
+converted_bioterium_temp <- process_ranges_variables(data_geral, bioterium_temp)
+converted_bioterium_umid <- process_ranges_variables(data_geral, bioterium_umid)
+converted_water_temperature <- process_ranges_variables(data_geral, water_temperature)
+converted_water_depth <- process_ranges_variables(data_geral, water_depth)
 
 # Transform type of variables according to their characteristics: character, factor, numeric...
-# In the case of numerics, if there was text, these will be transformed into "NA".
-
+# In the case of numerics, if there was text, these will be transformed into NA.
 data_geral <- data_geral |>
   mutate(ctr_n_round = as.numeric(ctr_n_round),
          atd_n_round = as.numeric(atd_n_round),
@@ -223,8 +176,8 @@ data_geral <- data_geral |>
          positive_control = as.factor(positive_control),
          cylinder_height = as.numeric(cylinder_height),
          cylinder_diameter = as.numeric(cylinder_diameter),
-         water_temperature = marg_water_temperature$b,
-         water_depth = marg_water_depth$b,
+         water_temperature = converted_water_temperature$value,
+         water_depth = converted_water_depth$value,
          comparator = as.factor(comparator),
          n_comparisons  = as.integer(n_comparisons),
          atd_class = as.factor(atd_class),
@@ -257,18 +210,16 @@ data_geral <- data_geral |>
          camarades9 = as.factor(camarades9),
          camarades10 = as.factor(camarades10),
          camarades11 = as.factor(camarades11),
-         age = marg_age$b,
-         weight = marg_weight$b,
-         bioterium_temp = marg_bioterium_temp$b,
-         bioterium_umid = marg_bioterium_umid$b,
+         age = converted_age$value,
+         weight = converted_weight$value,
+         bioterium_temp = converted_bioterium_temp$value,
+         bioterium_umid = converted_bioterium_umid$value,
          bioterium_lightcycle = as.factor(bioterium_lightcycle)
   )
-
 
 # Create new column with comparator n corrected according to the number of comparisons and rounded
 # Separate method from method detail (FST)
 # change date type to numeric
-
 data_geral <- data_geral |>
   separate(col = measurement_method, sep = ", ", into = c("measurement_method", "measurement_method_detail"))  |> # separate variable into two
   mutate(ctr_n_corr = as.integer(ctr_n_round / n_comparisons),
@@ -276,14 +227,12 @@ data_geral <- data_geral |>
          measurement_method_detail = as.factor(measurement_method_detail), # add separate variables in parent df
          measurement_method =  as.factor(measurement_method)) 
 
-
 # Rearrange order of variables
+# Get column nameS
+colnames(data_geral) 
 
-
-colnames(data_geral) # Get column name
-
-
-col_order <- c("line", # Put in the desired order
+# Insert column names in the desired order
+col_order <- c("line", 
                "idgeral",
                "id",
                "study_reference",
@@ -364,33 +313,24 @@ col_order <- c("line", # Put in the desired order
                "camarades11",
                "obs_quali")   
 
-data_geral_reord <- data_geral[, col_order] # Add new column sequence
-
+# Add new column sequence
+data_geral_reord <- data_geral[, col_order]
 
 # Check the levels of all variables
-
 sapply(data_geral_reord, levels)
 
-
-# Correct the wrongly written values and emerge the ones that were written in different ways
+# Correct the wrongly written values and merge the ones that were written in different ways
 
 #atd_type
-
-levels(data_geral_reord$atd_type)[match("bupropiona",levels(data_geral_reord$atd_type))] <- "bupropion" #substituir valor
-
+levels(data_geral_reord$atd_type)[match("bupropiona",levels(data_geral_reord$atd_type))] <- "bupropion"
 
 #camarades3
-
 levels(data_geral_reord$camarades3)[match("yes",levels(data_geral_reord$camarades3))] <- "Yes"
 
-
 #camarades1
-
 levels(data_geral_reord$camarades1)[match("No",levels(data_geral_reord$camarades1))] <- "Yes"
 
 #measurement_method
-
-
 levels(data_geral_reord$measurement_method)[match("VIdeo analysis",levels(data_geral_reord$measurement_method))] <- "video analysis"
 
 levels(data_geral_reord$measurement_method)[match("score5sinterval",levels(data_geral_reord$measurement_method))] <- "NA, score5sinterval"
@@ -401,9 +341,7 @@ levels(data_geral_reord$measurement_method)[match("MicroAct Scratching Test",lev
 
 levels(data_geral_reord$measurement_method)[match("video analysis, automatically analysis",levels(data_geral_reord$measurement_method))] <- "video analysis, automated"
 
-
 # Strain
-
 levels(data_geral_reord$strain)[match(c("balb/c", "BALB/C", "BALB/c", "balb/CJ", "BALB/CJ", "BALB/CByJ", "Balb/CJ"), levels(data_geral_reord$strain))] <- "BALB" 
 
 levels(data_geral_reord$strain)[match(c("CB57BL/6J", "C57BL/6J", "C57/BL6","C57BL/6", "C57BL/6N"),levels(data_geral_reord$strain))] <- "C57BL" 
@@ -418,9 +356,7 @@ levels(data_geral_reord$strain)[match("wistar-kyoto", levels(data_geral_reord$st
 
 levels(data_geral_reord$strain)[match("Slc:ddY", levels(data_geral_reord$strain))] <- "ddY"
 
-
 # model/phenotype
-
 levels(data_geral_reord$model_phenotype)[match(c("CUMS", "UCMS"), levels(data_geral_reord$model_phenotype))] <- "CUMs"
 
 levels(data_geral_reord$model_phenotype)[match(c("postOVX8m", "postOVX4m", "postOVX2w", "ovarieactomized"), levels(data_geral_reord$model_phenotype))] <- "ovariectomized"
@@ -433,14 +369,11 @@ levels(data_geral_reord$model_phenotype)[match("strokeMCAOpos14", levels(data_ge
 
 levels(data_geral_reord$model_phenotype)[match("antidepressant-withdrawl", levels(data_geral_reord$model_phenotype))] <- "antidepressant withdrawal"
 
-levels(data_geral_reord$model_phenotype)[match("normal emotional", levels(data_geral_reord$model_phenotype))] <- "NA"
+levels(data_geral_reord$model_phenotype)[match("normal emotional", levels(data_geral_reord$model_phenotype))] <- NA
 
 levels(data_geral_reord$model_phenotype)[match(c("mother exposed to o,p'-dichlorodiphenyltrichloro-ethane (DDT)", "mother exposed to p,p'-dichlorodiphenyltrichloro-ethane (DDT)"), levels(data_geral_reord$model_phenotype))] <- "mother exposed to DDT"
 
-
-
 # country 
-
 levels(data_geral_reord$country)[match("México", levels(data_geral_reord$country))] <- "Mexico"
 
 levels(data_geral_reord$country)[match("United Kingdom", levels(data_geral_reord$country))] <- "UK"
@@ -448,11 +381,9 @@ levels(data_geral_reord$country)[match("United Kingdom", levels(data_geral_reord
 levels(data_geral_reord$country)[match("Korea", levels(data_geral_reord$country))] <- "South Korea"
 
 # treatmentvia
-
 levels(data_geral_reord$treatment_via)[match("tablet", levels(data_geral_reord$treatment_via))] <- "oral"
 
-# treatmentvia
-
+# more2arms
 summary(data_geral_reord$more2arms)
 
 levels(data_geral_reord$more2arms)[match(c("NMAa", "NMAb", "NMA", "NMAc"), levels(data_geral_reord$more2arms))] <- "Yes"
@@ -463,11 +394,12 @@ data_geral_reord$more2arms <- factor(data_geral_reord$more2arms, exclude = NULL,
                levels = c("Yes", "No", NA), 
                labels = c("Yes", "No", "No"))
 
-# Save clean and transformed df FOR FURTHER DATA ANALYSIS
+# EXPORT ----
 
+# Save clean and transformed df for further analysis
 write_xlsx(data_geral_reord,"data/Dataclean_200FST.xlsx")
 
 saveRDS(data_geral_reord, "data/Dataclean_200FST.rds")
 
-
+# Display the structure of the cleaned and transformed data
 glimpse(data_geral_reord)
