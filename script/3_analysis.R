@@ -1,110 +1,71 @@
+# Load packages
+library(tidyverse)      # Data wrangling
+library(bitops)         # Bitwise operations
+library(metafor)        # Meta-analysis
+library(Formula)        # Model formulae
+library(readxl)         # Read Excel files
+library(writexl)        # Save Excel files
+library(extrafont)      # Additional fonts
+library(cowplot)        # Plot annotation and alignment
+library(metapower)      # Power calculation for meta-analysis
+library(lubridate)      # Date manipulation
+library(weightr)        # Test publication bias
+library(patchwork)      # Combine plots
 
-# load packages
-
-library(tidyverse) # data wrangling
-library(bitops)    # operators
-library(metafor)   # meta-analysis
-library(Formula)
-library(readxl)    # read excel file
-library(writexl)   # save excel
-library(extrafont) # extra font
-library(cowplot)   # plot annotation and alignment
-library(metapower) # power calculation
-library(lubridate) # date manipulation
-library(weightr)   # test publication bias
-library(patchwork) # join plots
-
-
-# import font (only once)
-
+# Import fonts (execute once)
 font_import(paths = "C:/Windows/Fonts")
 
-# power ----
+# POWER CALCULATION----
 
-# create function to convert hedges g to cohen's d
-
+# Function to convert Hedges' g to Cohen's d
 hedgesg_to_cohensd <- function(hedgesg, n) {
   cohensd <- hedgesg / (1 - 3 / (4 * (n) - 9))
   return(cohensd)
 }
 
-# calculate general power
-
+# Calculate global meta-analysis power
+# Convert hedges g para cohens d
 hedgesg_to_cohensd(hedgesg = 0.5, n = 12) # converter hedges g para cohens d
+# Calculate power
+global_power <- mpower(effect_size = .54166667, study_size = 6, k = 200, i2 = .90, es_type = "d") 
+# Display power
+print(global_power)
+# Plot power
+plot_mpower(global_power)
 
-poder_geral <- kmestrado <- mpower(effect_size = .54166667, study_size = 6, k = 200, i2 = .90, es_type = "d") # calculate power
+# DATA TREATMENT ----
 
-print(poder_geral)
-plot_mpower(poder_geral)
-
-
-
-# data treatment ----
-
-# import df
+# Import data from Excel
 df <- read_excel("data/Dataclean_200FST.xlsx") 
 
-# change date type to numeric
+# Change date type to numeric
 df <- df  |>  
   mutate(year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y"))) 
 
-# table
+# DATA ANALYSIS ----
 
-# library(gtsummary)
-# 
-# df_table <- df |> 
-#   select(species, sex, age, weight) |> 
-#   mutate(sex = factor(sex,
-#     levels = c("F", "M", "M and F", "NA"),
-#     labels = c("Female", "Male", "Both sexes", "Unknown"))
-#   ) |>
-#   labelled::set_variable_labels(
-#     species = "Species",
-#     age = "Age",
-#     sex = "Sex",
-#     weight = "Weight"
-#   )
-# 
-# 
-# table_pop <- df_table |> 
-#   tbl_summary(
-#     by = species
-#   ) |> 
-#   add_stat_label() |>
-#   modify_spanning_header(
-#     all_stat_cols() ~ "**Species**"
-#   )
-# 
-
-# calculate effect size in SDM hedges g
-
+# Calculate effect size in standardized mean difference (Hedges' g)
 Efeito <- escalc(measure = "SMD", n1i = ctr_n_corr, n2i = atd_n_round, m1i = ctr_mean, m2i = atd_mean, 
                  sd1i = ctr_sd, sd2i = atd_sd, data = df, 
                  append = TRUE)
 
-
-# Meta-analysis by random effects model ----
-
+# Meta-analysis by random effects model 
 Teste <- rma(yi, vi, data = Efeito, slab = (paste(Efeito$first_author, as.character(Efeito$year), sep = ", ")))
 
 Teste
 
-# Multivariate (nested by paper) Meta-analysis by random effects model ----
-
+# Multivariate (nested by paper) Meta-analysis by random effects model 
 Teste_mv <- rma.mv(yi, vi, data = Efeito, random = ~ 1 | id , slab = (paste(Efeito$first_author, as.character(Efeito$year), sep = ", ")))
 
 Teste_mv
 
-
 # Generate confidence  and prediction interval
-
 predict(Teste, digits = 3)
 
 
-# Plot e save forestplot 
-
+# Plot and save forestplot 
 pdf("figure/florest_all.pdf", height = 120, width = 25)
-
+# Create forestplot 
 floresta <- forest(
   Teste,
   cex = 1,
@@ -123,8 +84,7 @@ floresta <- forest(
   fonts = "sans"
 )
 
-# Add texts
-
+# Add annotations
 op <- par(cex = 0.75, font = 2, family = "sans")
 text(c(-6, 7.75), 568, font = 2, cex = 2.5, c("Favours control", "Favours antidepressants"))
 text(53, 568,font = 2.5, cex = 2.5, c("Weights Hedges g [95% CI]"))
@@ -137,23 +97,22 @@ text(0, -20, pos = 4, cex = 4, bquote(paste("RE Model (g = ", .(formatC(Teste$b,
 
 dev.off() 
 
-# Sensitivity analysis ----
+# SENSITIVITY ANALYSIS ----
 
-# See which studies are influencing in different aspects 
-
+# Identify studies influencing the meta-analysis in various aspects 
 png("figure/influence.png")
 
 inf <- influence(Teste)
  plot(inf)
 dev.off()
 
-tinf <- print(inf) # create table with results
+# Create table with influence results
+tinf <- print(inf) 
 tinf$id <- Efeito$line # add column id
 tinf$sr <- Efeito$study_reference # add reference column
 write_xlsx(tinf,"data/influence.xlsx") # save as excel file
 
-
-
+# Perform leave-one-out sensitivity analysis and save results
 leave1 <- leave1out(Teste, digits = 3) # put results into an object
 leave1df <- as.data.frame(leave1) # transf object list into df
 final_df <- as.data.frame(t(leave1df)) # invert lines and columns
@@ -164,11 +123,13 @@ copia_final_df <- copia_final_df |>
 
 write_xlsx(copia_final_df, "data/leave.xlsx") # save
 
-# Publication Bias Analysis ----
+# PUBLICATION ANALYSIS ----
 
+# Perform regression tests for publication bias
 regtest(Teste, model = "rma", predictor = "sei")
 regtest(Teste, model = "rma", predictor = "sqrtninv")
 
+# Subset data and perform regression tests
 Teste_mice <- rma(yi, vi, subset = (species == "mice"), data = Efeito)
 regtest(Teste_mice, model = "rma", predictor = "sei")
 regtest(Teste_mice, model = "rma", predictor = "sqrtninv")
@@ -181,10 +142,8 @@ Teste_noCP <- rma(yi, vi, subset = (positive_control == 0), data = Efeito)
 regtest(Teste_noCP, model = "rma", predictor = "sei")
 regtest(Teste_noCP, model = "rma", predictor = "sqrtninv")
 
-# [trim and fill]
-
-missing <-
-  metafor::trimfill(
+# Trim and fill
+missing <- metafor::trimfill(
     Teste,
     side = "left",
     estimator = "R0",
@@ -192,8 +151,7 @@ missing <-
     verbose = FALSE
   ) #R0 preferable when the MA has >k. Reference: Rothstein HR, Sutton AJ, Borenstein M. Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments. Chichester, UK: John Wiley & Sons; 2005. An advantage of estimator "R0" is that it provides a test of the null hypothesis that the number of missing studies (on the chosen side) is zero
 
-missing_m <-
-  metafor::trimfill(
+missing_m <- metafor::trimfill(
     Teste_mice,
     side = "left",
     estimator = "R0",
@@ -201,8 +159,7 @@ missing_m <-
     verbose = FALSE
   )
 
-missing_r <-
-  metafor::trimfill(
+missing_r <- metafor::trimfill(
     Teste_rat,
     side = "left",
     estimator = "R0",
@@ -210,9 +167,7 @@ missing_r <-
     verbose = FALSE
   )
 
-
-missing_noCP <-
-  metafor::trimfill(
+missing_noCP <- metafor::trimfill(
     Teste_noCP,
     side = "left",
     estimator = "R0",
@@ -225,12 +180,13 @@ missing_m
 missing_r 
 missing_noCP
 
-# [Funnel plot]
-
+# Funnel plot
+# Plot and save 
 png("figure/funnel.png", height = 1200, width = 800)
 
 par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(5,5,3,1), cex = .8, font = 2, family = "sans")
 
+# Generate funnel plots for different subsets of data
 funil_global1 <- metafor::funnel(
   missing,
   yaxis = "sei",
@@ -446,12 +402,12 @@ mtext("H", side = 3, cex = 1.5, line = 1, adj = -.15, font = 1)
 
 dev.off()
 
-# plot for a poster presented on IBRO [ignore]
+# [IGNORE] 
+# plot for a poster presented on IBRO 
 # 
 # png("figure/funil_ibro.png", height = 1000, width = 2400)
 # 
 # par(mfrow = c(1, 2), oma = c(1,1,1,1), mar = c(4,5,3,1), cex = 2, font = 2, family = "sans")
-# 
 # 
 # funil_global1 <- metafor::funnel(
 #   missing,
@@ -479,7 +435,6 @@ dev.off()
 #   cex.main = 1.7
 # )
 # 
-# 
 # funil_global_noCP1 <- metafor::funnel(
 #   missing_noCP,
 #   yaxis = "sei",
@@ -505,23 +460,21 @@ dev.off()
 #   cex.axis = 1.4,
 #   cex.main = 1.7
 # )
-# 
 # dev.off()
 
 
 
-# [weight function model]
+# Weight function model
 
 # Specific publication bias test - 
 # increases the weight of studies that are less likely to be published and 
 # decreases the weight of those that are more likely to be published - based on p-value
 # likehood test alfa = 0.10
 
-# global
-
+# Global
 wf_global <- weightfunct(Efeito$yi, Efeito$vi, table = TRUE, steps = .05)
 
-# mice
+# Mice
 wmice <- Efeito |> 
   filter(species == "mice")
 
@@ -541,16 +494,15 @@ wnoCP <- Efeito |>
 
 wf_noCP <- weightfunct(wnoCP$yi, wnoCP$vi, table = TRUE, steps = 0.05)
 
-# Subgroup analysis ----
+# STRATIFIED ANALYSIS ----
 
-# [POPULATION]------
-#species [mice] ----
+# Population ----
 
+# mice ----
 Teste_mice <- rma(yi, vi, subset = (species == "mice"), data = Efeito)
 Teste_mice
 
-#sex
-
+# sex
 Teste_macho_m <- rma(yi, vi, subset = (sex == "M" & species == "mice"), data = Efeito)
 Teste_macho_m
 
@@ -560,11 +512,9 @@ Teste_femea_m
 Teste_sexoambos_m <- rma(yi, vi, subset = (sex == "M and F" & species == "mice"), data = Efeito)
 Teste_sexoambos_m
 
-
 Efeito |> 
   filter(sex == "M and F" & species == "mice") |> 
   select(authors) # same publication?
-
 
 Teste_sexoind_m <- rma(yi, vi, subset = (sex == "NA" & species == "mice"), data = Efeito)
 Teste_sexoind_m
@@ -573,8 +523,7 @@ Efeito |>
   filter(sex == "NA" & species == "mice") |> 
   select(authors) # same publication?
 
-#strain
-
+# strain
 Teste_swiss <- rma(yi, vi, subset = (strain == "swiss" & species == "mice"), data = Efeito)
 Teste_swiss
 
@@ -650,7 +599,6 @@ Efeito |>
   filter(strain == "B6SJL (R406W transgenic)") |> 
   select(authors) # same publication?
 
-
 Teste_129S6 <- rma(yi, vi, subset = (strain == "129S6" & species == "mice"), data = Efeito)
 Teste_129S6 # k < 3
 
@@ -659,18 +607,14 @@ Teste_SPF # k < 3
 
 levels(Efeito$strain)
 
-
 # stress
-
 Teste_stress_m <- rma(yi, vi, subset = (model_phenotype != "NA" & species == "mice"), data = Efeito)
 Teste_stress_m
 
 Teste_nostress_m <- rma(yi, vi, subset = (model_phenotype == "NA" & species == "mice"), data = Efeito)
 Teste_nostress_m
 
-
 # light cycle
-
 normal1212_m <- rma(yi, vi, subset = (bioterium_lightcycle == "12/12 normal" & species == "mice"), data = Efeito)
 normal1212_m
 
@@ -689,15 +633,11 @@ natural_m # k < 3
 dez_q_m <- rma(yi, vi, subset = (bioterium_lightcycle == "10/14" & species == "mice"), data = Efeito)
 dez_q_m # k < 3
 
-
-# species [rat] ----
-
+# rat ----
 Teste_rat <- rma(yi, vi, subset = (species == "rat"), data = Efeito)
 Teste_rat
 
 #sex
-
-
 Teste_macho_r <- rma(yi, vi, subset = (sex == "M" & species == "rat"), data = Efeito)
 Teste_macho_r
 
@@ -719,7 +659,6 @@ Efeito |>
   select(authors) # same publication?
 
 #strain
-
 Teste_wistar <- rma(yi, vi, subset = (strain == "wistar" & species == "rat"), data = Efeito)
 Teste_wistar
 
@@ -770,18 +709,14 @@ Teste_NA_r # k < 3
 Teste_CD1 <- rma(yi, vi, subset = (strain == "CD-1" & species == "rat"), data = Efeito)
 Teste_CD1 # k < 3
 
-
 # stress
-
 Teste_stress_r <- rma(yi, vi, subset = (model_phenotype != "NA" & species == "rat"), data = Efeito)
 Teste_stress_r
 
 Teste_nostress_r <- rma(yi, vi, subset = (model_phenotype == "NA" & species == "rat"), data = Efeito)
 Teste_nostress_r
 
-
 # light cycle
-
 normal1212_r <- rma(yi, vi, subset = (bioterium_lightcycle == "12/12 normal" & species == "rat"), data = Efeito)
 normal1212_r
 
@@ -812,12 +747,11 @@ Efeito |>
   filter(bioterium_lightcycle == "10/14" & species == "rat") |> 
   select(authors) # same publication?
 
+# Intervention---- 
 
-# [INTERVENTION]------ 
-# [mice] -----
+# mice -----
 
 #TCA
-
 Teste_TCA_m <- rma(yi, vi, subset = (atd_class == "tricyclic" & species == "mice"), data = Efeito)
 Teste_TCA_m
 
@@ -845,7 +779,6 @@ Efeito |>
   select(authors) # same publication?
 
 #SSRI
-
 Teste_SSRI_m <- rma(yi, vi, subset = (atd_class == "SSRI" & species == "mice"), data = Efeito)
 Teste_SSRI_m
 
@@ -881,7 +814,6 @@ Efeito |>
   select(authors) # same publication?
 
 #SNRI
-
 Teste_SNRI_m <- rma(yi, vi, subset = (atd_class == "SNRI" & species == "mice"), data = Efeito, control = list(stepadj = 0.5, maxiter = 1000)) # add parametros para ajustar comprimento do passo e maximo de iterações para a convergencia ocorrer (https://stackoverflow.com/questions/68817204/why-did-the-fisher-scoring-algorithm-not-converge-after-adjusting)
 Teste_SNRI_m
 
@@ -900,7 +832,6 @@ Efeito |>
   select(authors) # same publication?
 
 #IMAO
-
 Teste_IMAO_m <- rma(yi, vi, subset = (atd_class == "IMAO" & species == "mice"), data = Efeito)
 Teste_IMAO_m
 
@@ -919,12 +850,10 @@ Efeito |>
   select(authors) # same publication?
 
 #NDRI
-
 Teste_NDRI_m <- rma(yi, vi, subset = (atd_class == "NDRI" & species == "mice"), data = Efeito)
 Teste_NDRI_m
 
 #TECA
-
 Teste_TeCA_m <- rma(yi, vi, subset = (atd_class == "teca" & species == "mice"), data = Efeito)
 Teste_TeCA_m
 
@@ -943,7 +872,6 @@ Efeito |>
   select(authors) # same publication?
 
 # VIA adm
-
 Teste_IP_m <- rma(yi, vi, subset = (treatment_via == "IP" & species == "mice"), data = Efeito)
 Teste_IP_m
 
@@ -963,9 +891,9 @@ Efeito |>
   filter(treatment_via == "NA" & species == "mice") |> 
   select(authors) # same publication?
 
-# [rat] -----
-#TCA
+# rat -----
 
+#TCA
 Teste_TCA_r <- rma(yi, vi, subset = (atd_class == "tricyclic" & species == "rat"), data = Efeito)
 Teste_TCA_r
 
@@ -985,9 +913,7 @@ Efeito |>
   filter(atd_type == "clomipramine" & species == "rat") |> 
   select(authors) # same publication?
 
-
 #SSRI
-
 Teste_SSRI_r <- rma(yi, vi, subset = (atd_class == "SSRI" & species == "rat"), data = Efeito)
 Teste_SSRI_r
 
@@ -1025,9 +951,7 @@ Efeito |>
   filter(atd_type == "escitalopram" & species == "rat") |> 
   select(authors) # same publication?
 
-
 #SNRI
-
 Teste_SNRI_r <- rma(yi, vi, subset = (atd_class == "SNRI" & species == "rat"), data = Efeito)
 Teste_SNRI_r
 
@@ -1056,7 +980,6 @@ Efeito |>
   select(authors) # same publication?
 
 #TECA
-
 Teste_TeCA_r <- rma(yi, vi, subset = (atd_class == "teca" & species == "rat"), data = Efeito)
 Teste_TeCA_r
 
@@ -1068,13 +991,11 @@ Teste_amo_r
 
 
 #IMAO
-
 Teste_IMAO_r <- rma(yi, vi, subset = (atd_class == "IMAO" & species == "rat"), data = Efeito)
 Teste_IMAO_r
 
 
 # VIA adm
-
 Teste_IP_r <- rma(yi, vi, subset = (treatment_via == "IP" & species == "rat"), data = Efeito)
 Teste_IP_r
 
@@ -1090,11 +1011,9 @@ Teste_gav_r
 Teste_mi_r <- rma(yi, vi, subset = (treatment_via == "microinjection (dorsal hippocampus)" & species == "rat"), data = Efeito)
 Teste_mi_r
 
-
 Efeito |> 
   filter(treatment_via == "microinjection (dorsal hippocampus)" & species == "rat") |> 
   select(authors) # same publication?
-
 
 Teste_od_r <- rma(yi, vi, subset = (treatment_via == "oral (dietary treatment)" & species == "rat"), data = Efeito)
 Teste_od_r
@@ -1106,7 +1025,6 @@ Efeito |>
 Teste_in_r <- rma(yi, vi, subset = (treatment_via == "intranasal" & species == "rat"), data = Efeito)
 Teste_in_r
 
-
 Efeito |> 
   filter(treatment_via == "intranasal" & species == "rat") |> 
   select(authors) # same publication?
@@ -1114,18 +1032,16 @@ Efeito |>
 Teste_viaNA_r <- rma(yi, vi, subset = (treatment_via == "NA" & species == "rat"), data = Efeito)
 Teste_viaNA_r # k < 3
 
-# [OUTCOME] ------
-# [mice]----
+# Outcome -----
 
-#protocol
+# mice----
 
-
+# protocol
 fst_pro_m <- Efeito |> 
   filter(species == "mice") |> 
   group_by(fst_protocol) |> 
   summarise(soma = n()) |> 
-  arrange(desc(soma)) # see which protocols were used and leave only those used by at least 3 studies
-
+  arrange(desc(soma)) # Identify which protocols were used and leave only those used by at least 3 studies
 
 Teste_T6S4_m <- rma(yi, vi, subset = (fst_protocol == "test6score4" & species == "mice"), data = Efeito)
 Teste_T6S4_m
@@ -1217,7 +1133,6 @@ Efeito |>
   select(authors) # same publication?
 
 # method
-
 Teste_metNA_m <- rma(yi, vi, subset = (measurement_method == "NA" & species == "mice"), data = Efeito)
 Teste_metNA_m
 
@@ -1228,23 +1143,20 @@ Teste_metmanual_m <- rma(yi, vi, subset = (measurement_method == "manually" & sp
 Teste_metmanual_m
 
 # other tests
-
 Teste_NOotherT_m <- rma(yi, vi, subset = (others_tests == "NA" & species == "mice" | others_tests == "No" & species == "mice"), data = Efeito)
 Teste_NOotherT_m
 
 Teste_otherT_m <- rma(yi, vi, subset = (others_tests != "NA" & others_tests != "No" & species == "mice"), data = Efeito)
 Teste_otherT_m
 
-# [rat] ----
+# rat ----
 
-#protocol
-
+# protocol
 fst_pro_r <- Efeito |> 
   filter(species == "rat") |> 
   group_by(fst_protocol) |> 
   summarise(soma = n()) |> 
-  arrange(desc(soma)) # ver quais protocolos foram usados e deixar só com pelo menos 3 estudos
-
+  arrange(desc(soma)) # Identify which protocols were used and leave only those used by at least 3 studies
 
 Teste_PT15T5_r <- rma(yi, vi, subset = (fst_protocol == "pre15test5" & species == "rat"), data = Efeito)
 Teste_PT15T5_r
@@ -1287,9 +1199,7 @@ Efeito |>
   filter(fst_protocol == "pre15test6score5" & species == "rat") |> 
   select(authors) # same publication?
 
-
 # method
-
 Teste_metNA_r <- rma(yi, vi, subset = (measurement_method == "NA" & species == "rat"), data = Efeito)
 Teste_metNA_r
 
@@ -1300,21 +1210,20 @@ Teste_metmanual_r <- rma(yi, vi, subset = (measurement_method == "manually" & sp
 Teste_metmanual_r
 
 # other tests
-
 Teste_NOotherT_r <- rma(yi, vi, subset = (others_tests == "NA" & species == "rat" | others_tests == "No" & species == "rat"), data = Efeito)
 Teste_NOotherT_r
 
 Teste_otherT_r <- rma(yi, vi, subset = (others_tests != "NA" & others_tests != "No" & species == "rat"), data = Efeito)
 Teste_otherT_r
 
-# Forestplot subgroups ------
+# STRATIFIED ANALYSIS | FIGURES ------
 
-# I tabulated the results of the subgroups in an excel spreadsheet
+# I organized the results of the subgroups into an Excel spreadsheet.
 
-# load data
+# Load data
 dfsubgroups <- read_excel("data/subgroupresults.xlsx")
 
-# transform variables
+# Transform variables
 dfsubgroups <- dfsubgroups |> 
   rename(IC95LL = `IC95-L`,
          IC95UL = `IC95-U`,
@@ -1329,8 +1238,7 @@ dfsubgroups <- dfsubgroups |>
          nested = replace_na(nested,""),
          outline = 100) 
 
-
-# assig the order of levels
+# Assign the order of levels
 transform_levels <- function(data, column_name) { #function to modify the levels' order for factor variables
   data |> 
     mutate({{ column_name }} := fct_inorder({{ column_name }}))
@@ -1339,12 +1247,10 @@ transform_levels <- function(data, column_name) { #function to modify the levels
 dfsubgroups <- transform_levels(dfsubgroups, moderator)
 dfsubgroups <- transform_levels(dfsubgroups, category)
 
-
-# vset a global font
+# Set a global font
 theme_set(theme_minimal(base_family = "Gadugi"))
 
-
-# list specified settings
+# List specific settings
 pio_info <- list(population = list(type = "Population", 
                                label = c("Species","Sex","Strain","Precondition","Light cycle"), 
                                label_position_m = c(28,24,15,5.5,1), 
@@ -1374,13 +1280,12 @@ pio_info <- list(population = list(type = "Population",
                             height = 7))
 
 
-# create function to create plot 
+# Create function to generate plot 
 generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
   
   pio_info <- pio_info[[pio]]
   
   color_mice <- "#ff9400"
-  
   color_rat <- "#ec2b2b"
   
   forest_m <- dfsubgroups |>
@@ -1629,19 +1534,16 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
 
 }
 
-# create plot to population - stratified 
+# Create plot to population - stratified 
 generate_subgroup_plot(dfsubgroups, pio_info, pio = "population")
-# create plot to intervention - stratified 
+# Create plot to intervention - stratified 
 generate_subgroup_plot(dfsubgroups, pio_info, pio = "intervention")
-# create plot to outcome - stratified 
+# Create plot to outcome - stratified 
 generate_subgroup_plot(dfsubgroups, pio_info, pio = "outcome")
 
-
-
-# Metaregression -----
+# META-REGRESSION -----
 
 # age and weight (population), dose (intervention), water depth (outcome)
-
 metareg_age_m <- rma(yi, vi, subset = species == "mice", mods = ~ age, data = Efeito)
 metareg_age_r <- rma(yi, vi, subset = species == "rat", mods = ~ age, data = Efeito)
 metareg_weight_m <- rma(yi, vi, subset = species == "mice", mods = ~ weight, data = Efeito)
@@ -1654,28 +1556,28 @@ metareg_flx_dose_m <- rma(yi, vi, subset = species == "mice" & atd_type == "fluo
 metareg_flx_dose_r <- rma(yi, vi, subset = species == "rat" & atd_type == "fluoxetine" & dose_unit == "mg/kg", mods = ~dose, data = Efeito)
 
 # year and quality
-
-metareg_quali_m <- rma(yi, vi, subset = species == "mice", mods = FILL , data = Efeito) 
+metareg_quali_m <- rma(yi, vi, subset = species == "mice", mods = rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10, data = Efeito) 
 metareg_quali_r <- rma(yi, vi, subset = species == "rat", mods = FILL , data = Efeito) 
 
+# METAREGRESSION | FIGURES ----
 
+# Set color for each species
 color_mice <- "#ff9400"
 color_rat <- "#ec2b2b"
 
-
-# create a function to generate metaregression plots
+# Create a function to generate meta-regression plots
 generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab, title = NULL){
   
-  # name of authors + year of studies included at the metareg
+  # Name of authors + year of studies included at the metareg
   study <-  ifelse(
     metareg_model$subset == TRUE,
     paste0(metareg_model$data$first_author, metareg_model$data$year),
     NA
   )
-  # list studies included in the metareg
+  # List studies included in the metareg
   study <- study[!is.na(study)] 
   
-  # create dataframe with meta-reg data
+  # Create dataframe with meta-reg data
   metareg_model_df <- data.frame(
     yi = metareg_model$yi.f,
     X = metareg_model$X.f[,2],
@@ -1683,7 +1585,7 @@ generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab, title
     study = study
   ) 
   
-  # remove rows with NA on moderator 
+  # Remove rows with NA on moderator 
   metareg_model_df <- metareg_model_df[complete.cases(metareg_model_df$X), ]
   
   plot <- ggplot(
@@ -1701,10 +1603,7 @@ generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab, title
   return(plot)
 }
 
-# METAREGRESSION PLOTS: age and weight (population), dose (intervention), water depth (outcome)
-
 # Figure 6
-
 plot_A <- generate_metareg_plot(metareg_age_m, color_mice, xlim = c(0, 600), ylim = c(-2,65), xlab = "Age (days)", title = "Mice")
 plot_B <- generate_metareg_plot(metareg_age_r, color_rat, xlim = c(0, 600), ylim = c(-2,25), xlab = "Age (days)", title = "Rat")
 plot_C <- generate_metareg_plot(metareg_weight_m, color_mice, xlim = c(0, 40), ylim = c(-2,65), xlab = "Weight (g)")
@@ -1732,14 +1631,14 @@ ggsave(
 # Figure 7
 
 
-# Quality ROB/CAMARADES ----
+# STUDY QUALITY FIGURE ----
 
-# Isolate variables from ROB SYRCLE
+# SYRCLE RoB
 
+# Isolate variables 
 df_rob <- df |> 
   mutate(Study = str_c(first_author, ", ", year)) |> 
   select(starts_with("rob"), Study) 
-
 
 df_rob <- df_rob |> 
   distinct() # keep one line per publication
@@ -1757,18 +1656,13 @@ df_rob <- df_rob |>
          "Free of other problems" = rob10) |> 
   relocate(Study, everything())
 
-
-
-
 df_rob_long <- df_rob |> # put into long format
   pivot_longer(!c(Study),
                names_to = "pergunta",
                values_to = "atribuicao",
   ) 
 
-
-# rename levels
-
+# Rename levels
 df_rob_long$atribuicao <-
   factor(
     df_rob_long$atribuicao,
@@ -1788,10 +1682,6 @@ df_rob_long$pergunta <-
     "Incomplete outcome data adequately addressed", 
     "Free of selective outcome reporting",
     "Free of other problems") 
-
-
-
-# visualize ROB SYRCLE resume
 
 v_factor_levels <- c("High", "Unclear", "Low")
 
@@ -1828,13 +1718,12 @@ robplot <- df_rob_long |>
     legend.key.size = unit(.8, "line")
   )
 
-
+# Visualize SYRCLE RoB resume
 robplot
 
-# CAMARADES ----
+# CAMARADES
 
 # Isolate variables from CAMARADES
-
 df_camarades <- df |> 
   mutate(Study = str_c(first_author, ", ", year)) |> 
   select(starts_with("camarades"), Study) 
@@ -1855,13 +1744,11 @@ df_camarades <- df_camarades |>
          "Report of the methods to acess the outcomes" = camarades10,
          "Report sample size calculation" = camarades11) 
 
-
 df_camarades_longo <- df_camarades |> 
   pivot_longer(!c(Study),
                names_to = "pergunta",
                values_to = "atribuicao",
   ) 
-
 
 df_camarades_longo$pergunta <- 
   fct_relevel(
@@ -1877,7 +1764,6 @@ df_camarades_longo$pergunta <-
     "Report of the methods to acess the outcomes",
     "Report sample size calculation")
 
-
 df_camarades_longo$atribuicao <-  
   factor(
     df_camarades_longo$atribuicao,
@@ -1885,19 +1771,11 @@ df_camarades_longo$atribuicao <-
     labels = c("No", "Yes", "Unclear", "Yes", "Yes", "Yes") 
   )
 
-
-
-
 df_camarades_longo$atribuicao <- 
   fct_relevel(
     df_camarades_longo$atribuicao, "No", "Unclear", "Yes")
 
-
-
 c_factor_levels <- c("No", "Unclear", "Yes") 
-
-
-# visualize CAMARADES resume
 
 camaradesplot <- df_camarades_longo |> 
   group_by(Study) |> 
@@ -1932,10 +1810,9 @@ camaradesplot <- df_camarades_longo |>
         legend.key.size = unit(.8, "line")
   )
 
-
 quality <- robplot / camaradesplot + plot_layout(heights = c(5,5), width = 5)
 
-
+# Save plot
 ggsave(filename = "quality.png",
           plot = quality,
           dpi = 600,

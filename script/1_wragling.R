@@ -1,10 +1,11 @@
 # load packages
-library(readxl)
-library(writexl)
-library(tidyverse)
-library(lubridate)
-library(skimr)
-library(janitor)
+
+library(readxl)     # Read Excel files
+library(writexl)    # Save Excel files
+library(tidyverse)  # Data wrangling
+library(lubridate)  # Date manipulation
+library(skimr)      # Generate summary statistics
+library(janitor)    # Clean and tidy dataframes
 
 # IMPORT ----
 
