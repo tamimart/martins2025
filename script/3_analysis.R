@@ -1664,7 +1664,7 @@ color_rat <- "#ec2b2b"
 
 
 # create a function to generate metaregression plots
-generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab){
+generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab, title = NULL){
   
   # name of authors + year of studies included at the metareg
   study <-  ifelse(
@@ -1694,9 +1694,9 @@ generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab){
     scale_y_continuous(lim = ylim) +
     geom_smooth(method = "lm", colour = colour) + 
     geom_point(shape = 1, size = metareg_model_df$size, alpha = .5) +
-    labs(x = xlab, y = "Effect size\n(Hedges'g)") + 
+    labs(x = xlab, y = "Effect size\n(Hedges'g)", title = title) + 
     theme_linedraw() +
-    theme(plot.title = element_blank())
+    theme(plot.title = element_text(face = "bold", hjust = .5))
   
   return(plot)
 }
@@ -1705,8 +1705,8 @@ generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab){
 
 # Figure 6
 
-plot_A <- generate_metareg_plot(metareg_age_m, color_mice, xlim = c(0, 600), ylim = c(-2,65), xlab = "Age (days)")
-plot_B <- generate_metareg_plot(metareg_age_r, color_rat, xlim = c(0, 600), ylim = c(-2,25), xlab = "Age (days)")
+plot_A <- generate_metareg_plot(metareg_age_m, color_mice, xlim = c(0, 600), ylim = c(-2,65), xlab = "Age (days)", title = "Mice")
+plot_B <- generate_metareg_plot(metareg_age_r, color_rat, xlim = c(0, 600), ylim = c(-2,25), xlab = "Age (days)", title = "Rat")
 plot_C <- generate_metareg_plot(metareg_weight_m, color_mice, xlim = c(0, 40), ylim = c(-2,65), xlab = "Weight (g)")
 plot_D <- generate_metareg_plot(metareg_weight_r, color_rat, xlim = c(0, 600), ylim = c(-2,25), xlab = "Weight (g)")
 plot_E <- generate_metareg_plot(metareg_wd_m, color_mice, xlim = c(0, 55), ylim = c(-2,65), xlab = "Water depth (cm)")
