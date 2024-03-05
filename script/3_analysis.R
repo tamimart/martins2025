@@ -1543,7 +1543,7 @@ generate_subgroup_plot(dfsubgroups, pio_info, pio = "outcome")
 
 # META-REGRESSION -----
 
-# age and weight (population), dose (intervention), water depth (outcome)
+# age and weight (population), dose (intervention), water depth (outcome) and year
 metareg_age_m <- rma(yi, vi, subset = species == "mice", mods = ~ age, data = Efeito)
 metareg_age_r <- rma(yi, vi, subset = species == "rat", mods = ~ age, data = Efeito)
 metareg_weight_m <- rma(yi, vi, subset = species == "mice", mods = ~ weight, data = Efeito)
@@ -1554,10 +1554,30 @@ metareg_imi_dose_m <- rma(yi, vi, subset = species == "mice" & atd_type == "imip
 metareg_imi_dose_r <- rma(yi, vi, subset = species == "rat" & atd_type == "imipramine" & dose_unit == "mg/kg", mods = ~dose, data = Efeito)
 metareg_flx_dose_m <- rma(yi, vi, subset = species == "mice" & atd_type == "fluoxetine" & dose_unit == "mg/kg", mods = ~dose, data = Efeito) 
 metareg_flx_dose_r <- rma(yi, vi, subset = species == "rat" & atd_type == "fluoxetine" & dose_unit == "mg/kg", mods = ~dose, data = Efeito)
+metareg_year_m <- rma(yi, vi, subset = species == "mice", mods = ~ year, data = Efeito) 
+metareg_year_r <- rma(yi, vi, subset = species == "rat", mods = ~ year , data = Efeito) 
 
-# year and quality
-metareg_quali_m <- rma(yi, vi, subset = species == "mice", mods = rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10, data = Efeito) 
-metareg_quali_r <- rma(yi, vi, subset = species == "rat", mods = FILL , data = Efeito) 
+
+#  quality
+metareg_quali_m <- rma(yi, vi, subset = species == "mice", mods = ~ rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10, data = Efeito) 
+metareg_quali_r <- rma(yi, vi, subset = species == "rat", mods = ~ rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10, data = Efeito) 
+
+# test robustness of models
+metafor::permutest(metareg_quali_m)
+metafor::permutest(metareg_quali_r)
+
+# Check number of studies per level
+summary_df_mice <- df %>%
+  filter(species == "mice") |> 
+  gather(key = "variable", value = "value", rob1:rob10) %>%
+  count(variable, value) %>%
+  arrange(variable, desc(n)) 
+
+summary_df_rat <- df %>%
+  filter(species == "mice") |> 
+  gather(key = "variable", value = "value", rob1:rob10) %>%
+  count(variable, value) %>%
+  arrange(variable, desc(n))
 
 # METAREGRESSION | FIGURES ----
 
@@ -1566,7 +1586,7 @@ color_mice <- "#ff9400"
 color_rat <- "#ec2b2b"
 
 # Create a function to generate meta-regression plots
-generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab, title = NULL){
+generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab, title = NULL, type = "single"){
   
   # Name of authors + year of studies included at the metareg
   study <-  ifelse(
@@ -1576,46 +1596,53 @@ generate_metareg_plot <- function(metareg_model, colour, xlim, ylim, xlab, title
   )
   # List studies included in the metareg
   study <- study[!is.na(study)] 
-  
+
   # Create dataframe with meta-reg data
-  metareg_model_df <- data.frame(
-    yi = metareg_model$yi.f,
-    X = metareg_model$X.f[,2],
-    size = 1/metareg_model$vi.f,
-    study = study
-  ) 
-  
+
+    metareg_model_df <- data.frame(
+      yi = metareg_model$yi.f,
+      X = metareg_model$X.f[,2],
+      size = 1/metareg_model$vi.f,
+      study = study
+    ) 
+
   # Remove rows with NA on moderator 
   metareg_model_df <- metareg_model_df[complete.cases(metareg_model_df$X), ]
   
   plot <- ggplot(
     data = metareg_model_df,
-    aes(y = yi, x = X
-    )) +  
+    aes(y = yi, x = X)
+  ) +  
     scale_x_continuous(lim = xlim) +
     scale_y_continuous(lim = ylim) +
     geom_smooth(method = "lm", colour = colour) + 
     geom_point(shape = 1, size = metareg_model_df$size, alpha = .5) +
     labs(x = xlab, y = "Effect size\n(Hedges'g)", title = title) + 
     theme_linedraw() +
-    theme(plot.title = element_text(face = "bold", hjust = .5))
-  
+    theme(plot.title = element_text(face = "bold", hjust = .5)) 
+
   return(plot)
+  
 }
+
+
 
 # Figure 6
 plot_A <- generate_metareg_plot(metareg_age_m, color_mice, xlim = c(0, 600), ylim = c(-2,65), xlab = "Age (days)", title = "Mice")
 plot_B <- generate_metareg_plot(metareg_age_r, color_rat, xlim = c(0, 600), ylim = c(-2,25), xlab = "Age (days)", title = "Rat")
 plot_C <- generate_metareg_plot(metareg_weight_m, color_mice, xlim = c(0, 40), ylim = c(-2,65), xlab = "Weight (g)")
 plot_D <- generate_metareg_plot(metareg_weight_r, color_rat, xlim = c(0, 600), ylim = c(-2,25), xlab = "Weight (g)")
-plot_E <- generate_metareg_plot(metareg_wd_m, color_mice, xlim = c(0, 55), ylim = c(-2,65), xlab = "Water depth (cm)")
-plot_F <- generate_metareg_plot(metareg_wd_r, color_rat, xlim = c(0, 55), ylim = c(-2,25), xlab = "Water depth (cm)")
-plot_G <- generate_metareg_plot(metareg_imi_dose_m, color_mice, xlim = c(0, 70), ylim = c(-2,65), xlab = "imipramine dose (mg/kg)")
-plot_H <- generate_metareg_plot(metareg_imi_dose_r, color_rat, xlim = c(0, 70), ylim = c(-2,25), xlab = "imipramine dose (mg/kg)")
-plot_I <- generate_metareg_plot(metareg_flx_dose_m, color_mice, xlim = c(0, 70), ylim = c(-2,65), xlab = "fluoxetine dose (mg/kg)")
-plot_J <- generate_metareg_plot(metareg_flx_dose_r, color_rat, xlim = c(0, 70), ylim = c(-2,25), xlab = "fluoxetine dose (mg/kg)")
+plot_E <- generate_metareg_plot(metareg_imi_dose_m, color_mice, xlim = c(0, 70), ylim = c(-2,65), xlab = "imipramine dose (mg/kg)")
+plot_F <- generate_metareg_plot(metareg_imi_dose_r, color_rat, xlim = c(0, 70), ylim = c(-2,25), xlab = "imipramine dose (mg/kg)")
+plot_G <- generate_metareg_plot(metareg_flx_dose_m, color_mice, xlim = c(0, 70), ylim = c(-2,65), xlab = "fluoxetine dose (mg/kg)")
+plot_H <- generate_metareg_plot(metareg_flx_dose_r, color_rat, xlim = c(0, 70), ylim = c(-2,25), xlab = "fluoxetine dose (mg/kg)")
+plot_I <- generate_metareg_plot(metareg_wd_m, color_mice, xlim = c(0, 55), ylim = c(-2,65), xlab = "Water depth (cm)")
+plot_J <- generate_metareg_plot(metareg_wd_r, color_rat, xlim = c(0, 55), ylim = c(-2,25), xlab = "Water depth (cm)")
+plot_K <- generate_metareg_plot(metareg_year_m, color_mice, xlim = c(1985, 2018), ylim = c(-2,65), xlab = "Year")
+plot_L <- generate_metareg_plot(metareg_year_r, color_rat, xlim = c(1985, 2018), ylim = c(-2,25), xlab = "Year")
 
-plot_figure6 <- plot_A + plot_B + plot_C + plot_D + plot_E + plot_F + plot_G + plot_H + plot_I + plot_J + plot_layout(ncol = 2, nrow = 5) + plot_annotation(tag_levels = "A") + theme(plot.tag = element_text(face = "bold"))
+# whats wrong with the following code?
+plot_figure6 <- plot_A + plot_B + plot_C + plot_D + plot_E + plot_F + plot_G + plot_H + plot_I + plot_J + plot_K + plot_L + plot_layout(ncol = 4, nrow = 3) + plot_annotation(tag_levels = "A") + theme(plot.tag = element_text(face = "bold"))
 
 ggsave(
   filename = "figure6.png",
@@ -1623,7 +1650,7 @@ ggsave(
   dpi = 600,
   path = "figure",
   height = 10,
-  width =  8,
+  width =  10,
   bg = "white",
   device = ragg::agg_png()
 )
