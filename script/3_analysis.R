@@ -1619,7 +1619,6 @@ plot_J <- generate_metareg_plot(metareg_flx_dose_r, color_rat, xlim = c(0, 70), 
 plot_K <- generate_metareg_plot(metareg_year_m, color_mice, xlim = c(1985, 2018), ylim = c(-2,65), xlab = "Year")
 plot_L <- generate_metareg_plot(metareg_year_r, color_rat, xlim = c(1985, 2018), ylim = c(-2,25), xlab = "Year")
 
-# whats wrong with the following code?
 plot_figure6 <- plot_A + plot_B + plot_C + plot_D + plot_E + plot_F + plot_G + plot_H + plot_I + plot_J + plot_K + plot_L + plot_layout(ncol = 2, nrow = 6) + plot_annotation(tag_levels = "A") + theme(plot.tag = element_text(face = "bold"))
 
 ggsave(
@@ -1637,11 +1636,11 @@ ggsave(
 metareg_quali_m <- rma(yi, vi, subset = species == "mice", mods = ~ rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10, data = Efeito) 
 metareg_quali_r <- rma(yi, vi, subset = species == "rat", mods = ~ rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10, data = Efeito) 
 
-# test robustness of models
+# Test robustness of models
 metafor::permutest(metareg_quali_m)
 metafor::permutest(metareg_quali_r)
 
-# get proportions across moderators levels
+# Get proportions across moderators levels
 colMeans(model.matrix(metareg_quali_m))[-1]
 colMeans(model.matrix(metareg_quali_r))[-1]
 
