@@ -13,47 +13,7 @@ This project contains the data and scripts from the publication
 
 ### Abstract
 
-The forced swim test (FST) is one of the most used behavioural tests to
-predict the potential antidepressant efficacy of compounds using
-laboratory rodents. An effective antidepressant decreases the time
-rodents spend immobile in the FST compared to treatment with a vehicle.
-FST may be conducted using a variety of experimental conditions,
-including different protocols, study quality and designs. The present
-hypothesis is that experimental conditions, i.e., covariates, affect the
-effect sizes (ESs) of antidepressants in studies using FST. Thus, a
-systematic review and meta-analysis (PROSPERO: CRD42020200604) was
-planned to answer the following questions: 1- What is the ES of
-antidepressants on the immobility time of rodents in FST? 2-How can
-covariates affect this effect? 3- Does publication bias influence the
-ES? The search strategy retrieved 14,719 references from four
-bibliographic databases (Medline via PubMed, Web of Science, Scopus, and
-Embase via CAPES Periodicals), 5,137 after deletion of duplicates, and
-2,588 included hits by the end of the selection process by two
-independent reviewers. A sample set to obtain a minimum analytical power
-of 80% was randomly obtained for data extraction (n = 200). One reviewer
-extracted information (bibliographic reference, population,
-intervention, outcome, internal validity with the SYRCLE Risk of Bias
-Tool, external validity and conducts with adapted CAMARADES, means,
-standard deviations, and sample sizes), and a second reviewer checked.
-The ES corresponded to the standardised mean difference, calculated for
-the 561 relevant comparisons reported in the publications. The combined
-ES (CES) estimation in the meta-analyses used the random-effects model.
-Heterogeneity and consistency were estimated with τ ² and I². The effect
-of small studies was assessed using a funnel plot, Egger's regression,
-and trim-and-fill. Publication bias was assessed with the
-Weight-Function model. Subgroup meta-analyses and meta-regression were
-used to examine the influence of covariates and quality. The estimated
-overall CES was statistically significant, favouring treatment with
-antidepressants (Hedges g = 1.66; 95% CI [1.53; 1.79]; k = 561) with
-high inconsistency (I² = 81.5%). The CESs were positive and significant
-for most subgroups analysed. The effect of small studies and publication
-bias appears to inflate the CES, especially in the subgroup of mice. In
-mice, study quality and ES were negatively related, while in rats, the
-relationship was positive. Summarising, antidepressants decreased the
-duration of immobility in laboratory rats and mice in most subgroups,
-independently of publication bias or the quality of studies. However,
-the risk of bias was unclear for most of the studies, limiting a
-judgment of internal and external validity in this literature.
+The non-clinical assay forced swim test (FST) entails observing the suppression of immobility as a predictor of the antidepressant activity of substances in laboratory rodents. The present work investigates the influence of experimental conditions, study quality and risk of bias on the efficacy of antidepressants in the FST. For that, a systematic review and meta-analysis were conducted according to the protocol (PROSPERO: CRD42020200604). The search strategy in four databases (Embase, Pubmed, Scopus, Web of Science) retrieved 14,719 references, downsized to 5,137 unique references after deduplication and 2,588 relevant publications following the screening by two independent reviewers. A sample of publications (k = 200) was randomly selected for quality and risk of bias assessments and to guarantee a minimum number of studies to a well-powered meta-analysis. Some publications had more than one independent experiment comprising 561 relevant studies, exceeding the number required for the analytical power of 80%. One reviewer extracted information from the full texts, a second reviewer verified them, and a third one conciliated discrepancies. The standardised mean difference was calculated for each relevant study and merged into a combined effect size (CES) with a 95% confidence interval (95% CI). Anticipating high heterogeneity between studies, the random-effects model was used to estimate CES in global or stratified meta-analysis, publication bias, consistency and heterogeneity. The metafor R package was used for calculations and plots. SYRCLE’s RoB tool and CAMARADES checklist detected unclear risk of bias in most publications. Despite substantial inconsistency (I² = 81.5%), the global CES was very large and statistically significant, favouring antidepressant treatment (Hedges g = 1.66; 95% CI [1.53; 1.79]; k = 561). For most of the subgroups, CES was large, significant and positive. Small studies and publication bias inflated the CES in the global and subgroup mice meta-analyses. The high risk of bias in some experimental practices seems to exacerbate CES in mice, but the results for rats were inconclusive. In summary, antidepressants consistently reduced the immobility of rats and mice in FST across various conditions. However, publication bias and unclear risk of bias in most studies jeopardise the appraisal of internal and external validities of this literature. This review underscores the need for improved reports in publications using FST. Moreover, the present study indicates that experimental conditions and quality influence FST outcomes in a species-specific fashion.
 
 ### How to use it
 
