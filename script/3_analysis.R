@@ -1794,21 +1794,21 @@ df_camarades_longo$atribuicao <-
   factor(
     df_camarades_longo$atribuicao,
     levels = c("No", "Yes", "Unclear", "Yes, ARRIVE", "Yes, lab animals", "Yes, no conflict"),
-    labels = c("No", "Yes", "Unclear", "Yes", "Yes", "Yes") 
+    labels = c("No", "Yes", "Incomplete", "Yes", "Yes", "Yes") 
   )
 
 df_camarades_longo$atribuicao <- 
   fct_relevel(
-    df_camarades_longo$atribuicao, "No", "Unclear", "Yes")
+    df_camarades_longo$atribuicao, "No", "Incomplete", "Yes")
 
-c_factor_levels <- c("No", "Unclear", "Yes") 
+c_factor_levels <- c("No", "Incomplete", "Yes") 
 
 camaradesplot <- df_camarades_longo |> 
   group_by(Study) |> 
   distinct(Study, pergunta, atribuicao) |> 
   ggplot(aes(x = fct_rev(fct_infreq(pergunta)), fill = factor(atribuicao, levels = c_factor_levels), y = after_stat(count))) +
   geom_bar(position = "fill") + 
-  scale_fill_manual("CAMARADES", values = c("Yes" = "#82c236", "Unclear" = "#fec200", "No" = "#ec2b2b"), guide = guide_legend(
+  scale_fill_manual("CAMARADES", values = c("Yes" = "#82c236", "Incomplete" = "#fec200", "No" = "#ec2b2b"), guide = guide_legend(
     title.position = "top")) +
   scale_y_continuous(labels = scales::percent) +
   scale_x_discrete(
