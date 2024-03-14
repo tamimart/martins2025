@@ -328,6 +328,9 @@ levels(data_geral_reord$atd_type)[match("bupropiona",levels(data_geral_reord$atd
 #camarades3
 levels(data_geral_reord$camarades3)[match("yes",levels(data_geral_reord$camarades3))] <- "Yes"
 
+#camarades2
+levels(data_geral_reord$camarades2)[match("Unclear",levels(data_geral_reord$camarades2))] <- "No"
+
 #camarades1
 levels(data_geral_reord$camarades1)[match("No",levels(data_geral_reord$camarades1))] <- "Yes"
 
@@ -404,3 +407,4 @@ saveRDS(data_geral_reord, "data/Dataclean_200FST.rds")
 
 # Display the structure of the cleaned and transformed data
 glimpse(data_geral_reord)
+
