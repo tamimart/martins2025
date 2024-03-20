@@ -43,7 +43,7 @@ df <- read_excel("data/Dataclean_200FST.xlsx")
 df <- df  |>  
   mutate(year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y"))) 
 
-# Description of included publications ------
+# DESCRIPTION OF INCLUDED PUBLICATIONS ------
 
 # year
 df |> 
@@ -67,9 +67,6 @@ df |>
   group_by(species) |> 
   count()
 
-df |> 
-  group_by(species) |> 
-  count()
 
 # classes by publication
 df |> 
@@ -2019,5 +2016,25 @@ ggsave(filename = "quality.png",
           height = 4,
           device = ragg::agg_png())
 
+# check extremes yi
+extrem <- Efeito |> filter(yi >= 20)
 
+Efeito |> 
+  filter(rob3 == "No") # nested in two publication, the studies from one (id 72) of them present very high effect sizes
+
+Efeito |> 
+  filter(rob4 == "No") # nested in three publication, one (id 6) with one study presenting high effect size
  
+Efeito |> 
+  filter(rob10 == "No") # nested in three publication, one (id 25) with one studies presenting high effect size
+
+# subgroup with CES > 5 
+
+# mice: sex == "NA", strain == "LACA" | "BALB" | "NA", light_cycle == "12/12 reverse"
+
+# rat: sex == "M and F"
+
+# mice: atd_type == "escitalopram" | tramadol, treatment_via == "NA"
+
+# mice: fst_protocol == "pre5test5" | "pre15test6score4"
+# rat: fst_protocol == "pre?test6score4"
