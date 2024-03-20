@@ -11,6 +11,7 @@ library(metapower)      # Power calculation for meta-analysis
 library(lubridate)      # Date manipulation
 library(weightr)        # Test publication bias
 library(patchwork)      # Combine plots
+library(countrycode)    # Get countries' continents
 
 # Import fonts (execute once)
 font_import(paths = "C:/Windows/Fonts")
@@ -42,7 +43,179 @@ df <- read_excel("data/Dataclean_200FST.xlsx")
 df <- df  |>  
   mutate(year = as.numeric(format(as.Date(df$year, format = "%d/%m/%Y"),"%Y"))) 
 
-# DATA ANALYSIS ----
+# Description of included publications ------
+
+# year
+df |> 
+  summarise(min = min(year),
+            max = max(year))
+
+# continents
+df$continent <- countrycode(sourcevar = df$country,
+                            origin = "country.name",
+                            destination = "continent")
+df |> 
+  group_by(id) |>
+  slice(1) |> 
+  group_by(continent) |> 
+  count()
+
+# species
+df |> 
+  group_by(id) |>
+  slice(1) |>
+  group_by(species) |> 
+  count()
+
+df |> 
+  group_by(species) |> 
+  count()
+
+# classes by publication
+df |> 
+  group_by(id, atd_class) |>
+  slice(1) |>
+  group_by(atd_class) |> 
+  count() |> 
+  arrange(desc(n)) 
+
+# sex
+df |> 
+  group_by(id, sex) |>
+  slice(1) |>
+  group_by(sex) |> 
+  count() |> 
+  arrange(desc(n))
+
+# age
+df |> 
+  group_by(species) |> 
+  summarise(min_age = min(age, na.rm = TRUE),
+            max_age = max(age, na.rm = TRUE))
+
+df |> 
+  filter(species == "mice") |> 
+  group_by(id, age) |>
+  slice(1) |> 
+  ungroup() |> 
+  filter(!is.na(age)) |> 
+  count()
+
+df |> 
+  filter(species == "rat") |> 
+  group_by(id, age) |>
+  slice(1) |> 
+  ungroup() |> 
+  filter(!is.na(age)) |> 
+  count()
+
+# weight
+df |> 
+  group_by(species) |> 
+  summarise(min_weight = min(weight, na.rm = TRUE),
+            max_weight = max(weight, na.rm = TRUE))
+
+df |> 
+  filter(species == "mice") |> 
+  group_by(id, weight) |>
+  slice(1) |> 
+  ungroup() |> 
+  filter(!is.na(weight)) |> 
+  count()
+
+df |> 
+  filter(species == "rat") |> 
+  group_by(id, weight) |>
+  slice(1) |> 
+  ungroup() |> 
+  filter(!is.na(weight)) |> 
+  count()
+
+# strain
+df |> 
+  filter(species == "mice") |> 
+  group_by(id, strain) |> 
+  slice(1) |> 
+  group_by(strain) |> 
+  count() |> 
+  arrange(desc(n))
+
+df |> 
+  filter(species == "rat") |> 
+  group_by(id, strain) |> 
+  slice(1) |> 
+  group_by(strain) |> 
+  count() |> 
+  arrange(desc(n))
+
+# stress
+df |> 
+  group_by(id, model_phenotype) |>
+  slice(1) |>
+  ungroup() |> 
+  filter(model_phenotype != "NA") |> 
+  summarise(counts = n())
+
+df |> 
+  group_by(id, model_phenotype) |>
+  slice(1) |>
+  ungroup() |> 
+  filter(model_phenotype != "NA") |>
+  group_by(model_phenotype) |> 
+  count()
+
+# classes by publication/species
+df |> 
+  group_by(id, atd_class) |>
+  slice(1) |>
+  ungroup() |> 
+  group_by(species, atd_class) |>
+  count() |> 
+  arrange(desc(n)) 
+
+# dose
+median_doses <- df |> 
+  filter(dose_unit == "mg/kg") |> 
+  group_by(atd_type) |> 
+  summarise(median_dose = median(dose, na.rm = TRUE),
+            n = n())
+  
+median_doses |> 
+  summarise(min = min(median_dose),
+            max = max(median_dose))
+
+median_doses |> 
+  group_by(median_dose) |> 
+  count()
+
+# route/via
+df |> 
+  group_by(id, treatment_via) |>
+  slice(1) |>
+  ungroup() |> 
+  group_by(species, treatment_via) |> 
+  count() |> 
+  arrange(desc(n))
+
+# fst protocol
+df |> 
+  group_by(id, fst_protocol) |>
+  slice(1) |>
+  ungroup() |> 
+  group_by(species, fst_protocol) |> 
+  count() |> 
+  arrange(desc(n))
+
+# fst outcome analysis
+df |> 
+  group_by(id, measurement_method) |>
+  slice(1) |>
+  ungroup() |> 
+  group_by(species, measurement_method) |> 
+  count() |> 
+  arrange(desc(n))
+
+# META ANALYSIS ----
 
 # Calculate effect size in standardized mean difference (Hedges' g)
 Efeito <- escalc(measure = "SMD", n1i = ctr_n_corr, n2i = atd_n_round, m1i = ctr_mean, m2i = atd_mean, 
@@ -1846,3 +2019,5 @@ ggsave(filename = "quality.png",
           height = 4,
           device = ragg::agg_png())
 
+
+ 
