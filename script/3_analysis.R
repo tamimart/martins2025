@@ -2018,18 +2018,22 @@ ggsave(filename = "quality.png",
 
 # EXPLORATORY ANALYSIS OF EXTREME EFFECTS  ---- 
 
-# How many studies has a effect size >5? How much % they represent of the library?
 
-extreme_studies_quant <- Efeito |> 
-  filter(yi >= 5) |> 
+extreme_studies <- Efeito |> 
+  mutate(sd = sqrt(vi)) |> 
+  filter(sd >= 3 & yi >= 5)
+
+# How many studies has a effect size >= 5 and sd >=3? How much % they represent of the library?
+
+extreme_studies_quant <- Efeito |>  
+  mutate(sd = sqrt(vi)) |> 
+  filter(sd >= 3 & yi >= 5) |> 
   summarise(count = n(),
             pcent = ((count * 100) / nrow(Efeito)))
 
-print(paste("There are", extreme_studies_quant$count, "studies with extremes ES, which represent", format(extreme_studies_quant$pcent, digits = 4), "% of total."))
+print(paste("There are", extreme_studies_quant$count, "studies with extremes ES and SD, representing", format(extreme_studies_quant$pcent, digits = 4), "% of the total."))
  
-# How many publications they represent? are they nested?
-extreme_studies <- Efeito |> 
-  filter(yi >= 5) 
+ # How many publications they represent? are they nested?
 
 extreme_pub_species <- extreme_studies |> 
   group_by(species, id) |> 
@@ -2045,10 +2049,10 @@ extreme_pub_species |>
   
 # All studies from these publications present a extreme effect size?
 #mice
-Efeito |> 
+Efeito |> mutate(sd = sqrt(vi)) |> 
   filter(id %in% extreme_studies$id) |> 
   mutate(extreme_or_not = case_when(
-    yi >= 5 ~ TRUE,
+    sd >= 3 & yi >= 5 ~ TRUE,
     .default = FALSE
   )) |> 
   group_by(species, id, extreme_or_not) |> 
@@ -2063,10 +2067,10 @@ Efeito |>
 
 #rat
 
-Efeito |> 
+Efeito |> mutate(sd = sqrt(vi)) |> 
   filter(id %in% extreme_studies$id) |> 
   mutate(extreme_or_not = case_when(
-    yi >= 5 ~ TRUE,
+    sd >= 3 & yi >= 5 ~ TRUE,
     .default = FALSE
   )) |> 
   group_by(species, id, extreme_or_not) |> 
@@ -2204,7 +2208,7 @@ extreme_studies |>
 
 # What's the effect size from the studies that reported not doing practices to ganrantee internal quality? 
 
-rob_no <- Efeito |> 
+rob_no <- Efeito |> mutate(sd = sqrt(vi)) |>
     filter(
       rob1 == "No"
       |rob2 == "No"
@@ -2221,10 +2225,17 @@ rob_no |>
   summarise(min = min(yi),
             max = max(yi),
             mean = mean(yi),
-            median = median(yi))
+            median = median(yi),
+            min_sd = min(sd),
+            max_sd = max(sd),
+            mean_sd = mean(sd),
+            median_sd = median(sd)) |> as.tibble()
 
-rob_no |> ggplot(aes(x = yi)) + 
-  geom_histogram(binwidth = 1) + theme_bw()
+rob_no |>  
+  pivot_longer(cols = c("yi", "sd"), names_to = "var", values_to = "value") |> ggplot(aes(x = value)) + 
+  geom_histogram(binwidth = 1) + 
+  facet_wrap(~var, scales = "free_y") +
+  theme_bw()
 
 # Are these studies nested?
 rob_no |> group_by(id) |> count() |> arrange(desc(n)) |>  print(n = 21)
@@ -2234,10 +2245,12 @@ rob_no_extreme <- rob_no |>
   mutate(extreme_or_not = case_when(
     id %in% extreme_studies$id ~ TRUE,
     .default = FALSE
-  )) |> 
+  )) 
+
+rob_no_extreme |> 
   count(extreme_or_not)
 
-print(paste("From the", extreme_studies_quant$count, "studies with extremes ES, only ", rob_no_extreme[2, 2], "report that didn't practices to reduce bias"))
+print(paste("From the", extreme_studies_quant$count, "studies with extremes ES and SD, only ", rob_no_extreme[2, 2], "report that didn't practices to reduce bias"))
 
 # Which publications they are from?
 
