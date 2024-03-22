@@ -2234,7 +2234,7 @@ rob_no |>
 rob_no |>  
   pivot_longer(cols = c("yi", "sd"), names_to = "var", values_to = "value") |> ggplot(aes(x = value)) + 
   geom_histogram(binwidth = 1) + 
-  facet_wrap(~var, scales = "free_y") +
+  facet_wrap(~var, scales = "free_x") +
   theme_bw()
 
 # Are these studies nested?
