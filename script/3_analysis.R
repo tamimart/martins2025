@@ -60,6 +60,14 @@ df |>
   group_by(continent) |> 
   count()
 
+# n studies
+df |> 
+  group_by(id) |> 
+  summarize(n_lines = n()) |> 
+  arrange(desc(n_lines)) |> 
+  filter(n_lines > 1)
+
+
 # species
 df |> 
   group_by(id) |>
@@ -67,14 +75,33 @@ df |>
   group_by(species) |> 
   count()
 
+# strain
 
-# classes by publication
+levels(as.factor(df$strain))
+
 df |> 
-  group_by(id, atd_class) |>
+  group_by(id, strain) |>
   slice(1) |>
-  group_by(atd_class) |> 
+  ungroup() |> 
+  filter(strain == "NA") |> 
+  count() 
+
+df |> 
+  filter(species == "mice") |> 
+  group_by(id, strain) |> 
+  slice(1) |> 
+  group_by(strain) |> 
   count() |> 
-  arrange(desc(n)) 
+  arrange(desc(n))
+
+df |> 
+  filter(species == "rat") |> 
+  group_by(id, strain) |> 
+  slice(1) |> 
+  group_by(strain) |> 
+  count() |> 
+  arrange(desc(n))
+
 
 # sex
 df |> 
@@ -128,22 +155,6 @@ df |>
   filter(!is.na(weight)) |> 
   count()
 
-# strain
-df |> 
-  filter(species == "mice") |> 
-  group_by(id, strain) |> 
-  slice(1) |> 
-  group_by(strain) |> 
-  count() |> 
-  arrange(desc(n))
-
-df |> 
-  filter(species == "rat") |> 
-  group_by(id, strain) |> 
-  slice(1) |> 
-  group_by(strain) |> 
-  count() |> 
-  arrange(desc(n))
 
 # stress
 df |> 
@@ -170,6 +181,15 @@ df |>
   count() |> 
   arrange(desc(n)) 
 
+
+# classes by publication
+df |> 
+  group_by(id, atd_class) |>
+  slice(1) |>
+  group_by(atd_class) |> 
+  count() |> 
+  arrange(desc(n)) 
+
 # dose
 median_doses <- df |> 
   filter(dose_unit == "mg/kg") |> 
@@ -185,7 +205,21 @@ median_doses |>
   group_by(median_dose) |> 
   count()
 
+df |> filter(is.na(dose))
+df$dose_unit
+
+df |> group_by(id, dose) |> slice(1) |> filter(dose == 10) 
+df |> filter(dose == 10) 
+# classes by publication/species
+
+
 # route/via
+
+df |> 
+  group_by(id, treatment_via) |>
+  slice(1) |>
+  filter(treatment_via == "NA")
+
 df |> 
   group_by(id, treatment_via) |>
   slice(1) |>
@@ -195,6 +229,12 @@ df |>
   arrange(desc(n))
 
 # fst protocol
+
+df |> 
+  group_by(id, fst_protocol) |>
+  slice(1) |>
+  filter(fst_protocol == "NA")
+
 df |> 
   group_by(id, fst_protocol) |>
   slice(1) |>
@@ -202,6 +242,8 @@ df |>
   group_by(species, fst_protocol) |> 
   count() |> 
   arrange(desc(n))
+
+df |>  group_by(id, species) |>  slice(1) |>  filter(species == "mice") |>  count()
 
 # fst outcome analysis
 df |> 
@@ -211,6 +253,46 @@ df |>
   group_by(species, measurement_method) |> 
   count() |> 
   arrange(desc(n))
+
+# quality/validity
+
+df_rob <- df |> 
+  mutate(Study = str_c(first_author, ", ", year)) |> 
+  select(starts_with("rob"), Study) 
+
+df_rob <- df_rob |> 
+  distinct() # keep one line per publication
+
+# Create a function to count levels from each variable form a df
+count_levels <- function(df) {
+  # list to store the result for each variable
+  results <- list()
+  
+  # Loop through each column in the dataframe
+  for (col_name in colnames(df)) {
+    # Group by the current column and count the frequencies
+    result <- df %>%
+      group_by_at(col_name) %>%
+      summarise(count = n())
+    
+    # Store the result in the list
+    results[[col_name]] <- result
+  }
+  
+  # Return the list of results
+  return(results)
+}
+
+# Apply the function to each variable using map
+
+nlevel_per_questions<- count_levels(df_rob)
+
+df_rob <- df_rob |> 
+  select(starts_with("rob")) 
+
+transposed_df_rob <- as.data.frame(t(df_rob))
+
+nlevel_per_publication <- count_levels(transposed_df_rob)
 
 # META ANALYSIS ----
 
