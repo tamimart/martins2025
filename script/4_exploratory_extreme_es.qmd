@@ -7,11 +7,14 @@ format:
 execute: 
   echo: false
   warning: false
+knitr:
+  opts_chunk:
+    out.width: "100%"
+    fig.align: center
 ---
 
-#### Load packages 
-
 ```{r}
+# Load packages
 library(tidyverse)      # Data wrangling
 library(metafor)        # Meta-analysis
 library(readxl)         # Read Excel files
@@ -30,11 +33,14 @@ df <- df  |>
 
 ```
 
-#### Calculate effect size in standardized mean difference (Hedges' g)
 
 ```{r}
-Efeito <- escalc(measure = "SMD", n1i = ctr_n_corr, n2i = atd_n_round, m1i = ctr_mean, m2i = atd_mean, 
-                 sd1i = ctr_sd, sd2i = atd_sd, data = df, 
+# Calculate effect size in standardized mean difference (Hedges' g)
+Efeito <- escalc(measure = "SMD", 
+                 n1i = ctr_n_corr, n2i = atd_n_round, 
+                 m1i = ctr_mean, m2i = atd_mean, 
+                 sd1i = ctr_sd, sd2i = atd_sd, 
+                 data = df, 
                  append = TRUE)
 ```
 
@@ -44,34 +50,41 @@ Efeito <- escalc(measure = "SMD", n1i = ctr_n_corr, n2i = atd_n_round, m1i = ctr
 extreme_studies <- Efeito |> 
   mutate(sd = sqrt(vi)) |> 
   filter(sd >= 3 & yi >= 5)
+
+color_mice <- "#ff9400"
+color_rat <- "#ec2b2b"
+color_neutral <- "grey"
 ```
 
 #### How many studies has a effect size \>= 5 and sd \>=3? How much % they represent of the library?
 
 ```{r}
+
 extreme_studies_quant <- Efeito |>  
   mutate(sd = sqrt(vi)) |> 
   filter(sd >= 3 & yi >= 5) |> 
   summarise(count = n(),
             pcent = ((count * 100) / nrow(Efeito)))
 
-print(paste("There are", extreme_studies_quant$count, "studies with extremes ES and SD, representing", format(extreme_studies_quant$pcent, digits = 4), "% of the total."))
+print(paste("There are", extreme_studies_quant$count, "studies with extremes ES and SD, representing", format(extreme_studies_quant$pcent, digits = 4), "% of the total number of studies."))
 ```
 
 #### How many publications they represent? are they nested?
 
 ```{r}
+#| fig-height: 3
 extreme_pub_species <- extreme_studies |> 
   group_by(species, id) |> 
   summarise(count = n()) |> 
   arrange(desc(count)) 
 
-extreme_pub_species 
 
 extreme_pub_species |> 
   ggplot2::ggplot(aes(y = count, x = reorder(id, count), fill = as.factor(species))) + 
   geom_col() + 
-  scale_fill_manual(values = c("mice" = "orange", "rat" = "red")) +
+  scale_fill_manual(values = c("mice" = color_mice, "rat" = color_rat)) +
+  scale_y_continuous(breaks = 0:10) + 
+  labs(x = "Publication", y = "Number of studies", fill = "Species") + 
   coord_flip() +
   theme_bw()
   
@@ -79,9 +92,8 @@ extreme_pub_species |>
 
 #### All studies from these publications present a extreme effect size?
 
-## mice
-
 ```{r}
+#| fig-height: 3
 Efeito |> mutate(sd = sqrt(vi)) |> 
   filter(id %in% extreme_studies$id) |> 
   mutate(extreme_or_not = case_when(
@@ -93,15 +105,18 @@ Efeito |> mutate(sd = sqrt(vi)) |>
   filter(species == "mice") |> 
   ggplot2::ggplot(aes(y = n, x = reorder(id, n), fill = as.factor(extreme_or_not))) + 
   geom_col() +
-  scale_fill_manual(values = c("FALSE" = "grey", "TRUE" = "orange")) +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_mice), labels = c("No","Yes")) +
+  scale_y_continuous(breaks = 0:15) + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Mice") + 
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom",
+        plot.title = element_text(size = 8))
 ```
 
-## rat
 
 ```{r}
+#| fig-height: 3
 Efeito |> mutate(sd = sqrt(vi)) |> 
   filter(id %in% extreme_studies$id) |> 
   mutate(extreme_or_not = case_when(
@@ -113,146 +128,210 @@ Efeito |> mutate(sd = sqrt(vi)) |>
   filter(species == "rat") |> 
   ggplot2::ggplot(aes(y = n, x = reorder(id, n), fill = as.factor(extreme_or_not))) + 
   geom_col() +
-  scale_fill_manual(values = c("FALSE" = "grey", "TRUE" = "red")) +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_rat), labels = c("No","Yes")) +
+  scale_y_continuous(breaks = 0:15) + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Rat") +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom",
+        plot.title = element_text(size = 8))
 ```
 
 #### What are the characteristics of these studies?
 
-## pop:
+## by population:
 
 ```{r}
-#| layout-nrow: 2
-
-extreme_studies |> 
+#| fig-height: 8
+Efeito |> 
+  mutate(extreme_or_not = case_when(
+    id %in% extreme_studies$id ~ TRUE,
+    .default = FALSE
+  )) |> 
   filter(species == "mice") |> 
-  select(sex, strain, bioterium_lightcycle) |> 
-  gather(key = "variable", value = "value") |> 
-  count(variable, value) |> 
-  arrange(variable, desc(n))  |> 
-  ggplot2::ggplot(aes(y = n, x = reorder(value, n), fill = as.factor(value))) + 
-  geom_col() +
-  facet_wrap(~variable, scales = "free_y") +
+  select(sex, strain, bioterium_lightcycle, extreme_or_not) |> 
+  gather(key = "variable", value = "value", - extreme_or_not) |>
+  ggplot2::ggplot(aes(x = value, fill = as.factor(extreme_or_not))) + 
+  geom_bar() +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_mice), labels = c("No","Yes")) +
+  scale_y_continuous() + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Mice") +
+  facet_wrap(~variable, scales = "free_y", ncol = 1) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "none",
-        axis.title.y = element_blank())
+  theme(legend.position = "right",
+        axis.title.y = element_blank(),
+        plot.title = element_text(size = 8))
 
-extreme_studies |> 
+Efeito |> 
+  mutate(extreme_or_not = case_when(
+    id %in% extreme_studies$id ~ TRUE,
+    .default = FALSE
+  )) |> 
   filter(species == "rat") |> 
-  select(sex, strain, bioterium_lightcycle) |> 
-  gather(key = "variable", value = "value") |> 
-  count(variable, value) |> 
-  arrange(variable, desc(n))  |> 
-  ggplot2::ggplot(aes(y = n, x = reorder(value, n), fill = as.factor(value))) + 
-  geom_col() +
-  facet_wrap(~variable, scales = "free_y") +
+  select(sex, strain, bioterium_lightcycle, extreme_or_not) |> 
+  gather(key = "variable", value = "value", - extreme_or_not) |>
+  ggplot2::ggplot(aes(x = value, fill = as.factor(extreme_or_not))) + 
+  geom_bar() +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_rat), labels = c("No","Yes")) +
+  scale_y_continuous() + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Rat") +
+  facet_wrap(~variable, scales = "free_y", ncol = 1) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "none",
-        axis.title.y = element_blank())
+  theme(legend.position = "right",
+        axis.title.y = element_blank(),
+        plot.title = element_text(size = 8))
 ```
 
-## int:
+## intervention:
 
 ```{r}
-extreme_studies |> 
+#| fig-height: 8
+Efeito |> 
+  mutate(extreme_or_not = case_when(
+    id %in% extreme_studies$id ~ TRUE,
+    .default = FALSE
+  )) |> 
   filter(species == "mice") |> 
-  select(atd_class, atd_type, treatment_via) |> 
-  gather(key = "variable", value = "value") |> 
-  count(variable, value) |> 
-  arrange(variable, desc(n))  |> 
-  ggplot2::ggplot(aes(y = n, x = reorder(value, n), fill = as.factor(value))) + 
-  geom_col() +
-  facet_wrap(~variable, scales = "free_y") +
+  select(atd_class, atd_type, treatment_via, extreme_or_not) |> 
+  gather(key = "variable", value = "value", - extreme_or_not) |>
+  ggplot2::ggplot(aes(x = value, fill = as.factor(extreme_or_not))) + 
+  geom_bar() +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_mice), labels = c("No","Yes")) +
+  scale_y_continuous() + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Mice") +
+  facet_wrap(~variable, scales = "free_y", ncol = 1) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "none",
-        axis.title.y = element_blank())
+  theme(legend.position = "right",
+        axis.title.y = element_blank(),
+        plot.title = element_text(size = 8))
 
-
-extreme_studies |> 
+Efeito |> 
+  mutate(extreme_or_not = case_when(
+    id %in% extreme_studies$id ~ TRUE,
+    .default = FALSE
+  )) |> 
   filter(species == "rat") |> 
-  select(atd_class, atd_type, treatment_via) |> 
-  gather(key = "variable", value = "value") |> 
-  count(variable, value) |> 
-  arrange(variable, desc(n))  |> 
-  ggplot2::ggplot(aes(y = n, x = reorder(value, n), fill = as.factor(value))) + 
-  geom_col() +
-  facet_wrap(~variable, scales = "free_y") +
+  select(atd_class, atd_type, treatment_via, extreme_or_not) |> 
+  gather(key = "variable", value = "value", - extreme_or_not) |>
+  ggplot2::ggplot(aes(x = value, fill = as.factor(extreme_or_not))) + 
+  geom_bar() +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_rat), labels = c("No","Yes")) +
+  scale_y_continuous() + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Rat") +
+  scale_x_discrete(
+    labels = function(x)
+      str_wrap(x, width = 20)
+  ) +
+  scale_y_continuous(n.breaks = 10) + 
+  facet_wrap(~variable, scales = "free_y", ncol = 1) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "none",
-        axis.title.y = element_blank())
+  theme(legend.position = "right",
+        axis.title.y = element_blank(),
+        plot.title = element_text(size = 8))
 ```
 
-## out:
+## outcome:
 
 ```{r}
-extreme_studies |> 
+#| fig-height: 8
+Efeito |> 
+  mutate(extreme_or_not = case_when(
+    id %in% extreme_studies$id ~ TRUE,
+    .default = FALSE
+  )) |> 
   filter(species == "mice") |> 
-  select(fst_protocol, measurement_method) |> 
-  gather(key = "variable", value = "value") |> 
-  count(variable, value) |> 
-  arrange(variable, desc(n))  |> 
-  ggplot2::ggplot(aes(y = n, x = reorder(value, n), fill = as.factor(value))) + 
-  geom_col() +
-  facet_wrap(~variable, scales = "free_y") +
+  select(fst_protocol, measurement_method, extreme_or_not) |> 
+  gather(key = "variable", value = "value", - extreme_or_not) |>
+  ggplot2::ggplot(aes(x = value, fill = as.factor(extreme_or_not))) + 
+  geom_bar() +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_mice), labels = c("No","Yes")) +
+  scale_y_continuous() + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Mice") +
+  facet_wrap(~variable, scales = "free_y",  ncol = 1) +
+    scale_x_discrete(
+    labels = function(x)
+      str_wrap(x, width = 20)
+  ) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "none",
-        axis.title.y = element_blank())
+  theme(legend.position = "right",
+        axis.title.y = element_blank(),
+        plot.title = element_text(size = 8))
 
-
-extreme_studies |> 
+Efeito |> 
+  mutate(extreme_or_not = case_when(
+    id %in% extreme_studies$id ~ TRUE,
+    .default = FALSE
+  )) |> 
   filter(species == "rat") |> 
-  select(fst_protocol, measurement_method) |> 
-  gather(key = "variable", value = "value") |> 
-  count(variable, value) |> 
-  arrange(variable, desc(n))  |> 
-  ggplot2::ggplot(aes(y = n, x = reorder(value, n), fill = as.factor(value))) + 
-  geom_col() +
-  facet_wrap(~variable, scales = "free_y") +
+  select(fst_protocol, measurement_method, extreme_or_not) |> 
+  gather(key = "variable", value = "value", - extreme_or_not) |>
+  ggplot2::ggplot(aes(x = value, fill = as.factor(extreme_or_not))) + 
+  geom_bar() +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_rat), labels = c("No","Yes")) +
+  scale_y_continuous() + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Rat") +
+  facet_wrap(~variable, scales = "free_y", ncol = 1) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "none",
-        axis.title.y = element_blank())
+  theme(legend.position = "right",
+        axis.title.y = element_blank(),
+        plot.title = element_text(size = 8))
+
 ```
 
 ## validity:
 
 ```{r}
-extreme_studies |> 
-  filter(species == "mice") |> 
-  select(rob1:rob10) |> 
-  gather(key = "variable", value = "value") |> 
-  count(variable, value) |> 
-  arrange(variable, desc(n))  |> 
-  ggplot2::ggplot(aes(y = n, x = reorder(value, n), fill = as.factor(value))) + 
-  geom_col() +
-  scale_fill_manual(values = c("No" = "red", "Unclear" = "gold", "Yes" = "green3")) +
-  facet_wrap(~ variable, scales = "free_y", ncol = 5) +
-  coord_flip() +
-  theme_bw() +
-  theme(legend.position = "none",
-        axis.title.y = element_blank())
+#| fig-height: 3
 
-extreme_studies |> 
-  filter(species == "rat") |> 
-  select(rob1:rob10) |> 
-  gather(key = "variable", value = "value") |> 
-  count(variable, value) |> 
-  arrange(variable, desc(n))  |> 
-  ggplot2::ggplot(aes(y = n, x = reorder(value, n), fill = as.factor(value))) + 
-  geom_col() +
-  scale_fill_manual(values = c("No" = "red", "Unclear" = "gold", "Yes" = "green3")) +
-  facet_wrap(~ variable, scales = "free_y", ncol = 5) +
+Efeito |> 
+  mutate(extreme_or_not = case_when(
+    id %in% extreme_studies$id ~ TRUE,
+    .default = FALSE
+  )) |> 
+  filter(species == "mice") |> 
+  select(rob1:rob10, extreme_or_not) |> 
+  gather(key = "variable", value = "value", - extreme_or_not) |> 
+   mutate(variable = reorder(variable, as.numeric(gsub("rob", "", variable)))) |> 
+  ggplot2::ggplot(aes(x = value, fill = as.factor(extreme_or_not))) + 
+  geom_bar() +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_mice), labels = c("No","Yes")) +
+  scale_y_continuous() + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Mice") +
+  facet_wrap(~variable, nrow = 2) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "none",
-        axis.title.y = element_blank())
+  theme(legend.position = "bottom",
+        axis.title.y = element_blank(),
+        plot.title = element_text(size = 8))
+
+Efeito |> 
+  mutate(extreme_or_not = case_when(
+    id %in% extreme_studies$id ~ TRUE,
+    .default = FALSE
+  )) |> 
+  filter(species == "rat") |> 
+  select(rob1:rob10, extreme_or_not) |> 
+  gather(key = "variable", value = "value", - extreme_or_not) |> 
+  mutate(variable = reorder(variable, as.numeric(gsub("rob", "", variable)))) |> 
+  ggplot2::ggplot(aes(x = value, fill = as.factor(extreme_or_not))) + 
+  geom_bar() +
+  scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_rat), labels = c("No","Yes")) +
+  scale_y_continuous() + 
+  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Rat") +
+  facet_wrap(~variable, nrow = 2) +
+  coord_flip() +
+  theme_bw() +
+  theme(legend.position = "bottom",
+        axis.title.y = element_blank(),
+        plot.title = element_text(size = 8))
+
+
 ```
 
 ##### What's the effect size from the studies that reported not doing practices to ganrantee internal quality?
@@ -271,30 +350,33 @@ rob_no <- Efeito |> mutate(sd = sqrt(vi)) |>
       |rob9 == "No"
       |rob10 == "No") 
 
+
 rob_no |> 
-  summarise(min = min(yi),
-            max = max(yi),
-            mean = mean(yi),
-            median = median(yi),
+  summarise(min_es = min(yi),
+            max_es = max(yi),
+            mean_es = mean(yi),
+            median_es = median(yi),
             min_sd = min(sd),
             max_sd = max(sd),
             mean_sd = mean(sd),
-            median_sd = median(sd)) |> as.tibble()
+            median_sd = median(sd)) |> gt::gt()
 ```
 
+
 ```{r}
-rob_no |>  
-  pivot_longer(cols = c("yi", "sd"), names_to = "var", values_to = "value") |> ggplot(aes(x = value)) + 
+#| fig-height: 3
+#| 
+rob_no |>
+  rename(`Effect size` = yi,
+         `Standard deviation` = sd) |> 
+  pivot_longer(cols = c(`Effect size`, `Standard deviation`), names_to = "var", values_to = "value") |> ggplot(aes(x = value)) + 
   geom_histogram(binwidth = 1) + 
   facet_wrap(~var, scales = "free_x") +
+  scale_x_continuous(n.breaks = 10) + 
+  labs(x = "value", y = "Number of studies") +
   theme_bw()
 ```
 
-#### Are these studies nested?
-
-```{r}
-rob_no |> group_by(id) |> count() |> arrange(desc(n)) |>  print(n = 21)
-```
 
 #### Are these studies considered extremes?
 
@@ -303,8 +385,11 @@ rob_no_extreme <- rob_no |>
   mutate(extreme_or_not = case_when(
     id %in% extreme_studies$id ~ TRUE,
     .default = FALSE
-  )) 
-
-rob_no_extreme |> 
+  )) |> 
   count(extreme_or_not)
+
+rob_no_extreme |> gt::gt()
+
+print(paste(rob_no_extreme[2,2], "of", (rob_no_extreme[1,2] +  rob_no_extreme[2,2]), "studies that report not doing practices to reduce risk of bias are considered extremes (ES >= 5, SD >= 3)."))
 ```
+
