@@ -142,10 +142,10 @@ Efeito |> mutate(sd = sqrt(vi)) |>
 ## by population:
 
 ```{r}
-#| fig-height: 8
+#| fig-height: 6
 Efeito |> 
   mutate(extreme_or_not = case_when(
-    id %in% extreme_studies$id ~ TRUE,
+    line %in% extreme_studies$line ~ TRUE,
     .default = FALSE
   )) |> 
   filter(species == "mice") |> 
@@ -156,16 +156,17 @@ Efeito |>
   scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_mice), labels = c("No","Yes")) +
   scale_y_continuous() + 
   labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Mice") +
-  facet_wrap(~variable, scales = "free_y", ncol = 1) +
+  facet_wrap(~variable, scales = "free_y", ncol = 2, nrow = 2) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "right",
+  theme(legend.position = c(0.75, 0.25),
         axis.title.y = element_blank(),
-        plot.title = element_text(size = 8))
+        plot.title = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
 
 Efeito |> 
   mutate(extreme_or_not = case_when(
-    id %in% extreme_studies$id ~ TRUE,
+    line %in% extreme_studies$line ~ TRUE,
     .default = FALSE
   )) |> 
   filter(species == "rat") |> 
@@ -176,21 +177,22 @@ Efeito |>
   scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_rat), labels = c("No","Yes")) +
   scale_y_continuous() + 
   labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Rat") +
-  facet_wrap(~variable, scales = "free_y", ncol = 1) +
+  facet_wrap(~variable, scales = "free_y", ncol = 2, nrow = 2) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "right",
+  theme(legend.position = c(0.75, 0.25),
         axis.title.y = element_blank(),
-        plot.title = element_text(size = 8))
+        plot.title = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
 ```
 
 ## intervention:
 
 ```{r}
-#| fig-height: 8
+#| fig-height: 6
 Efeito |> 
   mutate(extreme_or_not = case_when(
-    id %in% extreme_studies$id ~ TRUE,
+    line %in% extreme_studies$line ~ TRUE,
     .default = FALSE
   )) |> 
   filter(species == "mice") |> 
@@ -201,16 +203,17 @@ Efeito |>
   scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_mice), labels = c("No","Yes")) +
   scale_y_continuous() + 
   labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Mice") +
-  facet_wrap(~variable, scales = "free_y", ncol = 1) +
+  facet_wrap(~variable, scales = "free_y", ncol = 2, nrow = 2) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "right",
+  theme(legend.position = c(0.75, 0.25),
         axis.title.y = element_blank(),
-        plot.title = element_text(size = 8))
+        plot.title = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
 
 Efeito |> 
   mutate(extreme_or_not = case_when(
-    id %in% extreme_studies$id ~ TRUE,
+    line %in% extreme_studies$line ~ TRUE,
     .default = FALSE
   )) |> 
   filter(species == "rat") |> 
@@ -226,21 +229,22 @@ Efeito |>
       str_wrap(x, width = 20)
   ) +
   scale_y_continuous(n.breaks = 10) + 
-  facet_wrap(~variable, scales = "free_y", ncol = 1) +
+  facet_wrap(~variable, scales = "free_y", ncol = 2, nrow = 2) +
   coord_flip() +
   theme_bw() +
-  theme(legend.position = "right",
+  theme(legend.position = c(0.75, 0.25),
         axis.title.y = element_blank(),
-        plot.title = element_text(size = 8))
+        plot.title = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
 ```
 
 ## outcome:
 
 ```{r}
-#| fig-height: 8
+#| fig-height: 6
 Efeito |> 
   mutate(extreme_or_not = case_when(
-    id %in% extreme_studies$id ~ TRUE,
+    line %in% extreme_studies$line ~ TRUE,
     .default = FALSE
   )) |> 
   filter(species == "mice") |> 
@@ -260,11 +264,12 @@ Efeito |>
   theme_bw() +
   theme(legend.position = "right",
         axis.title.y = element_blank(),
-        plot.title = element_text(size = 8))
+        plot.title = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
 
 Efeito |> 
   mutate(extreme_or_not = case_when(
-    id %in% extreme_studies$id ~ TRUE,
+    line %in% extreme_studies$line ~ TRUE,
     .default = FALSE
   )) |> 
   filter(species == "rat") |> 
@@ -280,7 +285,8 @@ Efeito |>
   theme_bw() +
   theme(legend.position = "right",
         axis.title.y = element_blank(),
-        plot.title = element_text(size = 8))
+        plot.title = element_text(size = 8),
+        axis.text.y = element_text(size = 8))
 
 ```
 
@@ -291,7 +297,7 @@ Efeito |>
 
 Efeito |> 
   mutate(extreme_or_not = case_when(
-    id %in% extreme_studies$id ~ TRUE,
+    line %in% extreme_studies$line ~ TRUE,
     .default = FALSE
   )) |> 
   filter(species == "mice") |> 
@@ -308,11 +314,12 @@ Efeito |>
   theme_bw() +
   theme(legend.position = "bottom",
         axis.title.y = element_blank(),
-        plot.title = element_text(size = 8))
+        plot.title = element_text(size = 8),
+        axis.text.x = element_text(size = 8))
 
 Efeito |> 
   mutate(extreme_or_not = case_when(
-    id %in% extreme_studies$id ~ TRUE,
+    line %in% extreme_studies$line ~ TRUE,
     .default = FALSE
   )) |> 
   filter(species == "rat") |> 
@@ -329,7 +336,8 @@ Efeito |>
   theme_bw() +
   theme(legend.position = "bottom",
         axis.title.y = element_blank(),
-        plot.title = element_text(size = 8))
+        plot.title = element_text(size = 8),
+        axis.text.x = element_text(size = 8))
 
 
 ```
@@ -378,18 +386,69 @@ rob_no |>
 ```
 
 
-#### Are these studies considered extremes?
+#### How much do these studies with extremes ES/SD represent by the Risk of Bias?
 
 ```{r}
-rob_no_extreme <- rob_no |> 
-  mutate(extreme_or_not = case_when(
-    id %in% extreme_studies$id ~ TRUE,
-    .default = FALSE
-  )) |> 
-  count(extreme_or_not)
+tb <- Efeito |> 
+  mutate(
+    extreme_or_not = line %in% extreme_studies$line,
+    rob_no_studies = line %in% rob_no$line
+  ) |> 
+  labelled::set_variable_labels(
+    extreme_or_not = "Extreme ES and SD",
+    rob_no_studies = "High risk of bias (unless one practice)"
+  ) |> 
+  gtsummary::tbl_summary(
+    include = c(extreme_or_not, rob_no_studies),
+    missing = "no",
+    by = rob_no_studies
+  ) |> 
+  gtsummary::bold_labels() |> 
+  gtsummary::modify_header(label ~ "**High RoB**") |> 
+  gtsummary::as_gt() |>
+  gt::tab_footnote(footnote = "High RoB = High risk of bias at least in one practice.") 
 
-rob_no_extreme |> gt::gt()
-
-print(paste(rob_no_extreme[2,2], "of", (rob_no_extreme[1,2] +  rob_no_extreme[2,2]), "studies that report not doing practices to reduce risk of bias are considered extremes (ES >= 5, SD >= 3)."))
+tb
 ```
+#### How much does the publication that contains extremes ES/SD represent by the Risk of Bias?
+
+```{r}
+
+tb <- Efeito |> 
+  mutate(
+    extreme_or_not = line %in% extreme_studies$line,
+    rob_no_studies = line %in% rob_no$line
+  ) |> 
+  group_by(id) |> slice(1) |>  ungroup() |> 
+  labelled::set_variable_labels(
+    extreme_or_not = "Extreme ES and SD",
+    rob_no_studies = "High risk of bias (unless one practice)"
+  ) |> 
+  gtsummary::tbl_summary(
+    include = c(extreme_or_not, rob_no_studies),
+    missing = "no",
+    by = rob_no_studies
+  ) |> 
+  gtsummary::bold_labels() |> 
+  gtsummary::modify_header(label ~ "**High RoB**") |> 
+  gtsummary::as_gt() |>
+  gt::tab_footnote(footnote = "High RoB = High risk of bias at least in one practice.") 
+
+tb
+```
+
+#### What are the characteristics from these studies with extreme ES and SD that present at least one high risk of bias?
+
+``` {r}
+Efeito |> 
+  mutate(
+    extreme_rob = line %in% extreme_studies$line & line %in% rob_no$line) |> 
+  filter(extreme_rob == TRUE) |> 
+  select(
+    id, species, sex, strain, bioterium_lightcycle,
+    atd_class, atd_type, treatment_via,
+    fst_protocol, measurement_method) |>  gt::gt()
+
+```
+
 
