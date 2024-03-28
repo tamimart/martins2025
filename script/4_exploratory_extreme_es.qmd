@@ -84,7 +84,7 @@ extreme_pub_species |>
   geom_col() + 
   scale_fill_manual(values = c("mice" = color_mice, "rat" = color_rat)) +
   scale_y_continuous(breaks = 0:10) + 
-  labs(x = "Publication", y = "Number of studies", fill = "Species") + 
+  labs(x = "Publications' ID", y = "Number of studies per publication", fill = "Species") + 
   coord_flip() +
   theme_bw()
   
@@ -107,7 +107,7 @@ Efeito |> mutate(sd = sqrt(vi)) |>
   geom_col() +
   scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_mice), labels = c("No","Yes")) +
   scale_y_continuous(breaks = 0:15) + 
-  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Mice") + 
+  labs(x = "Publications' ID", y = "Number of studies per publication", fill = "Extreme ES and SD", title = "Mice") + 
   coord_flip() +
   theme_bw() +
   theme(legend.position = "bottom",
@@ -130,7 +130,7 @@ Efeito |> mutate(sd = sqrt(vi)) |>
   geom_col() +
   scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_rat), labels = c("No","Yes")) +
   scale_y_continuous(breaks = 0:15) + 
-  labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Rat") +
+  labs(x = "Publications' ID", y = "Number of studies per publication", fill = "Extreme ES and SD", title = "Rat") +
   coord_flip() +
   theme_bw() +
   theme(legend.position = "bottom",
@@ -329,7 +329,7 @@ Efeito |>
   ggplot2::ggplot(aes(x = value, fill = as.factor(extreme_or_not))) + 
   geom_bar() +
   scale_fill_manual(values = c("FALSE" = color_neutral, "TRUE" = color_rat), labels = c("No","Yes")) +
-  scale_y_continuous() + 
+  scale_y_continuous(n.breaks = 4) + 
   labs(x = "Publication", y = "Number of studies", fill = "Extreme ES and SD", title = "Rat") +
   facet_wrap(~variable, nrow = 2) +
   coord_flip() +
