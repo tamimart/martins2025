@@ -6,7 +6,7 @@ editor_options:
 ---
 -->
 
-## Title
+## [Title]
 
 This project contains the data and scripts from the publication
 [**reference**].
