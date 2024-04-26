@@ -1887,7 +1887,7 @@ ggsave(
   device = ragg::agg_png()
 )
 
-#  quality
+#  Quality ----
 metareg_quali_m <- rma(yi, vi, subset = species == "mice", mods = ~ rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10, data = Efeito) 
 metareg_quali_r <- rma(yi, vi, subset = species == "rat", mods = ~ rob1 + rob2 + rob3 + rob4 + rob5 + rob6 + rob7 + rob8 + rob9 + rob10, data = Efeito) 
 
