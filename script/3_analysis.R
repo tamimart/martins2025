@@ -210,6 +210,12 @@ df$dose_unit
 
 df |> group_by(id, dose) |> slice(1) |> filter(dose == 10) 
 df |> filter(dose == 10) 
+
+df |> filter(atd_type %in% c("imipramine", "fluoxetine"),
+             dose_unit == "mg/kg") |> 
+  group_by(atd_type, species) |> 
+  summarise(avg = mean(dose))
+
 # classes by publication/species
 
 
