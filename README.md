@@ -43,4 +43,8 @@ Run the scripts in order:
     analysis, stratified and metaregression analysis, and finally plots
     the figures.
 
+-   **4_exploratory_extreme_es**: This script conducts an exploratory analysis of studies with extreme effect sizes and standard deviations to assess how these studies represent the     
+    broader dataset, focusing on species, publication ID, and specific study features. Plots and summaries reveal patterns in extreme values across variables, including population, 
+    intervention, outcome, and validity metrics. This analysis is not included in the paper but is provided as a supplementary .docx file in the same folder.
+
 ...
