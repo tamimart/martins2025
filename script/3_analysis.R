@@ -315,10 +315,12 @@ Teste <- rma(yi, vi, data = Efeito, slab = (paste(Efeito$first_author, as.charac
 
 Teste
 
-# Multivariate (nested by paper) Meta-analysis by random effects model 
-Teste_mv <- rma.mv(yi, vi, data = Efeito, random = ~ 1 | id , slab = (paste(Efeito$first_author, as.character(Efeito$year), sep = ", ")))
+# Multivariate (nested by paper and comparison - 3 lvl) Meta-analysis by random effects model 
+Teste_mv <- rma.mv(yi, vi, data = Efeito, random = ~ 1 | id / line, slab = (paste(Efeito$first_author, as.character(Efeito$year), sep = ", ")))
 
 Teste_mv
+
+orchaRd::i2_ml(Teste_mv)
 
 # Generate confidence  and prediction interval
 predict(Teste, digits = 3)

@@ -398,6 +398,13 @@ data_geral_reord$more2arms <- factor(data_geral_reord$more2arms, exclude = NULL,
                levels = c("Yes", "No", NA), 
                labels = c("Yes", "No", "No"))
 
+# correct the idgeral number from the last reference
+data_geral_reord$idgeral[c(560, 561)] <- 1156
+
+# correct spelling mistake  
+data_geral_reord <- data_geral_reord |> 
+  mutate(source = str_replace(source, "Figura", "Figure"))
+
 # EXPORT ----
 
 # Save clean and transformed df for further analysis
