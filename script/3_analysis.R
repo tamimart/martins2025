@@ -327,7 +327,7 @@ predict(Teste, digits = 3)
 
 
 # Plot and save forestplot 
-pdf("figure/florest_all.pdf", height = 120, width = 25)
+pdf("figure/forest.pdf", height = 120, width = 25)
 # Create forestplot 
 floresta <- forest(
   Teste,
@@ -445,7 +445,8 @@ missing_noCP
 
 # Funnel plot
 # Plot and save 
-png("figure/funnel.png", height = 1200, width = 800)
+png("figure/figure7.png", height = 1200, width = 800)
+tiff("figure/figure7.tiff", height = 1200, width = 800, type = "cairo")
 
 par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(5,5,3,1), cex = .8, font = 2, family = "sans")
 
@@ -1785,14 +1786,16 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
   plot
   
   ggsave(
-    filename = paste0(pio, ".png"),
+    #filename = paste0(pio, ".png"),
+    filename = paste0(pio, ".tiff"),
     plot = last_plot(),
     dpi = 600,
     path = "figure",
     height = pio_info$height,
     width =  pio_info$width,
     bg = "white",
-    device = ragg::agg_png()
+    #device = ragg::agg_png()
+    device = "tiff"
   )
 
 }
@@ -1885,14 +1888,16 @@ plot_L <- generate_metareg_plot(metareg_year_r, color_rat, xlim = c(1985, 2018),
 plot_figure6 <- plot_A + plot_B + plot_C + plot_D + plot_E + plot_F + plot_G + plot_H + plot_I + plot_J + plot_K + plot_L + plot_layout(ncol = 2, nrow = 6) + plot_annotation(tag_levels = "A") + theme(plot.tag = element_text(face = "bold"))
 
 ggsave(
-  filename = "figure6.png",
+  #filename = "figure6.png",
+  filename = "figure6.tiff",
   plot = last_plot(),
   dpi = 600,
   path = "figure",
   height = 12,
   width =  8,
   bg = "white",
-  device = ragg::agg_png()
+  #device = ragg::agg_png()
+  device = "tiff"
 )
 
 #  Quality ----
@@ -2102,10 +2107,14 @@ camaradesplot <- df_camarades_longo |>
 quality <- robplot / camaradesplot + plot_layout(heights = c(5,5), width = 5)
 
 # Save plot
-ggsave(filename = "quality.png",
+ggsave(
+  #filename = "figure2.png",
+  filename = "figure2.tiff",
           plot = quality,
           dpi = 600,
           path = "figure",
           height = 4,
-          device = ragg::agg_png())
+          device = "tiff"
+          #device = ragg::agg_png()
+          )
 
