@@ -446,7 +446,7 @@ missing_noCP
 # Funnel plot
 # Plot and save 
 png("figure/figure7.png", height = 1200, width = 800)
-tiff("figure/figure7.tiff", height = 1200, width = 800, type = "cairo")
+tiff("figure/figure7.tiff",  height = 1200, width = 800)
 
 par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(5,5,3,1), cex = .8, font = 2, family = "sans")
 
