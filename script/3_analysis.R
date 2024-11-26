@@ -332,31 +332,49 @@ pdf("figure/forest.pdf", height = 120, width = 25)
 floresta <- forest(
   Teste,
   cex = 1,
-  ylim = c(-2, 567),
+ # ylim = c(-1, 562),
   slab = (paste(
     Efeito$first_author, as.character(Efeito$year), sep = ", "
   )),
+  efac = 0,
+  pch = 19,
   order = Efeito$yi,
   xlab = "Hedges g",
   xlim =  c(-20, 60),
   showweight = T,
   cex.lab = 2,
-  cex.axis = 1.5,
+  cex.axis = 2,
   col = "blue",
   border = "blue",
-  fonts = "sans"
+  fonts = "sans",
+ lty=c("solid","blank")
 )
 
 # Add annotations
 op <- par(cex = 0.75, font = 2, family = "sans")
-text(c(-6, 7.75), 568, font = 2, cex = 2.5, c("Favours control", "Favours antidepressants"))
-text(53, 568,font = 2.5, cex = 2.5, c("Weights Hedges g [95% CI]"))
-text(-16, 568, font = 2.5, cex = 2.5, c("Author(s), year"))
-text(0, -20, pos = 4, cex = 4, bquote(paste("RE Model (g = ", .(formatC(Teste$b, digits = 2, format = "f")), ", Q = ", .(formatC(Teste$QE, digits = 2, format = "f")),
-                                             ", df = ", .(Teste$k - Teste$p),
-                                             ", p ", .(metafor:::.pval(Teste$QEp, digits = 2, showeq = TRUE, sep = " ")), "; ",
+text(c(-6, 7.75), 564, font = 2, cex = 2.5, c("Favours control", "Favours antidepressants"))
+text(53, 564,font = 2.5, cex = 2.5, c("Weights Hedges g [95% CI]"))
+text(-16, 564, font = 2.5, cex = 2.5, c("Author(s), year"))
+text(2, -1.5, pos = 4, cex = 3, bquote(paste("RE Model (g = ", .(formatC(Teste$b, digits = 2, format = "f")), ", Q = ", .(formatC(Teste$QE, digits = 2, format = "f")),
+                                             ", df = ", .(Teste$k - Teste$p),", p ", .(metafor:::.pval(Teste$QEp, digits = 2, showeq = TRUE, sep = " ")), "; ",
                                              I^2, " = ", .(formatC(Teste$I2, digits = 1, format = "f")), "%, ",
                                              tau^2, " = ", .(formatC(Teste$tau2, digits = 2, format = "f")), ")")))
+
+# Define coordinates for the diamond
+x_middle <- Teste$b         # Central effect size estimate
+x_left <- Teste$ci.lb       # Lower confidence interval
+x_right <- Teste$ci.ub      # Upper confidence interval
+y_center <- -1               # Vertical position for the diamond
+y_height <- 0.5             # Half the height of the diamond
+
+# Add the diamond shape
+polygon(
+  x = c(x_left, x_middle, x_right, x_middle),
+  y = c(y_center, y_center + y_height, y_center, y_center - y_height),
+  col = "blue",
+  border = "blue"
+)
+  
 
 dev.off() 
 
