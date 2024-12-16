@@ -464,7 +464,7 @@ missing_noCP
 # Funnel plot
 # Plot and save 
 png("figure/figure7.png", height = 450, width = 300, units = "mm", res = 600)
-tiff("figure/figure7.tiff", height = 450, width = 300, units = 'mm', res = 300)
+tiff("figure/figure7.tiff", height = 450, width = 300, units = 'mm', res = 150)
 
 par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(5,5,3,1), cex = .8, font = 2, family = "sans")
 
@@ -1806,16 +1806,16 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
   plot
   
   ggsave(
-    #filename = paste0(pio, ".png"),
-    filename = paste0(pio, ".tiff"),
+    filename = paste0(pio, ".png"),
+    #filename = paste0(pio, ".tiff"),
     plot = last_plot(),
     dpi = 600,
     path = "figure",
     height = pio_info$height,
     width =  pio_info$width,
     bg = "white",
-    #device = ragg::agg_png()
-    device = "tiff"
+    device = ragg::agg_png()
+    #device = "tiff"
   )
   
 }
@@ -1908,16 +1908,16 @@ plot_L <- generate_metareg_plot(metareg_year_r, color_rat, xlim = c(1985, 2018),
 plot_figure6 <- plot_A + plot_B + plot_C + plot_D + plot_E + plot_F + plot_G + plot_H + plot_I + plot_J + plot_K + plot_L + plot_layout(ncol = 2, nrow = 6) + plot_annotation(tag_levels = "A") + theme(plot.tag = element_text(face = "bold"))
 
 ggsave(
-  #filename = "figure6.png",
-  filename = "figure6.tiff",
+  filename = "figure6.png",
+  #filename = "figure6.tiff",
   plot = last_plot(),
   dpi = 600,
   path = "figure",
   height = 12,
   width =  8,
   bg = "white",
-  #device = ragg::agg_png()
-  device = "tiff"
+  device = ragg::agg_png()
+  #device = "tiff"
 )
 
 #  Quality ----
