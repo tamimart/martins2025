@@ -196,7 +196,7 @@ median_doses <- df |>
   group_by(atd_type) |> 
   summarise(median_dose = median(dose, na.rm = TRUE),
             n = n())
-  
+
 median_doses |> 
   summarise(min = min(median_dose),
             max = max(median_dose))
@@ -332,13 +332,13 @@ pdf("figure/forest.pdf", height = 120, width = 25)
 floresta <- forest(
   Teste,
   cex = 1,
- # ylim = c(-1, 562),
+  # ylim = c(-1, 562),
   slab = (paste(
     Efeito$first_author, as.character(Efeito$year), sep = ", "
   )),
   efac = 0,
   pch = 19,
-  order = Efeito$yi,
+  order = desc(Efeito$yi),
   xlab = "Hedges g",
   xlim =  c(-20, 60),
   showweight = T,
@@ -347,12 +347,12 @@ floresta <- forest(
   col = "blue",
   border = "blue",
   fonts = "sans",
- lty=c("solid","blank")
+  lty=c("solid","blank")
 )
 
 # Add annotations
 op <- par(cex = 0.75, font = 2, family = "sans")
-text(c(-6, 7.75), 564, font = 2, cex = 2.5, c("Favours control", "Favours antidepressants"))
+text(c(-6, 7.75), 564, font = 2, cex = 2.5, c("Favours vehicle", "Favours antidepressants"))
 text(53, 564,font = 2.5, cex = 2.5, c("Weights Hedges g [95% CI]"))
 text(-16, 564, font = 2.5, cex = 2.5, c("Author(s), year"))
 text(2, -1.5, pos = 4, cex = 3, bquote(paste("RE Model (g = ", .(formatC(Teste$b, digits = 2, format = "f")), ", Q = ", .(formatC(Teste$QE, digits = 2, format = "f")),
@@ -374,7 +374,7 @@ polygon(
   col = "blue",
   border = "blue"
 )
-  
+
 
 dev.off() 
 
@@ -384,7 +384,7 @@ dev.off()
 png("figure/influence.png")
 
 inf <- influence(Teste)
- plot(inf)
+plot(inf)
 dev.off()
 
 # Create table with influence results
@@ -425,36 +425,36 @@ regtest(Teste_noCP, model = "rma", predictor = "sqrtninv")
 
 # Trim and fill
 missing <- metafor::trimfill(
-    Teste,
-    side = "left",
-    estimator = "R0",
-    maxiter = 100,
-    verbose = FALSE
-  ) #R0 preferable when the MA has >k. Reference: Rothstein HR, Sutton AJ, Borenstein M. Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments. Chichester, UK: John Wiley & Sons; 2005. An advantage of estimator "R0" is that it provides a test of the null hypothesis that the number of missing studies (on the chosen side) is zero
+  Teste,
+  side = "left",
+  estimator = "R0",
+  maxiter = 100,
+  verbose = FALSE
+) #R0 preferable when the MA has >k. Reference: Rothstein HR, Sutton AJ, Borenstein M. Publication Bias in Meta-Analysis: Prevention, Assessment and Adjustments. Chichester, UK: John Wiley & Sons; 2005. An advantage of estimator "R0" is that it provides a test of the null hypothesis that the number of missing studies (on the chosen side) is zero
 
 missing_m <- metafor::trimfill(
-    Teste_mice,
-    side = "left",
-    estimator = "R0",
-    maxiter = 100,
-    verbose = FALSE
-  )
+  Teste_mice,
+  side = "left",
+  estimator = "R0",
+  maxiter = 100,
+  verbose = FALSE
+)
 
 missing_r <- metafor::trimfill(
-    Teste_rat,
-    side = "left",
-    estimator = "R0",
-    maxiter = 100,
-    verbose = FALSE
-  )
+  Teste_rat,
+  side = "left",
+  estimator = "R0",
+  maxiter = 100,
+  verbose = FALSE
+)
 
 missing_noCP <- metafor::trimfill(
-    Teste_noCP,
-    side = "left",
-    estimator = "R0",
-    maxiter = 100,
-    verbose = FALSE
-  )
+  Teste_noCP,
+  side = "left",
+  estimator = "R0",
+  maxiter = 100,
+  verbose = FALSE
+)
 
 missing
 missing_m
@@ -463,8 +463,8 @@ missing_noCP
 
 # Funnel plot
 # Plot and save 
-png("figure/figure7.png", height = 1200, width = 800)
-tiff("figure/figure7.tiff",  height = 1200, width = 800)
+png("figure/figure7.png", height = 450, width = 300, units = "mm", res = 600)
+tiff("figure/figure7.tiff", height = 450, width = 300, units = 'mm', res = 300)
 
 par(mfrow = c(4, 2), oma = c(1,1,1,1), mar = c(5,5,3,1), cex = .8, font = 2, family = "sans")
 
@@ -1500,7 +1500,7 @@ Teste_otherT_r
 
 # STRATIFIED ANALYSIS | FIGURES ------
 
-# I organized the results of the subgroups into an Excel spreadsheet.
+# the results of the subgroups in an Excel spreadsheet.
 
 # Load data
 dfsubgroups <- read_excel("data/subgroupresults.xlsx")
@@ -1518,6 +1518,7 @@ dfsubgroups <- dfsubgroups |>
          k = as.numeric(k),
          nested = case_when(nested == "" ~ "*"),
          nested = replace_na(nested,""),
+         nested = str_replace(nested, "\\*", "⟳"),
          outline = 100) 
 
 # Assign the order of levels
@@ -1534,32 +1535,32 @@ theme_set(theme_minimal(base_family = "Gadugi"))
 
 # List specific settings
 pio_info <- list(population = list(type = "Population", 
-                               label = c("Species","Sex","Strain","Precondition","Light cycle"), 
-                               label_position_m = c(28,24,15,5.5,1), 
-                               label_y_m = c(1, 28),
-                               label_position_r = c(28,24,16,9,3),
-                               label_y_r = c(1, 28),
-                               layout = "####GGGGGGGGGG##\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE",
-                               width = 8, 
-                               height = 8),
-             intervention = list(type = "Intervention", 
-                                 label = c("Drug", "Route"),
-                                 label_position_m = c(20, 1.5),
-                                 label_y_m = c(1, 33),
-                                 label_position_r = c(20, 2),
-                                 label_y_r = c(1, 33),
-                                 layout = "####GGGGGGGGGG##\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE",
-                                 width = 8, 
-                                 height = 9),
-             outcome = list(type = "Outcome", 
-                            label = c("Protocol", "Scoring\n method", "Test\n battery"),
-                            label_position_m = c(30, 5, .1),
-                            label_y_m = c(0, 44),
-                            label_position_r = c(22, 6, .1), 
-                            label_y_r = c(0, 28),
-                            layout = "####GGGGGGGGGG##\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE",
-                            width = 7, 
-                            height = 7))
+                                   label = c("Species","Sex","Strain","Precondition","Light cycle"), 
+                                   label_position_m = c(28,24,15,5.5,1), 
+                                   label_y_m = c(1, 28),
+                                   label_position_r = c(28,24,16,9,3),
+                                   label_y_r = c(1, 28),
+                                   layout = "####GGGGGGGGGG##\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE",
+                                   width = 8, 
+                                   height = 8),
+                 intervention = list(type = "Intervention", 
+                                     label = c("Drug", "Route"),
+                                     label_position_m = c(20, 1.5),
+                                     label_y_m = c(1, 33),
+                                     label_position_r = c(20, 2),
+                                     label_y_r = c(1, 33),
+                                     layout = "####GGGGGGGGGG##\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE",
+                                     width = 8, 
+                                     height = 9),
+                 outcome = list(type = "Outcome", 
+                                label = c("Protocol", "Scoring\n method", "Test battery"),
+                                label_position_m = c(30, 5, .00001),
+                                label_y_m = c(0, 44),
+                                label_position_r = c(22, 5, .00001), 
+                                label_y_r = c(0, 28),
+                                layout = "####GGGGGGGGGG##\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nCCCCAAAAAAAAAABB\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE\nFFFFDDDDDDDDDDEE",
+                                width = 8, 
+                                height = 7))
 
 
 # Create function to generate plot 
@@ -1602,9 +1603,9 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
     facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
     geom_text(
       aes(label = paste(
+        fct_reorder(nested, k),
         "k = ",
         k,
-        fct_reorder(nested, k),
         sep = ""
       )),
       y = Inf - 1,
@@ -1622,7 +1623,7 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
       axis.text.x = element_blank(),
       axis.text.y = element_text(size = 9, color = "black"),
       plot.background = element_rect(colour = "white"),
-      plot.margin = margin(0, 0, 0, 0)
+      plot.margin = margin(0, 0, 10, 0)
     )
   
   incon_m <- dfsubgroups |>
@@ -1654,7 +1655,7 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
       axis.title = element_blank(),
       plot.margin = margin(0, 0, 0, 0)
     )
-
+  
   
   label_m <- 
     ggplot() +
@@ -1700,15 +1701,15 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
               ymin = 2,ymax = Inf, color = "grey82") +
     geom_pointrange() +
     scale_y_continuous(limits = c(-2, 22)) +
-    labs(x = "", y = "Combined Effect Size") +
+    labs(x = "", y = "Combined Effect Size (Hedges' g)") +
     scale_colour_manual(values = color_rat) +
     geom_hline(yintercept = 0, lty = 2, linewidth = .2) +
     facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
     geom_text(
       aes(label = paste(
+        fct_reorder(nested, k),
         "k = ",
         k,
-        fct_reorder(nested, k),
         sep = ""
       )),
       y = Inf - 1,
@@ -1740,7 +1741,7 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
     geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity", position = "identity") +
     geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") +
     scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
-    labs(x = "", y = "I² (%) |𝜏² ") +
+    labs(x = "", y = "|    I²   |𝜏² ") +
     scale_fill_manual(values = c("inconsistency" = color_rat, "outline" = "black"), guide = "none") + 
     geom_text(
       aes(label = tau2),
@@ -1759,6 +1760,7 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
       strip.text = element_blank(),
       axis.ticks.length = unit(0.1,"cm"),
       axis.ticks.x = element_line(linewidth = .2, color = "black"),
+      axis.line.x = element_line(linewidth = .2, colour = "black", linetype = 1, inherit.blank = TRUE),
       axis.title = element_text(size = 9, color = "black", hjust = 0.1),
       axis.text.x = element_text(size = 9, color = "black", vjust = 0)
     )
@@ -1815,7 +1817,7 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
     #device = ragg::agg_png()
     device = "tiff"
   )
-
+  
 }
 
 # Create plot to population - stratified 
@@ -2128,11 +2130,11 @@ quality <- robplot / camaradesplot + plot_layout(heights = c(5,5), width = 5)
 ggsave(
   #filename = "figure2.png",
   filename = "figure2.tiff",
-          plot = quality,
-          dpi = 600,
-          path = "figure",
-          height = 4,
-          device = "tiff"
-          #device = ragg::agg_png()
-          )
+  plot = quality,
+  dpi = 600,
+  path = "figure",
+  height = 4,
+  device = "tiff"
+  #device = ragg::agg_png()
+)
 
