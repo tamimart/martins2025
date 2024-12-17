@@ -1820,6 +1820,284 @@ generate_subgroup_plot <- function(dfsubgroups, pio_info, pio){
   
 }
 
+generate_subgroup_plot_tau <- function(dfsubgroups, pio_info, pio){
+  
+  pio_info <- pio_info[[pio]]
+  
+  color_mice <- "#ff9400"
+  color_rat <- "#ec2b2b"
+  
+  forest_m <- dfsubgroups |>
+    filter(species == "Mice",
+           type == pio_info$type) |>
+    ggplot(aes(
+      x = fct_reorder(category, k),
+      y = GES,
+      ymin = IC95LL,
+      ymax = IC95UL,
+      color = color_mice
+    )) +
+    geom_rect(fill = "white",xmin = 0,xmax = Inf,
+              ymin = -Inf,ymax = 0, color = "white") +
+    geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
+              ymin = 0.01,ymax = .19, color = "grey100") +
+    geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
+              ymin = 0.2,ymax = .49, color = "grey96") +
+    geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
+              ymin = 0.5,ymax = .79, color = "grey92") +
+    geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
+              ymin = 0.8,ymax = 1.19, color = "grey88") +
+    geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
+              ymin = 1.2,ymax = 1.99, color = "grey84") +
+    geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
+              ymin = 2,ymax = Inf, color = "grey82") +
+    geom_pointrange() +
+    scale_y_continuous(limits = c(-2, 22)) +
+    labs(x = "", y = "") +
+    scale_colour_manual(values = color_mice) +
+    geom_hline(yintercept = 0, lty = 2, linewidth = .2) +
+    facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
+    geom_text(
+      aes(label = paste(
+        fct_reorder(nested, k),
+        "k = ",
+        k,
+        sep = ""
+      )),
+      y = Inf - 1,
+      color = "black",
+      size = 3,
+      family = "Gadugi",
+      hjust = 1
+    ) +
+    coord_flip() +
+    theme(
+      legend.position = "none",
+      strip.background = element_blank(),
+      strip.text = element_blank(),
+      axis.title = element_blank(),
+      axis.text.x = element_blank(),
+      axis.text.y = element_text(size = 9, color = "black"),
+      plot.background = element_rect(colour = "white"),
+      plot.margin = margin(0, 0, 10, 0)
+    )
+  
+  incon_m <- dfsubgroups |>
+    filter(species == "Mice",
+           type == pio_info$type) |>
+    ggplot(aes(
+      x = fct_reorder(category, k)
+    )) +
+    geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity", position = "identity") + #HERE
+    geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") + #HERE
+    scale_y_continuous(limits = c(0, 200), position = "right") +
+    labs(x = "", y = "") +
+    scale_fill_manual(values = c("inconsistency" = color_mice, "outline" = "black"), guide = "none") + #HERE and the next
+    ggplot2::geom_point(
+      aes(size = tau2, y = 150),
+      shape = 22,
+      show.legend = TRUE,
+      color = "black",
+      fill = color_mice,
+      position = "identity", 
+      stroke = .1, 
+    ) +
+    facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
+    coord_flip() +
+    theme_void() +
+    scale_size_continuous(, 
+                          breaks = c(0, 5, 50), 
+                          labels = c("0", "5", "50"), 
+                          guide = "legend") +
+    theme(
+      legend.position = c(0.2, 1.05),                      # Legenda no topo
+      legend.spacing.y = unit(0, "lines"),             # Remove espaço vertical entre elementos
+      legend.spacing.x = unit(0, "lines"),             # Remove espaço horizontal entre elementos
+      legend.margin = margin(0, 0, 0, 0),           # Remove margens ao redor da legenda
+      legend.box.margin = margin(0, 0, 0, 0),       # Remove margens da caixa da legenda         # Remove espaço entre caixas de legendas
+      legend.key.width = unit(0.1, "cm"),           # Reduz largura da chave
+      legend.key.height = unit(0.1, "cm"),          # Reduz altura da chave
+      legend.text = element_text(size = 8, margin = margin(0, 2, 0, 0)), # Texto compacto
+      legend.title = element_text(size = 10, face = "bold", margin = margin(0, 0, 0, 3)), # Título compacto
+      strip.background = element_blank(),           # Remove fundo dos painéis
+      strip.text = element_blank(),                 # Remove texto dos painéis
+      axis.title = element_blank(),                 # Remove títulos dos eixos
+      plot.margin = margin(0, 0, 0, 0)              # Remove margens externas do gráfico
+    ) + 
+    guides(
+      size = guide_legend(
+        title = '𝜏²',
+        title.position = "right",                    # Coloca título à esquerda dos elementos
+        label.position = "left",                   # Texto alinhado à direita do símbolo
+        label.hjust = 0.5,  
+        title.hjust = 0.5, 
+        nrow = 1,
+        fill = 'grey'
+      )
+    )
+  
+  label_m <- 
+    ggplot() +
+    labs(title = "A") + 
+    annotate(
+      "text", label = paste(pio_info$label),
+      x = rep(1, length(pio_info$label_position_m)), y = pio_info$label_position_m,     
+      size = 3,
+      family = "Gadugi",
+      hjust = 0,
+      vjust = -0.5,
+      fontface = "bold",
+      colour = "black"
+    ) +
+    scale_y_continuous(limits = pio_info$label_y_m, position = "right") +
+    theme_void() + 
+    theme(plot.title = element_text(hjust = 0.5, vjust = 4, margin = margin(t = -5, r = -5, b = -5, l = -5, unit = "pt")))
+  
+  
+  forest_r <- dfsubgroups |>
+    filter(species == "Rat",
+           type == pio_info$type) |>
+    ggplot(aes(
+      x = fct_reorder(category, k),
+      y = GES,
+      ymin = IC95LL,
+      ymax = IC95UL,
+      color = color_rat
+    )) +
+    geom_rect(fill = "white",xmin = 0,xmax = Inf,
+              ymin = -Inf,ymax = 0, color = "white") +
+    geom_rect(fill = "grey100",xmin = 0,xmax = Inf,
+              ymin = 0.01,ymax = .19, color = "grey100") +
+    geom_rect(fill = "grey96",xmin = 0,xmax = Inf,
+              ymin = 0.2,ymax = .49, color = "grey96") +
+    geom_rect(fill = "grey92",xmin = 0,xmax = Inf,
+              ymin = 0.5,ymax = .79, color = "grey92") +
+    geom_rect(fill = "grey88",xmin = 0,xmax = Inf,
+              ymin = 0.8,ymax = 1.19, color = "grey88") +
+    geom_rect(fill = "grey84",xmin = 0,xmax = Inf,
+              ymin = 1.2,ymax = 1.99, color = "grey84") +
+    geom_rect(fill = "grey82",xmin = 0,xmax = Inf,
+              ymin = 2,ymax = Inf, color = "grey82") +
+    geom_pointrange() +
+    scale_y_continuous(limits = c(-2, 22)) +
+    labs(x = "", y = "Combined Effect Size (Hedges' g)") +
+    scale_colour_manual(values = color_rat) +
+    geom_hline(yintercept = 0, lty = 2, linewidth = .2) +
+    facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
+    geom_text(
+      aes(label = paste(
+        fct_reorder(nested, k),
+        "k = ",
+        k,
+        sep = ""
+      )),
+      y = Inf - 1,
+      color = "black",
+      size = 3,
+      family = "Gadugi",
+      hjust = 1
+    ) +
+    coord_flip() +
+    theme(
+      legend.position = "none",
+      strip.background = element_blank(),
+      strip.text = element_blank(),
+      axis.title = element_text(size = 9, color = "black", vjust = -1),
+      axis.text = element_text(size = 9, color = "black"),
+      axis.ticks.length = unit(0.1,"cm"),
+      axis.ticks.y = element_blank(),
+      axis.ticks.x = element_line(linewidth = .2, color = "black"),
+      axis.line.x = element_line(linewidth = .2, colour = "black", linetype = 1),
+      plot.background = element_rect(colour = "white")
+    )
+  
+  incon_r <- dfsubgroups |>
+    filter(species == "Rat",
+           type == pio_info$type) |>
+    ggplot(aes(
+      x = fct_reorder(category, k)
+    )) +
+    geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity", position = "identity") +
+    geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") +
+    scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
+    labs(x = "", y = "|    I²   |   ") +
+    scale_fill_manual(values = c("inconsistency" = color_rat, "outline" = "black"), guide = "none") + 
+    ggplot2::geom_point(
+      aes(size = tau2, y = 150, fill = 'teste'),
+      shape = 21,
+      color = "black",
+      fill = color_rat,
+      stroke = 0.1
+    ) +
+    facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
+    coord_flip() +
+    theme_void() +
+    theme(
+      legend.position = "none",
+      strip.background = element_blank(),
+      strip.text = element_blank(),
+      axis.ticks.length = unit(0.1,"cm"),
+      axis.ticks.x = element_line(linewidth = .2, color = "black"),
+      axis.line.x = element_line(linewidth = .2, colour = "black", linetype = 1, inherit.blank = TRUE),
+      axis.title = element_text(size = 9, color = "black", hjust = 0.1),
+      axis.text.x = element_text(size = 9, color = "black", vjust = 0)
+    )
+  
+  label_r <- 
+    ggplot() +
+    labs(title = "B") + 
+    annotate(
+      "text", label = paste(paste(pio_info$label)),
+      x = rep(1, length(pio_info$label_position_r)), y = pio_info$label_position_r,     
+      size = 3,
+      family = "Gadugi",
+      hjust = 0,
+      vjust = -0.5,
+      fontface = "bold",
+      colour = "black"
+    ) +
+    scale_y_continuous(limits = pio_info$label_y_r, position = "right") +
+    theme_void() +
+    theme(plot.title = element_text(hjust = 0.5, vjust = 4, margin = margin(t = -5, r = -5, b = -5, l = -5, unit = "pt")))
+  
+  label_direction <- 
+    ggplot() +
+    annotate(
+      "text", label = paste(c("Favours to","control","antidepressants")),
+      x = c(0,-0.5,0.5), y = c(4,2,2),     
+      size = 3,
+      family = "Gadugi",
+      hjust = c(0.5,1,0),
+      vjust = 0,
+      fontface = "bold",
+      colour = "black"
+    ) +
+    geom_segment(aes(x = -.5, y = 1, xend = -1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
+    geom_segment(aes(x = 0.5, y = 1, xend = 1.5, yend = 1), arrow = arrow(length = unit(0.1, 'cm'))) +
+    scale_y_continuous(limits = c(1, 10)) +
+    scale_x_continuous(limits = c(-2, 22)) +
+    theme_void()
+  
+  
+  plot <- forest_m + incon_m + label_m + forest_r + incon_r + label_r + label_direction + plot_layout(design = pio_info$layout) 
+  
+  plot
+  
+  ggsave(
+    filename = paste0(pio, ".png"),
+    #filename = paste0(pio, ".tiff"),
+    plot = last_plot(),
+    dpi = 600,
+    path = "figure",
+    height = pio_info$height,
+    width =  pio_info$width,
+    bg = "white",
+    device = ragg::agg_png()
+    #device = "tiff"
+  )
+  
+}
+generate_subgroup_plot_tau(dfsubgroups, pio_info, pio = "population")
 # Create plot to population - stratified 
 generate_subgroup_plot(dfsubgroups, pio_info, pio = "population")
 # Create plot to intervention - stratified 
