@@ -1905,12 +1905,11 @@ generate_subgroup_plot_tau <- function(dfsubgroups, pio_info, pio){
     facet_grid(fct_inorder(moderator) ~ ., scales = "free", space = "free") +
     coord_flip() +
     theme_void() +
-    scale_size_continuous(, 
-                          breaks = c(0, 5, 50), 
+    scale_size_continuous(breaks = c(0, 5, 50), 
                           labels = c("0", "5", "50"), 
                           guide = "legend") +
     theme(
-      legend.position = c(0.2, 1.05),                      # Legenda no topo
+      legend.position = c(0.2, 1.03),                      # Legenda no topo
       legend.spacing.y = unit(0, "lines"),             # Remove espaço vertical entre elementos
       legend.spacing.x = unit(0, "lines"),             # Remove espaço horizontal entre elementos
       legend.margin = margin(0, 0, 0, 0),           # Remove margens ao redor da legenda
@@ -2020,11 +2019,11 @@ generate_subgroup_plot_tau <- function(dfsubgroups, pio_info, pio){
     geom_bar(aes(y = inconsistency, fill = "inconsistency"), stat = "identity", position = "identity") +
     geom_bar(aes(y = outline, fill = "outline"), stat = "identity", position = "identity", alpha = 0, linewidth = .1, color = "black") +
     scale_y_continuous(limits = c(0, 200), breaks = c(0, 100)) +
-    labs(x = "", y = "|    I²   |   ") +
+    labs(x = "", y = "    I²") +
     scale_fill_manual(values = c("inconsistency" = color_rat, "outline" = "black"), guide = "none") + 
     ggplot2::geom_point(
       aes(size = tau2, y = 150, fill = 'teste'),
-      shape = 21,
+      shape = 22,
       color = "black",
       fill = color_rat,
       stroke = 0.1
