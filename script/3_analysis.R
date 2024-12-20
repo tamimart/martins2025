@@ -381,7 +381,7 @@ dev.off()
 # SENSITIVITY ANALYSIS ----
 
 # Identify studies influencing the meta-analysis in various aspects 
-png("figure/influence.png")
+png("figure/influence.png", pointsize = 30, width = 360, height = 440, units = 'mm', res = 300)
 
 inf <- influence(Teste)
 plot(inf)
