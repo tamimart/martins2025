@@ -2,12 +2,12 @@
 # load packages
 
 library(remotes)   # download package from repository
-library(pacman)    # agreement calculus
 library(tidyverse) # handle data
 library(readxl)    # read excel
 library(diffdf)    # see differences between dfs
 install_github("cran/rel", force = TRUE)
-pacman::p_load(dplyr, rel, irr)
+library(rel) 
+library(irr) 
 
 # Selection ----
 
@@ -44,9 +44,8 @@ rel::ckap(Selection_embase[3:4], conf.level = 0.95)
 irr::agree(Selection_embase[3:4])
 
 
-
 # WPS ------
-# Load data library 2 (Web of Science, Pubmed, Scopus)
+# Load data library 2 (Pubmed)
 
 Selection_wps <- read_excel("data/Selection_wps.xlsx")
 
