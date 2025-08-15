@@ -8,8 +8,9 @@ editor_options:
 
 ## Antidepressant effect or bias? Systematic review and meta-analysis of studies using the forced swimming test
 
-This project contains the data and scripts from the publication
-[**reference**].
+This project contains the data and scripts from the publication:
+
+Martins, Tamires; Ramos-Hryb, Ana B.; da Silva, Marcus Antonio B.; do Prado, Camila Sant’ Helena; Eckert, Fabíola B.; Triches, Fabiani F.; da Costa, Johnny E.; Bolzan, Juliana A.; McCann, Sarah K.; Lino de Oliveira, Cilene. Antidepressant effect or bias? Systematic review and meta-analysis of studies using the forced swimming test. Behavioural Pharmacology 36(6):p 347-363, September 2025. | DOI: 10.1097/FBP.0000000000000844.
 
 ### Abstract
 
